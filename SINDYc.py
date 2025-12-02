@@ -9,7 +9,7 @@ class DynamicSystem:
         # Konstanty typicke pre vacsinu systemov
         self.m = m # hmotnost
         self.I = I # moment zotrvacnosti
-        self.gr = g # gravitacne zrychlenie
+        self.g = g # gravitacne zrychlenie
         self.b = b # tlmenie
         self.k = k # tuhost
         self.omega_n = omega_n # prirodzena frekvencia
@@ -17,7 +17,7 @@ class DynamicSystem:
     def dynamics(self, state_vector, input_signal):
         angle, angular_velocity = state_vector
         d_angle = angular_velocity
-        d_angular_velocity = (-self.gravity / self.length) * np.sin(angle) - (self.damping_coefficient / self.mass * self.length**2) * angular_velocity + (self.stiffness / self.mass * self.length) * input_signal
+        d_angular_velocity = (-self.g / self.l) * np.sin(angle) - (self.b / self.m * self.l**2) * angular_velocity + (self.k / self.m * self.l) * input_signal
         return np.array([d_angle, d_angular_velocity])
 
 # Podmienky pre simulaciu
