@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 # Eulerov diskretny krok:
 # x_{k+1} = x_k + dt * f(x_k, u_k)
@@ -61,3 +62,8 @@ def simulate(dynamic_system, input_sequence, initial_state, dt, integrator_metho
         state_trajectory[k, :] = current_state
 
     return state_trajectory
+
+def export_data(data={}, export_name="data"):
+    df = pd.DataFrame(data)
+    df.to_csv(export_name + ".csv", index=False)
+    return 0
