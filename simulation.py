@@ -69,8 +69,9 @@ def simulate(dynamic_system, initial_state, dt, num_samples, is_free_body=True, 
 
     if noise_ratio is not None:
         print(f"Pridavaný šum na úrovni {noise_ratio * 100} % voči dátam")
-        noise_std = noise_ratio * np.std(state_trajectory)
-        state_trajectory += np.random.normal(0, noise_std, state_trajectory.shape)
+        for i in range(state_trajectory.shape[1]):
+            noise_std = noise_ratio * np.std(state_trajectory[:, i])
+            state_trajectory[:, i] += np.random.normal(0, noise_std, state_trajectory.shape[0])
 
     return state_trajectory, input_signal
 
@@ -148,7 +149,7 @@ if __name__ == "__main__":
     num_samples = int((time_span[1] - time_span[0]) / time_step) + 1 # pocet vzoriek
     time_vector = np.linspace(time_span[0], time_span[1], num_samples) # casovy vektor
     initial_conditions = [-8.0, 8.0, 27.0] # pociatocne podmienky
-    noise_ratio = 0.2 # sum v datach [%]
+    noise_ratio = 0.1 # *100 sum v datach [%]: 0.02 = 2%
 
     # Inicializacia systemu
     dynamic_system = DynamicSystem(a11=-10, a12=10, a21=28, a22=-1, a23=-1, a31=-1, a32=1, b1=1)
