@@ -12,14 +12,17 @@ time_step = np.mean(np.diff(data[:, 0]))
 # Priprava dat na trenovanie modelu
 X = np.stack((data[:, 1], data[:, 2], data[:, 3]), axis=-1)
 U = np.stack((data[:, 4]), axis=-1)
-X_train, X_valid, X_test = lib.split_data(X, val_size=0.2, test_size=0.3)
-U_train, U_valid, U_test = lib.split_data(U, val_size=0.2, test_size=0.3)
+X_train, X_valid, X_test = lib.split_data(X, val_size=0.2, test_size=0.2)
+U_train, U_valid, U_test = lib.split_data(U, val_size=0.2, test_size=0.2)
 
-X_train_norm, X_valid_norm, X_test_norm = lib.normalize_data(X_train, X_valid, X_test)
-U_train_norm, U_valid_norm, U_test_norm = lib.normalize_data(U_train, U_valid, U_test)
+optimizers = lib.build_SR3_optimizers(regularizers=["L0", "L1"])
+differentiation_methods = lib.build_differentiation_methods(X_train.shape[0], base_windows=[51, 71, 91])
 
 best_config, pareto_front = lib.find_optimal_parameters(
-    x_train=X_train_norm, x_valid=X_valid_norm, u_train=U_train_norm, u_valid=U_valid_norm, dt=time_step
+    
+    x_train=X_train, x_valid=X_valid, u_train=U_train, u_valid=U_valid, dt=time_step,
+    optimizers=optimizers,
+    differentiation_methods=differentiation_methods
 )
 
 errs = np.array([r["rmse"] for r in pareto_front], dtype=float)  
@@ -43,6 +46,6 @@ model = ps.SINDy(
     differentiation_method=best_config["differentiation_method"]  
 )  
 
-model.fit(x=X_train_norm, u=U_train_norm, t=time_step)
+model.fit(x=X_train, u=U_train, t=time_step)
 model.print()
-print(model.score(x=X_test_norm, u=U_test_norm, t=time_step))
+print(model.score(x=X_test, u=U_test, t=time_step))
