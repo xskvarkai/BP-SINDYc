@@ -12,53 +12,87 @@ def rk4_step(dynamic_system, x_k, u_k, dt):
     # x_{k+1} = x_k + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
     return x_k + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
+# def aprbs_generate(N, random_seed=1, minu=-1.0, maxu=1.0):   
+#     rng = np.random.default_rng(seed=int(random_seed) & 0xFFFFFFFF)  
+#     prbs = rng.integers(0, 2, size=N, dtype=int)  
+#     aprbs = np.zeros(N, dtype=float)  
+#     range_amp = abs(maxu - minu)  
+#     seed = int(random_seed) if random_seed is not None else 1  
 
-def aprbs_generate(N, random_seed=1, minu=-1.0, maxu=1.0):   
-    rng = np.random.default_rng(seed=int(random_seed) & 0xFFFFFFFF)  
-    prbs = rng.integers(0, 2, size=N, dtype=int)  
-    aprbs = np.zeros(N, dtype=float)  
-    range_amp = abs(maxu - minu)  
-    seed = int(random_seed) if random_seed is not None else 1  
+#     for i in range(N - 1):  
+#         if prbs[i] == prbs[i + 1]:  
+#             rng_seed = seed  
+#             rng = np.random.default_rng(rng_seed)  
+#             r = range_amp * rng.random()  
+#             if prbs[i] == maxu:  
+#                 aprbs[i] = prbs[i] - r  
+#                 aprbs[i + 1] = prbs[i + 1] - r  
+#             else:  
+#                 aprbs[i] = prbs[i] + r  
+#                 aprbs[i + 1] = prbs[i + 1] + r  
+#         else:  
+#             seed = (seed + 10) if seed <= (2**31) else int(random_seed)  
+#             rng = np.random.default_rng(seed)  
+#             r = range_amp * rng.random()  
+#             if prbs[i + 1] == maxu:  
+#                 aprbs[i + 1] = prbs[i + 1] - r  
+#             else:  
+#                 aprbs[i + 1] = prbs[i + 1] + r  
 
-    for i in range(N - 1):  
-        if prbs[i] == prbs[i + 1]:  
-            rng_seed = seed  
-            rng = np.random.default_rng(rng_seed)  
-            r = range_amp * rng.random()  
-            if prbs[i] == maxu:  
-                aprbs[i] = prbs[i] - r  
-                aprbs[i + 1] = prbs[i + 1] - r  
-            else:  
-                aprbs[i] = prbs[i] + r  
-                aprbs[i + 1] = prbs[i + 1] + r  
-        else:  
-            seed = (seed + 10) if seed <= (2**31) else int(random_seed)  
-            rng = np.random.default_rng(seed)  
-            r = range_amp * rng.random()  
-            if prbs[i + 1] == maxu:  
-                aprbs[i + 1] = prbs[i + 1] - r  
-            else:  
-                aprbs[i + 1] = prbs[i + 1] + r  
+#     if N > 0:  
+#         if aprbs[0] == 0.0:  
+#             aprbs[0] = prbs[0] * (minu + (maxu - minu) * 0.5)  
 
-    if N > 0:  
-        if aprbs[0] == 0.0:  
-            aprbs[0] = prbs[0] * (minu + (maxu - minu) * 0.5)  
-
-    return aprbs
+#     return aprbs
 
 # Generovanie vstupneho signalu 
-def generate_input_signal(num_samples, is_free_body):  
+def generate_input_signal(num_samples, is_free_body, dt, noise_ratio=None):
     if is_free_body:
         input_signal = np.zeros(num_samples, dtype=float)
             
     else:
-        aprbs_vals = aprbs_generate(num_samples, random_seed=1, minu=4.0, maxu=6.0)  
-        input_signal = aprbs_vals  
+        input_signal = np.zeros(num_samples, dtype=float)
+
+        # Parametre PID simulacie
+        kp, ki, kd = 2.0, 0.5, 0.1  # konstanty regulatora
+        integral = 0.0
+        prev_error = 0.0
+        
+        # Stav systemu - fiktivny
+        system_val = 0.0
+        tau = 2.0
+        target = 0.0
+
+        for i in range(num_samples):
+            # Kazdych 10 sekund zmeni pozadovanu hodnotu (nahodny skok)
+            if i % int(10/dt) == 0:
+                target = np.random.uniform(-10.0, 10.0)
+    
+            # Ulozenie pozadovanej hodnoty
+            target = np.clip(target, -15.0, 15.0) 
+            input_signal[i] = target
+
+            # Vypocet chyby
+            error = target - system_val
+            
+            # PID regulacia
+            integral += error * dt
+            derivative = (error - prev_error) / dt
+            u = (kp * error) + (ki * integral) + (kd * derivative)
+            
+            # Aktualizacia systému
+            system_val += (u - system_val) / tau * dt
+            prev_error = error
+
+        if noise_ratio is not None:
+            noise_level = noise_ratio * np.std(input_signal)
+            noise = np.random.normal(0, noise_level, input_signal.shape)
+            input_signal += noise
 
     return input_signal
 
 def simulate(dynamic_system, initial_state, dt, num_samples, is_free_body=True, noise_ratio=None):
-    input_signal = generate_input_signal(num_samples, is_free_body=is_free_body)
+    input_signal = generate_input_signal(num_samples=num_samples, is_free_body=is_free_body, dt=dt, noise_ratio=noise_ratio)
     state_trajectory = np.zeros((num_samples, len(initial_state)))
     current_state = initial_state.copy()
 
@@ -68,10 +102,11 @@ def simulate(dynamic_system, initial_state, dt, num_samples, is_free_body=True, 
         state_trajectory[k, :] = current_state
 
     if noise_ratio is not None:
-        print(f"Pridavaný šum na úrovni {noise_ratio * 100} % voči dátam")
-        for i in range(state_trajectory.shape[1]):
-            noise_std = noise_ratio * np.std(state_trajectory[:, i])
-            state_trajectory[:, i] += np.random.normal(0, noise_std, state_trajectory.shape[0])
+        noise_level = noise_ratio * np.std(state_trajectory)
+        noise = np.random.normal(0, noise_level, state_trajectory.shape)
+        state_trajectory += noise
+
+        print(f"Pridaný šum na úrovni {noise_ratio * 100} % voči dátam")
 
     return state_trajectory, input_signal
 
@@ -149,10 +184,15 @@ if __name__ == "__main__":
     num_samples = int((time_span[1] - time_span[0]) / time_step) + 1 # pocet vzoriek
     time_vector = np.linspace(time_span[0], time_span[1], num_samples) # casovy vektor
     initial_conditions = [-8.0, 8.0, 27.0] # pociatocne podmienky
-    noise_ratio = 0.1 # *100 sum v datach [%]: 0.02 = 2%
+    noise_ratio = 0.02 # * 100 sum v datach [%]: 0.02 = 2%
 
     # Inicializacia systemu
-    dynamic_system = DynamicSystem(a11=-10, a12=10, a21=28, a22=-1, a23=-1, a31=-1, a32=1, b1=1)
+    dynamic_system = DynamicSystem(
+        a11=-10, a12=10, a13=0,
+        a21=28, a22=-1, a23=-1,
+        a31=-1, a32=1, a33=0,
+        b1=1, b2=0, b3=0
+    )
 
     # Simulovanie trajektorie
     trajectory, input = simulate(
