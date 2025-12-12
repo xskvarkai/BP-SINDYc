@@ -1,401 +1,483 @@
 import numpy as np
-from sklearn.metrics import root_mean_squared_error
 import pysindy as ps
+from sklearn.metrics import root_mean_squared_error
+import multiprocessing
 import warnings
-from typing import List, Tuple, Any, Dict, Optional
-from scipy.signal import savgol_filter
+from typing import List, Dict, Any, Optional, Set, Union, Tuple
 
 def split_data(
-        data: np.ndarray, 
-        val_size: float = 0.2, 
-        test_size: float = 0.0
-) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
-    """
-    Splits data into training, validation, and testing sets sequentially.
-    
-    This function preserves the temporal order of the data. It does not shuffle the data.
+        x: np.ndarray,
+        u: Optional[np.ndarray] = None,
+        val_size: float = 0.0,
+        test_size: float = 0.2
+) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
 
-    Args:
-        data (np.ndarray): Input data array of shape (n_samples, n_features).
-        val_size (float, optional): Proportion of the dataset to include in the 
-            validation split (0.0 to 1.0). Defaults to 0.0.
-        test_size (float, optional): Proportion of the dataset to include in the 
-            test split (0.0 to 1.0). Defaults to 0.2.
+    # Ziskanie poctu vzoriek
+    num_samples = x.shape[0]
 
-    Returns:
-        Tuple(np.ndarray, Optional[np.ndarray], Optional[np.ndarray]): 
-            A tuple containing (data_train, data_val, data_test).
-            Validation or test sets may be None if their sizes are 0.
-    """
+    # Ziskanie poctu pre validacnu a testovaciu sadu
+    val_count = int(np.floor(num_samples * val_size)) if val_size > 0 else 0
+    test_count = int(np.floor(num_samples * test_size)) if test_size > 0 else 0
 
-    # Zistenie rozmeru dat
-    num_samples = data.shape[0]  
+    # Vypocet indexov na rozdelenie dat
+    train_index = num_samples - val_count - test_count
+    val_index = train_index + val_count
+    test_index = num_samples
 
-    # Pocet vzoriek pre validacnu cast, ak sa pozaduju
-    if val_size > 0:  
-        val_count = int(np.floor(num_samples * val_size))  
-    else:  
-        val_count = 0  
+    # Rozdelenie dat na casti
+    x_train = x[:train_index]
+    x_val = x[train_index:val_index] if val_count > 0 else None
+    x_test = x[val_index:test_index] if test_count > 0 else None
 
-    # Pocet vzoriek pre testovaciu cast, ak sa pozaduju
-    if test_size > 0:  
-        test_count = int(np.floor(num_samples * test_size))  
-    else:  
-        test_count = 0  
-
-    # Vypocet poctu vzoriek pre trenovaciu cast
-    train_count = num_samples - val_count - test_count  
-
-    # Rozdelenie podla predchazdajucich vypoctov
-    data_train = data[:train_count]  
-    data_val   = data[train_count:train_count + val_count] if val_count > 0 else None  
-    data_test  = data[train_count + val_count:] if test_count > 0 else None  
-
-    return data_train, data_val, data_test
-
-def normalize_data(
-        data_train: np.ndarray, 
-        data_valid: np.ndarray, 
-        data_test: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-
-    # Zistenie priemeru a standardne odchylky
-    mean = np.mean(data_train, axis=0)
-    stddev = np.std(data_train, axis=0, ddof=0)
-    
-    # Ochrana pred delením 0.0  
-    std = np.where(std == 0, 1.0, std) 
-
-    # Normalizacia dat podla Z-score
-    data_train_norm = (data_train - mean) / stddev
-    data_valid_norm = (data_valid - mean) / stddev
-    data_test_norm = (data_test - mean) / stddev
-
-    return data_train_norm, data_valid_norm, data_test_norm,  mean, stddev
-
-def denormalize_data(
-    data_norm: np.ndarray, 
-    mean: np.ndarray, 
-    std: np.ndarray, 
-    is_derivative: bool = False
-) -> np.ndarray:
-    
-    if is_derivative:
-        # Pre derivacie: dx/dt = std * dx_norm/dt => dx = std * dx_norm
-        return data_norm * std
+    # Rozdelenie vstupneho signalu ak existuje
+    if u is not None:
+        u_train = u[:train_index]
+        u_val = u[train_index:val_index] if val_count > 0 else None
+        u_test = u[val_index:test_index] if test_count > 0 else None
     else:
-        # Pre stavy: x = x_norm * std + mean
-        return data_norm * std + mean
+        u_train = u_val = u_test = None
 
-def build_SR3_optimizers(
-        regularizers: Optional[List[str]] = None,
-        relax_coeff_nu_vals: Optional[List[float]] = None,
-        reg_weight_lam_vals: Optional[List[float]] = None
-) -> List[ps.SR3]:
-    """
-    Generates a list of SR3 optimizers with varying hyperparameters.
+    return x_train, x_val, x_test, u_train, u_val, u_test
 
-    It performs a grid search creation over the provided (or default) lists of
-    regularizers, relaxation coefficients, and regularization weights.
+class SINDYcEstimator:
+    def __init__(self):
+        self.differentiation_methods = []
+        self.optimizers = []
+        self.feature_libraries = []
+        self.configurations = []
+        self.pareto_records = []
+        self.pareto_front = []
+        self.best_config = None
 
-    Args:
-        regularizers (Optional[List[str]]): List of regularizers (e.g., ["L0", "L1"]).
-            Defaults to ["L0", "L1", "L2"].
-        relax_coeff_nu_vals (Optional[List[float]]): List of relaxation coefficients (nu).
-            Defaults to np.logspace(-1, 2, 4).
-        reg_weight_lam_vals (Optional[List[float]]): List of regularization weights (lambda).
-            Defaults to [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10].
+    # Nastavenie differentiation method
+    def set_differentiation_method(self, method: str, **kwargs: Any) -> "SINDYcEstimator":
 
-    Returns:
-        List[ps.SR3]: A list of instantiated SR3 optimizer objects.
-    """
-    
-    # Osetrenie v pripade nezadnia hodnot
-    if reg_weight_lam_vals is None:
-        reg_weight_lam_vals = [0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50] 
+        # Povolene metody
+        valid_methods = {
+            "FiniteDifference": ps.FiniteDifference,
+            "SmoothedFiniteDifference": ps.SmoothedFiniteDifference
+        }
 
-    if relax_coeff_nu_vals is None: 
-        relax_coeff_nu_vals = np.logspace(-1, 2, 4)
+        # Raise error-u, ak pozadovana metoda nie je povolena
+        if method not in valid_methods:
+            raise ValueError(f"Invalid method. Choose from {list(valid_methods.keys())}")
 
-    if regularizers is None: 
-        regularizers = ["L0", "L1", "L2"]
-    
+        # Predvolene key word argumenty
+        default_kwargs = {
+            "FiniteDifference": {},
+            "SmoothedFiniteDifference": {
+                "window_length": 5,
+                "polyorder": 2,
+                "mode": "interp"
+            }
+        }
 
-    # Iterovanie cez vsetky a vytvorenie optimizer-u pre kazdy jeden
-    optimizers = [] 
-    for reg in regularizers:   
-        for nu in relax_coeff_nu_vals:  
-             for lam in reg_weight_lam_vals:
-                optimizers.append(  
-                    ps.SR3(  
-                        reg_weight_lam=lam,  
-                        regularizer=reg,  
-                        relax_coeff_nu=nu,  
-                        max_iter=10000,  
-                        tol=1e-10,  
-                        normalize_columns=True  
-                    )
-                )
+        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac), inac warning.
+        method_kwargs = default_kwargs[method].copy()
+        for key, value in kwargs.items():
+            if key not in method_kwargs:
+                warnings.warn(f"Unexpected parameter {key} for {method} method. Ignoring.")
+            else:
+                method_kwargs[key] = value
 
-    return optimizers 
+        # Ak je metoda SmoothedFiniteDifference, overit ci je window_length neparne, ak nie je + 1 (malo by byt vacsie ako polyorder)
+        if method == "SmoothedFiniteDifference":
+            method_kwargs["window_length"] = max(5, method_kwargs["window_length"] if method_kwargs["window_length"] % 2 != 0 else method_kwargs["window_length"] + 1)
 
-def build_differentiation_methods(
-        n_samples: int,
-        base_windows: Optional[List[int]] = [5, 41],
-        polyorders: Optional[List[int]] = [2, 3] 
-) -> List[ps.SmoothedFiniteDifference]:
-    """
-    Constructs differentiation methods suitable for the dataset size.
+        # Zapisanie do self
+        self.differentiation_methods.append(valid_methods[method](smoother_kws=method_kwargs))
+        return self
 
-    Creates SmoothedFiniteDifference objects. Ensures window lengths are odd
-    and fit within the number of samples.
+    # Nastavenie optimalizera
+    def set_optimizer(self, method: str, **kwargs: Any) -> "SINDYcEstimator":
 
-    Args:
-        n_samples (int): Total number of samples in the training data.
-        base_windows (Optional[List[int]]): Desired window lengths. Defaults to [5, 41].
-        polyorders (Optional[List[int]]): Polynomial orders for smoothing. Defaults to [2, 3].
+        # Povolene metody
+        valid_methods = {
+            "STLSQ": ps.STLSQ,
+            "SR3": ps.SR3
+        }
 
-    Returns:
-        List[ps.SmoothedFiniteDifference]: A list of differentiation method objects.
-    """
+        # Raise error-u, ak pozadovana metoda nie je povolena
+        if method not in valid_methods:
+            raise ValueError(f"Invalid method. Choose from {list(valid_methods.keys())}")
 
-    # Funkcia na osetrenie proti parnym cislam
-    def _odd_below(n):  
-        n = int(n)  
-        if n % 2 == 0:  
-            n -= 1  
-        return max(n, 5)
-    
-    # Filterovanie pre okna, ktore su prilis velke
-    windows = [w for w in (_odd_below(min(w, n_samples - 1)) for w in base_windows)  
-               if w < n_samples]
-    
-    # Iterovanie cez vsetky a vytvorenie diff metody pre kazdy jeden
-    diffs = []  
-    for wl in windows:  
-        for po in polyorders:  
-            diffs.append(  
-                ps.SmoothedFiniteDifference(  
-                    smoother_kws={"window_length": wl, "polyorder": po, "mode": "interp"}  
-                )  
-            )  
+        # Predvolene key word argumenty
+        default_kwargs = {
+            "STLSQ": {
+                "threshold": 0.1,
+                "alpha": 0.05,
+                "max_iter": 50000,
+                "normalize_columns": True
+            },
+            "SR3": {
+                "regularizer": "L1",
+                "reg_weight_lam": 0.1,
+                "relax_coeff_nu": 1.0,
+                "max_iter": 50000,
+                "tol": 1e-10,
+                "normalize_columns": True
+            }
+        }
 
-    return diffs
+        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac), inac warning.
+        method_kwargs = default_kwargs[method].copy()
+        for key, value in kwargs.items():
+            if key not in method_kwargs:
+                warnings.warn(f"Unexpected parameter {key} for {method} optimizer. Ignoring.")
+            else:
+                method_kwargs[key] = value
 
-def _diff_method_repr(diff_method: Any) -> str:
-    """
-    Helper function to create a readable string representation of a differentiation method.
-    """
-    class_name = diff_method.__class__.__name__  
-    
-    if class_name == "SmoothedFiniteDifference":  
-        smoother_kws = getattr(diff_method, "smoother_kws", {})  
-        wl = smoother_kws.get("window_length", "?")  
-        po = smoother_kws.get("polyorder", "?") 
-        return f"SmoothedFiniteDiff(wl={wl}, po={po})"  
-    
-    elif class_name == "SpectralDerivative":  
-        return "SpectralDerivative()"  
-    
-    elif class_name == "FiniteDifference":  
-        order = getattr(diff_method, "order", "?")  
-        return f"FiniteDifference(order={order})"  
-    
-    else:   
-        return class_name  
+        # Zapisanie do self
+        self.optimizers.append(valid_methods[method](**method_kwargs))
+        return self
 
-def find_optimal_parameters(
-        x_train: np.ndarray, 
-        x_valid: np.ndarray, 
-        u_train: Optional[np.ndarray], 
-        u_valid: Optional[np.ndarray], 
+    # Nastavenie kniznice
+    def set_feature_library(self, **kwargs: Any) -> "SINDYcEstimator":
+
+        # Predvolene key word argumenty
+        default_kwargs = {
+            "degree": 2,
+            "include_bias": True
+        }
+
+        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac), inac warning.
+        method_kwargs = default_kwargs.copy()
+        for key, value in kwargs.items():
+            if key not in method_kwargs:
+                warnings.warn(f"Unexpected parameter {key} for feature library. Ignoring.")
+            else:
+                method_kwargs[key] = value
+
+        # Zapisanie do self
+        self.feature_libraries.append(ps.PolynomialLibrary(**method_kwargs))
+        return self
+
+    # Generovanie konfiguracii
+    def generate_configurations(self, configurations: Optional[Union[List[Dict[str, Any]], Set[Dict[str, Any]]]] = None) -> "SINDYcEstimator":
+        # Pripad, ked nastavene poziadavky
+        if not self.differentiation_methods:
+            self.set_differentiation_method("SmoothedFiniteDifference")
+        if not self.optimizers:
+            self.set_optimizer("SR3")
+        if not self.feature_libraries:
+            self.set_feature_library()
+
+        # Iterovanie cez vsetky moznosti a vytvorenie konfiguracie pre kazdu jednu
+        configurations = []
+        for differentiation_method in self.differentiation_methods:
+            for optimizer in self.optimizers:
+                for feature_library in self.feature_libraries:
+                    configurations.append({
+                        "differentiation_method": differentiation_method,
+                        "optimizer": optimizer,
+                        "feature_library": feature_library
+                    })
+
+        # Zapisanie do self
+        self.configurations = configurations
+        return self
+
+    # Paralelne hladanie najlepsej konfiguracie
+    def search_configurations(self,
+                               x_train: np.ndarray,
+                               x_val: np.ndarray,
+                               u_train: Optional[np.ndarray] = None,
+                               u_val: Optional[np.ndarray] = None,
+                               dt: float = 0.01,
+                               n_processes: int = 4,
+                               **constraints: Any) -> "SINDYcEstimator":
+
+        # Predvolene obmedzenie (poziadavky na model)
+        default_constraints = {
+            "sim_steps": 350,
+            "max_sparsity": 50,
+            "max_coeff": 1e2,
+            "max_rmse": 1e3,
+            "max_state": 1e3
+        }
+        # Ak su poziadavky ine, update poziadaviek
+        default_constraints.update(constraints)
+
+        # Zistenie celkoveho poctu validacnych dat
+        total_val_samples = x_val.shape[0]
+
+        # Raise error-u, ak neboli vygenerovane konfiguracie
+        if not self.configurations:
+            raise ValueError("No configurations defined. Use generate_configurations() first.")
+
+        if default_constraints["sim_steps"] <= 10:
+            warnings.warn(f"Minimum required simulation steps are 10, increase ")
+
+        # Raise error-u, ak nie je dostatocne vela validacnych dat
+        if total_val_samples < default_constraints["sim_steps"]:
+            raise ValueError(f"Not enough validation samples. Increase validation steps to {default_constraints["sim_step"]} or validation steps")
+
+        # Zbalenie dat a konfiguracie, kvoli multiprocessingu
+        configurations_and_data = [
+            (config, x_train, x_val, u_train, u_val, dt, default_constraints)
+            for config in self.configurations
+        ]
+
+        # Zistenie celkoveho poctu konfiguracii
+        total_configurations = len(configurations_and_data)
+
+        # UI/UX
+        print(f"Parameter search started...")
+        print(f"Total configurations to explore: {total_configurations}")
+        print(f"Using {n_processes} parallel processes")
+
+        # Multiprocessing
+        with multiprocessing.Pool(processes=n_processes) as pool:
+            # UI/UX
+            results = []
+            configs = []
+            errors = []
+            for index, (result, config, error) in enumerate(pool.imap(run_config, configurations_and_data), 1):
+                results.append(result)
+                configs.append(config)
+                errors.append(error)
+                print(f"\rProcessing configuration {index}/{total_configurations} "
+                    f"({(index/total_configurations)*100:.2f}%)", end="", flush=True)
+            print()
+        
+        # UI/UX
+        print("\nParameter search complete.")
+        valid_configs = sum(1 for result in results if result is not None)
+        print(f"Valid configurations found: {valid_configs} out of {total_configurations}")
+
+        # Vyskladanie pareto zaznamov
+        self.pareto_records = [result for result in results if result is not None] 
+        # Ak existuje aspon jeden zaznam
+        if self.pareto_records:
+            # Zostav pareto frontier
+            self.pareto_front = self._compute_pareto_front(self.pareto_records)
+            # Najdi najlepsi vysledok
+            self.best_config = self._select_best_pareto_config(self.pareto_front)
+
+        return self
+
+    def _compute_pareto_front(self, results: List[Optional[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        # Nacitanie iba velidnych (not None) zaznamov
+        valid_results = [result for result in results if result is not None]
+
+        # Raise error-u, ak neexistuje ani jeden validny zaznam
+        if not valid_results:
+            raise ValueError("No valid configurations found. All configurations were filtered out.")
+
+        # Zoradenie od najnizsieho po najvyssie podla rmse
+        sorted_results = sorted(valid_results, key=lambda x: x["rmse"])
+
+        # Definicia a priradienie najlespieho rmse do pareto frontu
+        pareto_front = [sorted_results[0]]
+        # Kazdeho kandidata, ktory je jednoduchsi ako ten z najlepsim rmse rprirad do pareto fronty
+        for candidate in sorted_results[1:]:
+            if candidate["sparsity"] < pareto_front[-1]["sparsity"]:
+                    pareto_front.append(candidate)
+
+        return pareto_front
+
+    def _select_best_pareto_config(self, pareto_records: List[Dict[str, Any]]) -> Dict[str, Any]:
+        # Nacitanie data potrebnych pre porovnavanie
+        rmse_values = np.array([record["rmse"] for record in pareto_records], dtype=float)
+        sparsity_values = np.array([record["sparsity"] for record in pareto_records], dtype=float)
+
+        # Zistenie rozsahu dat (min-max), potrebnych pre skalovanie
+        rmse_range = np.ptp(rmse_values) if np.ptp(rmse_values) > 0 else 1.0
+        sparsity_range = np.ptp(sparsity_values) if np.ptp(sparsity_values) > 0 else 1.0
+
+        # Skalovanie dat pre jednoduchi computing
+        normalized_rmse = (rmse_values - np.min(rmse_values)) / rmse_range
+        normalized_sparsity = (sparsity_values - np.min(sparsity_values)) / sparsity_range
+
+        # Kazdej kombinacii v pareto fronte priradi score
+        scores = [0.6 * (1 - rmse) + 0.4 * (1 - sparsity)
+                for rmse, sparsity in zip(normalized_rmse, normalized_sparsity)]
+
+        # Najdenie najlepsieho skore (najvyssieho cisla)
+        best_index = int(np.argmax(scores))
+
+        return self.pareto_front[best_index]
+
+def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndarray, Optional[np.ndarray], Optional[np.ndarray], float, Dict[str, Any]]) -> Tuple[Optional[Dict[str, Any]], Dict[str, Any], Optional[str]]:
+        try:
+            # Rozbalenie dat
+            config, x_train, x_val, u_train, u_val, dt, constraints = configuration_and_data
+            # Ignorovanie warningov pocas hladnia (exceptions volane na konci)
+            warnings.filterwarnings("ignore", category=UserWarning)
+
+            # Zostavenie modelu
+            model = ps.SINDy(
+                optimizer=config["optimizer"],
+                feature_library=config["feature_library"],
+                differentiation_method=config["differentiation_method"]
+            )
+
+            # Fitting dat do modelu
+            model.fit(
+                x=x_train,
+                u=u_train,
+                t=dt
+            )
+
+            # Zistenie celkoveho poctu validacnych dat
+            total_val_samples = x_val.shape[0]
+            # Pocet krokov na rychlu validaciu
+            val_steps = 10
+            # Poznamka: bola by vhodna kontrola ci je total_val_samples > val_steps
+
+            model_coeffs = model.coefficients()
+            model_sparsity = np.count_nonzero(model_coeffs)
+
+            # Ak je poziadavka na riedkost modelu nesplnena
+            if model_sparsity > constraints["max_sparsity"]:
+                return None, config, "model exceed max sparsity"
+
+            # Ak je model trivialny
+            if model_sparsity == 0:
+                return None, config, "model is trivial"
+
+            # Ak je poziadavka na maximalnu velkost koefficientov nesplnena
+            if np.max(np.abs(model_coeffs)) > constraints["max_coeff"]:
+                return None, config, "model coeff exceed max coeff"
+
+            # Ak ma model Inf/NaN koeficienty
+            if not np.all(np.isfinite(model_coeffs)):
+                return None, config, "model coeff is Inf/Nan"
+
+            # Ak model presiel predoslimi kontrolami, kontrola ci spravne predikuje derivacie
+            rmse_predict = root_mean_squared_error(model.differentiation_method(x_val), model.predict(x_val, u_val))
+
+            # Ak je rmse pre predikciu vacsie ako poziadavka na maximalne rmse
+            if rmse_predict > constraints["max_rmse"]:
+                return None, config, "model can't predict"
+
+            # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny pre simulaciach
+            # Starty simulacii (jeden na zaciatku, druhy v strede valicanych dat, ak sa dat, ak nie total_val_samples - val_steps)
+            # Poznamka: pre pradchadzajucu podmienky vhodna kontrola
+            starts = [0, min(total_val_samples // 2, total_val_samples - val_steps)]
+            for start in starts:
+                x0 = x_val[start]
+                t = np.arange(val_steps) * dt
+                u = u_val[start : start + val_steps] if u_val is not None else None
+                try:
+                    x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws={"rtol": 0.1, "atol": 0.1})
+
+                    if np.max(np.abs(x_sim)) > constraints["max_state"]:
+                        return None, config, "model diverg too much (exceed max state)"
+
+                    if not np.all(np.isfinite(x_sim)):
+                        return None, config, "model is not stable"
+
+                except Exception as e:
+                    return None, config, str(e)
+
+            if total_val_samples < constraints["sim_steps"]:
+                start_index = 0
+                current_steps = total_val_samples
+            else:
+                start_index = np.random.randint(0, total_val_samples - constraints["sim_steps"])
+                current_steps = constraints["sim_steps"]
+
+            x0 = x_val[start_index]
+            t_segment = np.arange(current_steps) * dt
+            u_segment = u_val[start_index : start_index + current_steps] if u_val is not None else None
+            x_ref = x_val[start_index : start_index + current_steps]
+
+            x_sim = model.simulate(
+                    x0=x0,
+                    t=t_segment,
+                    u=u_segment,
+                    integrator="solve_ivp",
+                    integrator_kws={"rtol": 1e-6,"atol": 1e-6}
+            )
+            min_len = min(len(x_ref), len(x_sim))
+
+            rmse = root_mean_squared_error(x_ref[:min_len], x_sim[:min_len])
+            sparsity = np.count_nonzero(model.coefficients())
+
+            result = {
+                "model": model,
+                "rmse": rmse,
+                "sparsity": sparsity,
+            }
+
+            return result, config, None
+
+        except Exception as e:
+            return None, config, str(e)
+
+
+
+
+
+
+
+
+
+
+
+def recommended_grid(
+        x: np.ndarray,
         dt: float,
-        optimizers: Optional[List[Any]] = None,
-        feature_libraries: Optional[List[Any]] = None,
-        differentiation_methods: Optional[List[Any]] = None,
-) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
-    """
-    Performs a grid search to identify optimal SINDy model parameters (Pareto optimization).
-
-    It iterates through combinations of feature libraries, differentiation methods,
-    and optimizers, training a SINDy model for each. It evaluates models on the 
-    validation set using RMSE and coefficient sparsity.
-
-    Args:
-        x_train (np.ndarray): Training state data.
-        x_valid (np.ndarray): Validation state data.
-        u_train (Optional[np.ndarray]): Training control inputs (if any).
-        u_valid (Optional[np.ndarray]): Validation control inputs (if any).
-        dt (float): Time step between samples.
-        optimizers (Optional[List]): List of optimizer instances. Defaults to SR3 grid.
-        feature_libraries (Optional[List]): List of feature libraries. Defaults to Poly degree 2.
-        differentiation_methods (Optional[List]): List of diff methods. Defaults to auto-built.
-
-    Returns:
-        Tuple(Dict, List):
-            - best_config: Dictionary containing the best model and its metadata.
-            - pareto_front: List of all Pareto-optimal configurations found.
-    """
-
-    # Osetrenie v pripade nezadnia hodnot
-    if differentiation_methods is None:
-        differentiation_methods = build_differentiation_methods(n_samples=x_train.shape[0])
-
-    if feature_libraries is None:
-        feature_libraries = [ps.PolynomialLibrary(degree=2)]
-
-    if optimizers is None:
-        optimizers = build_SR3_optimizers()
-
-    # Helper pre vypisovanie mena kniznice
-    def _library_name(lib):  
-        try:  
-            return lib.name  
-        except AttributeError:  
-            return lib.__class__.__name__
-
-    print("Starting parameter search...")  
-    warnings.filterwarnings("ignore", category=UserWarning)  
-
-    pareto_records = []
-
-    header = f"{'Library':<35} | {'Differentiation method':<35} | {'Regularizer':<12} | {'nu':<8} | {'Lambda':<8}"
-    print(header)  
-    print("-" * len(header)) 
-
-    # Iterovanie cez vsetky
-    for feature_library in feature_libraries:  
-        method_pareto_records = []  
-
-        for differentiation_method in differentiation_methods:  
-            diff_name = _diff_method_repr(differentiation_method)  
-
-            for optimizer in optimizers:  
-                
-                # Vypisanie aktulanych hodnot pri aktualnom search-y
-                print(  
-                    f"{_library_name(feature_library):<35} | {diff_name:<35} | "  
-                    f"{optimizer.regularizer:<12} | {optimizer.relax_coeff_nu:<8.3f} | {optimizer.reg_weight_lam:<8.3f}",  
-                    end=" : "  
-                )  
-
-                # Vyber trenovaneho modelu
-                model = ps.SINDy(  
-                    optimizer=optimizer,  
-                    feature_library=feature_library,  
-                    differentiation_method=differentiation_method  
-                )  
-
-                # Fittovanie dat do modelu
-                model.fit(  
-                    x=x_train,
-                    u=u_train,
-                    t=dt
-                )  
-
-                # Vypocet skutocnej derivacie trajektorie za ucelom porovnia
-                # Pouziva tu istu metodu, na ktorej bol trenovany
-                x_dot_valid = model.differentiation_method(x=x_valid, t=dt)  
-
-                # Porovnavacie metriky
-                rmse = root_mean_squared_error(x_dot_valid, model.predict(x=x_valid, u=u_valid))
-                sparsity = np.count_nonzero(model.coefficients())  
-                score = model.score(x=x_valid, u=u_valid, t=dt)  
-
-                # Vypis vysledkov (do riadku) pre kazdu iteraciu
-                print(f"RMSE: {rmse:.4f}, Sparsity: {sparsity}, Score: {score:.4f}")  
-
-                # Pridanie do zaznamu budovaneho za ucelom zostavenia Pareto fronty
-                method_pareto_records.append({
-                    "model": model,
-                    "library": feature_library,
-                    "differentiation_method": differentiation_method,
-                    "optimizer": optimizer,
-                    "rmse": rmse,
-                    "sparsity": sparsity,
-                    "score": score,
-                })  
-
-        # Vypocet lokalnej Pareto fronty pre aktualnu kniznicu/metodu
-        method_pareto_front = compute_pareto_front(method_pareto_records)  
-        pareto_records.extend(method_pareto_front)  
-
-    print("\nParameter search complete.\n")  
-
-    # Vypocet globalnej Pareto fronty cez vsetky iteracie
-    # Tento vypocet sa prevadza uz na vyfiltrovanej vzorke
-    # z prechadzajuceho Pareto frontu
-    pareto_front = compute_pareto_front(pareto_records)  
-    best_config = select_best_pareto_config(pareto_front)  
-
-    # Ukoncenie haldanie a vypis najlepsieho modelu
-    print(f"Best configuration:\n {best_config["model"]}\n")  
-
-    warnings.filterwarnings("always", category=UserWarning)  
-    return best_config, pareto_front  
-
-def compute_pareto_front(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Identifies the Pareto frontier from a set of model results.
-
-    A model is on the Pareto front if no other model has BOTH lower RMSE 
-    and lower (or equal) sparsity.
-
-    Args:
-        results (List[Dict]): List of result dictionaries containing 'rmse' and 'sparsity'.
-
-    Returns:
-        List[Dict]: Subset of results that are Pareto optimal.
-    """
-
-    # Iterovanie cez vsetky vysledky a zostavovanie kandidatov
-    pareto_front = []
-    for candidate in results:
-        is_pareto_optimal = True
-        for other in results:
-            if (
-                other["rmse"] <= candidate["rmse"]
-                and other["sparsity"] <= candidate["sparsity"]
-                and (
-                    other["rmse"] < candidate["rmse"]
-                    or other["sparsity"] < candidate["sparsity"]
-                )
-            ):
-                is_pareto_optimal = False
-                break
-        if is_pareto_optimal:
-            pareto_front.append(candidate)
-    return pareto_front
-
-def select_best_pareto_config(pareto_records: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Selects the single best configuration from the Pareto front using a weighted score.
-
-    The selection is based on a weighted sum of normalized RMSE (60%) and 
-    normalized Sparsity (40%).
-
-    Args:
-        pareto_records (List[Dict]): List of Pareto optimal result dictionaries.
-
-    Returns:
-        Dict: The dictionary corresponding to the best selected model configuration.
-    """
-
-    # Nacitanie vsetkych potrebnych parametrov
-    rmse_values = np.array([record["rmse"] for record in pareto_records], dtype=float)
-    sparsity_values = np.array([record["sparsity"] for record in pareto_records], dtype=float)
+        num_lam: int = 10,
+) -> Tuple[np.ndarray, List[float], List[int]]:
+    # Klzavy priemer
+    def _moving_avg(x, window):
+        return np.convolve(x, np.ones(window), "valid") / window
     
-    # Vyhnutie sa deleniu 0.0 ak su vsetky hodnoty rovnake
-    rmse_range = np.ptp(rmse_values) if np.ptp(rmse_values) > 0 else 1.0  
-    sparsity_range = np.ptp(sparsity_values) if np.ptp(sparsity_values) > 0 else 1.0  
+    window_size = 10
 
-    # Normalizacia
-    normalized_rmse = (rmse_values - np.min(rmse_values)) / rmse_range  
-    normalized_sparsity = (sparsity_values - np.min(sparsity_values)) / sparsity_range 
+    n_features = x.shape[1]
+    n_samples = x.shape[0]
+    x_smooth_list = []
 
-    # Vazene skore: prednost (60%) ma presnost pre riedkostou (40%)
-    scores = [0.6 * (1 - rmse) + 0.4 * (1 - sparsity) 
-            for rmse, sparsity in zip(normalized_rmse, normalized_sparsity)]
+    # Filter na kazdu premennu zvlast
+    for i in range(n_features):
+        x_smooth_col = _moving_avg(x[:, i], window_size)
+        x_smooth_list.append(x_smooth_col)
+
+    # Spojenie do matice
+    x_smooth = np.column_stack(x_smooth_list)
+
+    # Vypocet derivacie 
+    x_dot_smooth = np.gradient(x_smooth, dt, axis=0)
+
+    # Vypocet mierky
+    signal_scale = np.mean(np.std(x_dot_smooth, axis=0))
+
+    # Osetrenie, ak je priemer 0.0 (nehybny signal)
+    if signal_scale == 0:
+        signal_scale = 1.0
+
+    # Min a max lambda a vector pre lambdy
+    lam_min = signal_scale * 1e-4
+    lam_max = signal_scale * 1.0
+    lam_vals = np.round(np.logspace(np.log10(lam_min), np.log10(lam_max), num_lam), 5)
+
+    nu_vals = [0.01, 0.1, 1.0, 10.0, 100]
+
+    # Vypocet okien pre SmoothedFiniteDiff
+    raw_windows = [int(t / dt) for t in [0.2, 0.6]]
+    windows = _filter_windows(n_samples, raw_windows)
+
+    return lam_vals, nu_vals, windows
+
+def _odd_above(n: int) -> list:
+    n = int(n)
+    if n % 2 == 0:
+        n += 1
+    return max(n, 5)
+
+def _filter_windows(
+        n_samples: int,
+        base_windows: np.ndarray
+) -> list[int]:
     
-    best_index = int(np.argmax(scores))
-    return pareto_records[best_index]
+    processed_windows = (
+        _odd_above(min(window, n_samples - 1)) 
+        for window in base_windows
+    )
+
+    windows = sorted({window for window in processed_windows if window < n_samples})
+    
+    return windows
