@@ -1,0 +1,1002 @@
+{
+     "pareto_front": [
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.24111113129222472,
+               "sparsity": "21",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.25654740414048693,
+               "sparsity": "14",
+               "best": true
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.32533055984849907,
+               "sparsity": "13",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.47706887802888964,
+               "sparsity": "12",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.0378082290885267,
+               "sparsity": "11",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.4538689429815406,
+               "sparsity": "9",
+               "best": false
+          }
+     ],
+     "pareto_records": [
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.43605925809182916,
+               "sparsity": "20"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.33491396359578873,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.41436065884110795,
+               "sparsity": "20"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.47794635684594206,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.4442303359735555,
+               "sparsity": "18"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 1.061086931235473,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.3009770163678183,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.0378082290885267,
+               "sparsity": "11",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.32985642427945666,
+               "sparsity": "18"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 1.0743265795956691,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.31476138982280777,
+               "sparsity": "22"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.4204806797569885,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.3894803842688483,
+               "sparsity": "22"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.5888768118185231,
+               "sparsity": "13"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.29606488188048025,
+               "sparsity": "21"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.625509988535654,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.45813122892006897,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.317663786917234,
+               "sparsity": "11"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.3535277345904841,
+               "sparsity": "21"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 0.6170280106923394,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.29106303053452565,
+               "sparsity": "21"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.4848664284336554,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.2979173905490647,
+               "sparsity": "20"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.6642885423280104,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.2858576447372117,
+               "sparsity": "17"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.47706887802888964,
+               "sparsity": "12",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "rmse": 0.34205714063963444,
+               "sparsity": "22"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.5234879180759405,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.3893477161831775,
+               "sparsity": "11"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.40588452092920174,
+               "sparsity": "13"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 0.9808741347021521,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.29041007821852083,
+               "sparsity": "20"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.9658756201245274,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.36477168976445956,
+               "sparsity": "20"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.3234873991278313,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.25931811168305585,
+               "sparsity": "17"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.5603740050181307,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "rmse": 0.26473995292759894,
+               "sparsity": "23"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.25654740414048693,
+               "sparsity": "14",
+               "best": true
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.4594261013258187,
+               "sparsity": "11"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.32533055984849907,
+               "sparsity": "13",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 0.8662803847081237,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.3747537387195751,
+               "sparsity": "22"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.4877132520878667,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.24111113129222472,
+               "sparsity": "21",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.6000484337847661,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.322939590226788,
+               "sparsity": "17"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.8737356262241001,
+               "sparsity": "13"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.4609031687656895,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.2340363615117151,
+               "sparsity": "11"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.35472993989151086,
+               "sparsity": "17"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 0.6541357726304323,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.35822071134024697,
+               "sparsity": "19"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.9422554036720351,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.2643651957898043,
+               "sparsity": "19"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.33459674121454874,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.33681066125824694,
+               "sparsity": "17"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.5095038356021483,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "rmse": 0.2590195514670741,
+               "sparsity": "22"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.30919078958756546,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.1381967074507382,
+               "sparsity": "11"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.4490239800161963,
+               "sparsity": "22"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "rmse": 0.3142589755562853,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 1.2227374953827377,
+               "sparsity": "12"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.8752439830537307,
+               "sparsity": "18"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.8272203504581559,
+               "sparsity": "17"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.8563392322427589,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.4197023463129357,
+               "sparsity": "22"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 2.2680420975487245,
+               "sparsity": "11"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 1.0424710117770934,
+               "sparsity": "14"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "rmse": 0.39311117767020964,
+               "sparsity": "16"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "rmse": 0.6731411640053069,
+               "sparsity": "15"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', tol=1e-10))",
+               "rmse": 0.5335925650048853,
+               "sparsity": "13"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 0.39953462329224165,
+               "sparsity": "21"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "rmse": 1.4538689429815406,
+               "sparsity": "9",
+               "best": false
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "rmse": 0.8173816691820873,
+               "sparsity": "14"
+          }
+     ],
+     "errors": [
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 5}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 25}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 51}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 2,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.01, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.01,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=0.1, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', relax_coeff_nu=0.1,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=10.0, regularizer='L1', tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=10.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=10.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=0.01, regularizer='L1', relax_coeff_nu=100.0,\n                    tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=0.1,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True, reg_weight_lam=1.0,\n                    regularizer='L1', relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model exceed max sparsity"
+          },
+          null,
+          {
+               "model": "SINDy(differentiation_method=SmoothedFiniteDifference(smoother_kws={'axis': 0,\n                                                                    'mode': 'interp',\n                                                                    'polyorder': 3,\n                                                                    'window_length': 251}),\n      feature_library=PolynomialLibrary(),\n      optimizer=SR3(max_iter=200000, normalize_columns=True,\n                    reg_weight_lam=100.0, regularizer='L1',\n                    relax_coeff_nu=100.0, tol=1e-10))",
+               "error": "Model is trivial"
+          }
+     ]
+}

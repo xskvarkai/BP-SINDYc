@@ -111,7 +111,7 @@ def simulate(dynamic_system, initial_state, dt, num_samples, is_free_body=True, 
     return state_trajectory, input_signal
 
 def export_data(data={}, export_name="data"):
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(data)  
     df.to_csv(export_name + ".csv", index=False)
     return 0
 
@@ -148,7 +148,6 @@ def vizualize_trajectory(time_vector, trajectory, comparison_trajectory=None, in
     plt.show()
 
     return 0
-
 
 if __name__ == "__main__":
     class DynamicSystem:  
@@ -211,4 +210,4 @@ if __name__ == "__main__":
             "z": trajectory[:, 2],
             "u": input}
 
-    export_data(data, "Simulacia")
+    export_data(data, "Simulacia1")
