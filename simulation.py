@@ -210,4 +210,4 @@ if __name__ == "__main__":
             "z": trajectory[:, 2],
             "u": input}
 
-    export_data(data, "Simulacia1")
+    export_data(data, "Simulacia")

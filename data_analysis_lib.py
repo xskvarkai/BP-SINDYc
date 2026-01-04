@@ -1,60 +1,16 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import pysindy as ps
 from sklearn.metrics import root_mean_squared_error
 import multiprocessing
-from multiprocessing import shared_memory
 import warnings
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Set, Union, Tuple
 import json
+import tempfile
+import pickle
 
-def load_data(
-        filepaths: List[str] = None,
-        save_dt = False) -> List[dict]:
-        
-    datasets = []
-
-    for filepath in filepaths:
-        data_csv = pd.read_csv(filepath)
-        data = data_csv.to_numpy()  
-        X = np.stack((data[:, 1], data[:, 2], data[:, 3]), axis=-1)  
-        U = np.stack((data[:, 4]), axis=-1)
-
-        datasets.append({
-            "X": X,
-            "U": U
-        })
-
-    return datasets
-
-def generate_trajectories(
-        x_train: np.ndarray,
-        u_train: np.ndarray = None,
-        num_samples: int = 10000,
-        num_trajectories: int = 50) -> List[np.ndarray]:
-
-    total_val_samples = x_train.shape[0]
-    x_train_multi = []
-    u_train_multi = []
-    for trajectory in range(0, num_trajectories):
-        if total_val_samples < num_samples:
-            start_index = 0
-            warnings.warn("Insufficient samples for diverse trajectories. Consider adding more data or reducing the sample size.")
-        else:
-            start_index = np.random.randint(0, total_val_samples - num_samples)
-        
-        end_index = start_index + num_samples
-        trajectory = x_train[start_index:end_index]
-        x_train_multi.append(trajectory)
-
-        if u_train is not None:
-            input_signal = u_train[start_index:end_index]
-            u_train_multi.append(input_signal)
-
-    return x_train_multi, u_train_multi
-
+# ========== Rozdelenie dat na sady ========== 
 def split_data(
         x: np.ndarray,
         u: Optional[np.ndarray] = None,
@@ -89,16 +45,47 @@ def split_data(
 
     return x_train, x_val, x_test, u_train, u_val, u_test
 
+# ========== Generovanie roznych trajektorii s pozadovanymi dlzkami ========== 
+def generate_trajectories(
+        x_train: np.ndarray,
+        u_train: Optional[np.ndarray] = None,
+        num_samples: int = 10000,
+        num_trajectories: int = 5) -> Tuple[List[np.ndarray], Optional[List[np.ndarray]]]:
+
+    # Ziskanie poctu vzoriek tranovacej sady
+    total_train_samples = x_train.shape[0]
+
+    # Vytvorenie trajektorii
+    x_train_multi = []
+    u_train_multi = []
+    for trajectory in range(0, num_trajectories):
+        if total_train_samples < num_samples:
+            start_index = 0
+            warnings.warn("Insufficient samples for diverse trajectories. Consider adding more data or reducing the sample size.")
+        else:
+            start_index = np.random.randint(0, total_train_samples - num_samples)
+        
+        end_index = start_index + num_samples
+        trajectory = x_train[start_index:end_index]
+        x_train_multi.append(trajectory)
+
+        if u_train is not None:
+            input_signal = u_train[start_index:end_index]
+            u_train_multi.append(input_signal)
+
+    return x_train_multi, u_train_multi
+
+# ========== Trieda pre hladanie modelu ========== 
 class SINDYcEstimator:
     def __init__(self):
         self.differentiation_methods = []
         self.optimizers = []
         self.feature_libraries = []
         self.configurations = []
-        self.pareto_records = []
         self.pareto_front = []
-        self.errors = []
         self.best_config = None
+        self.results_file_name = None
+        self.errors_file_name = None
 
     # Nastavenie differentiation method
     def set_differentiation_method(self, method: str, **kwargs: Any) -> "SINDYcEstimator":
@@ -263,6 +250,10 @@ class SINDYcEstimator:
 
         # Zapisanie do self
         self.configurations = configurations
+        self.differentiation_methods.clear()
+        self.optimizers.clear()
+        self.feature_libraries.clear()
+
         return self
 
     # Paralelne hladanie najlepsej konfiguracie
@@ -309,13 +300,12 @@ class SINDYcEstimator:
         if total_val_samples < default_constraints["sim_steps"]:
             raise ValueError(f"Not enough validation samples. Increase validation steps to {default_constraints["sim_steps"]} or validation size")
 
-
-
         # Zbalenie dat a konfiguracie, kvoli multiprocessingu
         configurations_and_data = [
             (config, x_train, x_val, u_train, u_val, dt, default_constraints)
             for config in self.configurations
         ]
+        self.configurations.clear()
 
         # Zistenie celkoveho poctu konfiguracii
         total_configurations = len(configurations_and_data)
@@ -327,42 +317,110 @@ class SINDYcEstimator:
         print(f"Using {n_processes} parallel processes")
         print(f"Start time: {start_time.strftime("%H:%M:%S")}")
 
-        # Multiprocessing
-        with multiprocessing.Pool(processes=n_processes) as pool:
-            # UI/UX
-            results = []
-            for index, (result, error) in enumerate(pool.imap(run_config, configurations_and_data), 1):
-                results.append(result)
-                self.errors.append(error)
-                progress_msg = f"Processing configuration {index}/{total_configurations} ({(index/total_configurations)*100:.2f}%)"
-                print(progress_msg, end="\r", flush=True)
-            print()
-        
+        # Otvorenie docasnych suborov na zapis konfiguracii
+        with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file, \
+             tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyE", suffix=".pkl") as errors_file:
+
+            # Ziskanie ciest k docasnym suborom - umoznuje pracu s nimi
+            self.results_file_name = results_file.name
+            self.errors_file_name = errors_file.name
+
+            # Multiprocessing
+            with multiprocessing.Pool(processes=n_processes) as pool:
+                for index, (result, error) in enumerate(pool.imap(run_config, configurations_and_data), 1):
+                    # Filtorvanie na Error a Result
+                    if result is not None:
+                        result["index"] = index
+                        pickle.dump(result, results_file)
+                    if error is not None:
+                        model = error.get("model")
+                        error =  {
+                            "index": index,
+                            "model_params": {
+                                "optimizer": model.get_params()["optimizer"],
+                                "differentiation_method": model.get_params()["differentiation_method"],
+                                "feature_library": model.get_params()["feature_library"]
+                            },
+                            "error": error.get("error")
+                        }
+                        pickle.dump(error, errors_file)
+                    # UI/UX
+                    print(f"Processing configuration {index}/{total_configurations} ({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
+                print()
+
+        # Znovuzapnutie warningov a vycistenie nepotrebnych dat
+        warnings.filterwarnings("default", category=UserWarning)
+        configurations_and_data.clear()
+
+        # Nacitanie minimalizovanych vysledkov do pareto zaznamov
+        with open(self.results_file_name, "rb") as f:
+            pareto_results = []
+            try:
+                while True:
+                    result = pickle.load(f)
+                    result = self._minimalize(result)
+                    pareto_results.append(result)
+            except EOFError:
+                pass
+
         # UI/UX
         print("\nParameter search complete.")
         duraction = datetime.now() - start_time
         print(f"The process took {duraction} hours")
-        valid_configs = sum(1 for result in results if result is not None)
+        valid_configs = sum(1 for result in pareto_results if result is not None)
         print(f"Valid configurations found: {valid_configs} out of {total_configurations}")
 
-        # Vyskladanie pareto zaznamov
-        self.pareto_records = [result for result in results if result is not None] 
-        # Ak existuje aspon jeden zaznam
-        if self.pareto_records:
-            # Zostav pareto frontier
-            self.pareto_front = self._compute_pareto_front(self.pareto_records)
+        # Ak existuje aspon jeden pareto zaznam
+        if pareto_results:
+            # Zostav pareto front
+            self.pareto_front = self._compute_pareto_front(pareto_results)
+            pareto_results.clear()
             # Najdi najlepsi vysledok
             self.best_config = self._select_best_pareto_config(self.pareto_front, default_constraints["rmse_weight"])
 
         return self
 
+    # Minimalizovanie nacitavania a exportu dat
+    def _minimalize(record):
+        # Nacitanie modelu z dat
+        model = record.get("model")
+        try:
+            # Ak je nacitavany Error
+            if record.get("error") is not None:
+                return {
+                    "index": record.get("index"),
+                    "model_params": {
+                        "optimizer": model.get_params()["optimizer"],
+                        "differentiation_method": model.get_params()["differentiation_method"],
+                        "feature_library": model.get_params()["feature_library"]
+                    },
+                    "error": record.get("error")
+                }
+            # Ak je nacitavany Result
+            else:
+                return {
+                    "index": record.get("index"),
+                    "model_params": {
+                        "optimizer": model.get_params()["optimizer"],
+                        "differentiation_method": model.get_params()["differentiation_method"],
+                        "feature_library": model.get_params()["feature_library"]
+                    },
+                    "equations": model.equations(),
+                    "rmse": record.get("rmse"),
+                    "sparsity": record.get("sparsity")
+                }
+        # V pripade zlyhania vrat cely zaznam
+        except Exception:
+            return record
+
+    # Zostavenie pareto fronty
     def _compute_pareto_front(self, results: List[Optional[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        # Nacitanie iba velidnych (not None) zaznamov
+        # Nacitanie iba validnych (not None) zaznamov
         valid_results = [result for result in results if result is not None]
 
-        # Raise error-u, ak neexistuje ani jeden validny zaznam
+        # Warning, ak neexistuje ani jeden validny zaznam
         if not valid_results:
-            raise ValueError("No valid configurations found. All configurations were filtered out.")
+            warnings.warn("No valid configurations found. All configurations were filtered out.")
 
         # Zoradenie od najnizsieho po najvyssie podla rmse
         sorted_results = sorted(valid_results, key=lambda x: x["rmse"])
@@ -376,6 +434,7 @@ class SINDYcEstimator:
 
         return pareto_front
 
+    # Vyber najlepsieho modelu z pareto zaznamov (fronty)
     def _select_best_pareto_config(self, pareto_records: List[Dict[str, Any]], rmse_weight) -> Dict[str, Any]:
         # Nacitanie data potrebnych pre porovnavanie
         rmse_values = np.array([record["rmse"] for record in pareto_records], dtype=float)
@@ -396,13 +455,26 @@ class SINDYcEstimator:
 
         # Najdenie najlepsieho skore (najvyssieho cisla)
         best_index = int(np.argmax(scores))
+        best_index = self.pareto_front[best_index].get("index")
 
-        return self.pareto_front[best_index]
+        # Najdenie modelu v docasnych suboroch
+        with open(self.results_file_name, "rb") as f:
+            try:
+                while True:
+                    result = pickle.load(f)
+                    if result.get("index") == best_index:
+                        best_config = result
+            except EOFError:
+                pass
+        return best_config
 
-    def plot_pareto(self):
+    # Zobrazenie pareto fronty v grafe
+    def plot_pareto(self)  -> "SINDYcEstimator":
+        # Nacitanie rmse a riedkosti
         errs = np.array([r["rmse"] for r in self.pareto_front], dtype=float)
         spars = np.array([r["sparsity"] for r in self.pareto_front], dtype=float)
 
+        # Vykreslenie
         plt.figure(figsize=(6, 4))
         plt.scatter(errs, spars, color="tab:blue", label="Pareto body")
         plt.xlabel("RMSE")
@@ -415,46 +487,90 @@ class SINDYcEstimator:
 
         return self
 
-    def export_data(self, path: str = "data.json") -> "SINDYcEstimator":
-        if self.pareto_records is None:
+    # Export dat
+    def export_data(self, data: dict = None, path: str = "data.json") -> "SINDYcEstimator":
+        # Nacitanie docasneho suboru a minimalizovanie dat pre export
+        def read_temp_file(path):
+            with open(path, "rb") as f:
+                data = []
+                try:
+                    while True:
+                        result = pickle.load(f)
+                        result = self._minimalize(result)
+                        data.append(result)
+                except EOFError:
+                    pass
+            return data
+        
+        if read_temp_file(self.results_file_name) is None:
             warnings.warn("Pareto records are None")
         if self.pareto_front is None:
             warnings.warn("Pareto front is None")
         if self.best_config is None:
             warnings.warn("Best configuration is None")
         
-        payload = {}
+        # Minimalizovane data pre export 
+        minimized_pareto_records = read_temp_file(self.results_file_name)
+        minimized_errors = read_temp_file(self.errors_file_name)
 
-        records = []
-        pareto_front = self.pareto_front.copy()
-        for record in self.pareto_front:
-            record["best"] = (self.best_config is not None and ("model" in self.best_config and record.get("model") == self.best_config["model"]))
-            records.append(record)
-        
-        errors = []
-        for error in self.errors:
-            if error is not None:
-                errors.append(error)
+        # Konvertovanie x_train a u_train na list, kvoli reprodukovatelnosti
+        def convert_to_lists(data): # Podobne aj spat na numpy, len namiesto tolist() pouzit np.ndarray(arr) resp. np.ndarray(data[key])
+            for key in data:
+                if isinstance(data[key], list):
+                    data[key] = [arr.tolist() for arr in data[key]]
+                elif isinstance(data[key], np.ndarray):
+                    data[key] = data[key].tolist()
+            return data
 
-        payload["pareto_front"] = records
-        payload["pareto_records"] = self.pareto_records
-        payload["errors"] = errors
+        payload = {
+            "best_result": self._minimalize(self.best_config),
+            "pareto_front": self.pareto_front,
+            "pareto_records": minimized_pareto_records,
+            "errors": minimized_errors,
+            "data": convert_to_lists(data)
+        }
 
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=5, default=str)
 
         return self
 
+    # Export modelov v pareto fronte
+    def export_pareto_models(self, path: str = "models.pkl") -> "SINDYcEstimator":
+        # Minimalizovanie exportu modelu
+        def minimalize(record):
+            try:
+                return {
+                    "index": record.get("index"),
+                    "model": record.get("model"),
+                }
+            except Exception:
+                return record
+
+        # Minimalizovane pareto front
+        minimized_pareto_front = [
+            minimalize(pareto) for pareto in self.pareto_front
+        ]
+
+        with open(path, "wb") as f:  
+            pickle.dump(minimized_pareto_front, f)  
+
+        return self
+
+    # Odstranenie docasnych suborov
+    def delete_tempfiles(self):
+        import os
+        os.remove(self.results_file_name)
+        os.remove(self.errors_file_name)
+        return self
+
 # ========== Spustanie konfiguracie na kazdom procesore ========== 
 def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndarray, Optional[np.ndarray], Optional[np.ndarray], float, Dict[str, Any]]) -> Tuple[Optional[Dict[str, Any]], Dict[str, Any], Optional[str]]:  
-    error = {
-        "model": None,
-        "error": None,
-    }
     try:
         # Rozbalenie dat
         config, x_train, x_val, u_train, u_val, dt, constraints = configuration_and_data
-        # Ignorovanie warningov pocas hladnia (exceptions volane na konci)
+
+        # Ignorovanie warningov pocas hladania
         warnings.filterwarnings("ignore", category=UserWarning)
 
         # Zostavenie modelu
@@ -481,14 +597,12 @@ def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndar
         model_sparsity = np.count_nonzero(model_coeffs)
 
         if model_sparsity == 0 or model_sparsity > constraints["max_sparsity"]:
-            error["model"] = model
-            error["error"] = "Model is trivial exceed max sparsity"
+            error = {"model": model, "error": "Model is trivial or exceed max sparsity"}
             return None, error
 
         # Ak je poziadavka na maximalnu velkost koefficientov nesplnena
         if np.max(np.abs(model_coeffs)) > constraints["max_coeff"] or not np.all(np.isfinite(model_coeffs)):
-            error["model"] = model
-            error["error"] = "Model coeff exceed max coeff or is Inf/Nan"
+            error = {"model": model, "error": "Model coeff exceed max coeff or is Inf/Nan"}
             return None, error
 
         # Ak model presiel predoslimi kontrolami, kontrola ci spravne predikuje derivacie
@@ -496,8 +610,7 @@ def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndar
 
         # Ak je rmse pre predikciu vacsie ako poziadavka na maximalne rmse
         if rmse_predict > constraints["max_rmse"]:
-            error["model"] = model
-            error["error"] = "Model can't predict"
+            error = {"model": model, "error": "Model can't predict"}
             return None, error
 
         # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny pre simulaciach
@@ -511,18 +624,15 @@ def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndar
                 x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws={"rtol": 0.1, "atol": 0.1})
 
                 if np.max(np.abs(x_sim)) > constraints["max_state"]:
-                    error["model"] = model
-                    error["error"] = "Model diverg too much (exceed max state)"
+                    error = {"model": model, "error": "Model diverg too much (exceed max state)"}
                     return None, error
 
                 if not np.all(np.isfinite(x_sim)):
-                    error["model"] = model
-                    error["error"] = "Model is not stable"
+                    error = {"model": model, "error": "Model is not stable"}
                     return None, error
 
             except Exception as e:
-                error["model"] = model
-                error["error"] = e
+                error = {"model": model, "error": e}
                 return None, error
 
         if total_val_samples < constraints["sim_steps"]:
