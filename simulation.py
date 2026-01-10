@@ -12,39 +12,6 @@ def rk4_step(dynamic_system, x_k, u_k, dt):
     # x_{k+1} = x_k + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
     return x_k + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
-# def aprbs_generate(N, random_seed=1, minu=-1.0, maxu=1.0):   
-#     rng = np.random.default_rng(seed=int(random_seed) & 0xFFFFFFFF)  
-#     prbs = rng.integers(0, 2, size=N, dtype=int)  
-#     aprbs = np.zeros(N, dtype=float)  
-#     range_amp = abs(maxu - minu)  
-#     seed = int(random_seed) if random_seed is not None else 1  
-
-#     for i in range(N - 1):  
-#         if prbs[i] == prbs[i + 1]:  
-#             rng_seed = seed  
-#             rng = np.random.default_rng(rng_seed)  
-#             r = range_amp * rng.random()  
-#             if prbs[i] == maxu:  
-#                 aprbs[i] = prbs[i] - r  
-#                 aprbs[i + 1] = prbs[i + 1] - r  
-#             else:  
-#                 aprbs[i] = prbs[i] + r  
-#                 aprbs[i + 1] = prbs[i + 1] + r  
-#         else:  
-#             seed = (seed + 10) if seed <= (2**31) else int(random_seed)  
-#             rng = np.random.default_rng(seed)  
-#             r = range_amp * rng.random()  
-#             if prbs[i + 1] == maxu:  
-#                 aprbs[i + 1] = prbs[i + 1] - r  
-#             else:  
-#                 aprbs[i + 1] = prbs[i + 1] + r  
-
-#     if N > 0:  
-#         if aprbs[0] == 0.0:  
-#             aprbs[0] = prbs[0] * (minu + (maxu - minu) * 0.5)  
-
-#     return aprbs
-
 # Generovanie vstupneho signalu 
 def generate_input_signal(num_samples, is_free_body, dt, noise_ratio=None):
     if is_free_body:
@@ -104,11 +71,11 @@ def simulate(dynamic_system, initial_state, dt, num_samples, is_free_body=True, 
     if noise_ratio is not None:
         noise_level = noise_ratio * np.std(state_trajectory)
         noise = np.random.normal(0, noise_level, state_trajectory.shape)
-        state_trajectory += noise
+        noisy_state_trajectory = state_trajectory + noise
 
         print(f"Pridaný šum na úrovni {noise_ratio * 100} % voči dátam")
 
-    return state_trajectory, input_signal
+    return state_trajectory, noisy_state_trajectory, input_signal
 
 def export_data(data={}, export_name="data"):
     df = pd.DataFrame(data)  
@@ -183,7 +150,7 @@ if __name__ == "__main__":
     num_samples = int((time_span[1] - time_span[0]) / time_step) + 1 # pocet vzoriek
     time_vector = np.linspace(time_span[0], time_span[1], num_samples) # casovy vektor
     initial_conditions = [-8.0, 8.0, 27.0] # pociatocne podmienky
-    noise_ratio = 0.02 # * 100 sum v datach [%]: 0.02 = 2%
+    noise_ratio = 0.05 # * 100 sum v datach [%]: 0.02 = 2%
 
     # Inicializacia systemu
     dynamic_system = DynamicSystem(
@@ -194,7 +161,7 @@ if __name__ == "__main__":
     )
 
     # Simulovanie trajektorie
-    trajectory, input = simulate(
+    trajectory, noisy_trajectory, input = simulate(
         dynamic_system=dynamic_system,
         initial_state=initial_conditions,
         dt=time_step,
@@ -202,7 +169,7 @@ if __name__ == "__main__":
         is_free_body=False,
         noise_ratio=noise_ratio)
 
-    vizualize_trajectory(time_vector=time_vector, input=input, trajectory=trajectory)
+    vizualize_trajectory(time_vector=time_vector, input=input, trajectory=trajectory, comparison_trajectory=noisy_trajectory)
     
     data = {"time": time_vector,
             "x": trajectory[:, 0],

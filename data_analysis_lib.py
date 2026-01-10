@@ -9,7 +9,6 @@ from typing import List, Dict, Any, Optional, Set, Union, Tuple
 import json
 import tempfile
 import pickle
-import dill
 
 # ========== Rozdelenie dat na sady ========== 
 def split_data(
@@ -37,12 +36,13 @@ def split_data(
     x_test = x[val_index:test_index] if test_count > 0 else None
 
     # Rozdelenie vstupneho signalu ak existuje
-    if u is not None:
+    if not np.any(u) or u is None:
+        u_train = u_val = u_test = None
+    else:
         u_train = u[:train_index]
         u_val = u[train_index:val_index] if val_count > 0 else None
         u_test = u[val_index:test_index] if test_count > 0 else None
-    else:
-        u_train = u_val = u_test = None
+        
 
     return x_train, x_val, x_test, u_train, u_val, u_test
 
@@ -70,9 +70,12 @@ def generate_trajectories(
         trajectory = x_train[start_index:end_index]
         x_train_multi.append(trajectory)
 
-        if u_train is not None:
+        if not np.any(u_train) or u_train is None:
+            u_train_multi = None
+        else:
             input_signal = u_train[start_index:end_index]
             u_train_multi.append(input_signal)
+            
 
     return x_train_multi, u_train_multi
 
@@ -94,7 +97,8 @@ class SINDYcEstimator:
         # Povolene metody
         valid_methods = {
             "FiniteDifference": ps.FiniteDifference,
-            "SmoothedFiniteDifference": ps.SmoothedFiniteDifference
+            "SmoothedFiniteDifference": ps.SmoothedFiniteDifference,
+            "TotalVariationDenoising": ps.SINDyDerivative
         }
 
         # Raise error-u, ak pozadovana metoda nie je povolena
@@ -108,6 +112,11 @@ class SINDYcEstimator:
                 "window_length": 5,
                 "polyorder": 2,
                 "mode": "interp"
+            },
+            "TotalVariationDenoising": {
+                "order": 2,
+                "alpha": 1e-3,
+                "max_iter": 1e4
             }
         }
 
@@ -124,9 +133,13 @@ class SINDYcEstimator:
             method_kwargs["window_length"] = max(5, method_kwargs["window_length"] if method_kwargs["window_length"] % 2 != 0 else method_kwargs["window_length"] + 1)
             # Zapisanie do self
             self.differentiation_methods.append(valid_methods[method](smoother_kws=method_kwargs))
+        elif method == "TotalVariationDenoising":
+            method_kwargs["kind"] = "trend_filtered"
+            method_kwargs["max_iter"] = int(method_kwargs["max_iter"])
+            self.differentiation_methods.append(valid_methods[method](**method_kwargs))
         else:
             # Zapisanie do self
-            self.differentiation_methods.append(valid_methods[method])
+            self.differentiation_methods.append(valid_methods[method]())
         return self
 
     # Nastavenie optimalizera
@@ -156,7 +169,8 @@ class SINDYcEstimator:
                 "relax_coeff_nu": 1.0,
                 "max_iter": 1e5,
                 "tol": 1e-10,
-                "normalize_columns": True
+                "normalize_columns": True,
+                "unbias": False
             }
         }
 
@@ -241,10 +255,10 @@ class SINDYcEstimator:
             raise ValueError("No feature libraries defined. Use set_feature_library() first.")
 
         # Iterovanie cez vsetky moznosti a vytvorenie konfiguracie pre kazdu jednu
-        configurations = []
-        for differentiation_method in self.differentiation_methods:
-            for optimizer in self.optimizers:
-                for feature_library in self.feature_libraries:
+        configurations = []   
+        for optimizer in self.optimizers:
+            for feature_library in self.feature_libraries:
+                for differentiation_method in self.differentiation_methods:
                     configurations.append({
                         "differentiation_method": differentiation_method,
                         "optimizer": optimizer,
@@ -262,9 +276,9 @@ class SINDYcEstimator:
     # Paralelne hladanie najlepsej konfiguracie
     def search_configurations(
             self,
-            x_train: np.ndarray,
+            x_train: np.ndarray|list[np.ndarray],
             x_val: np.ndarray,
-            u_train: Optional[np.ndarray] = None,
+            u_train: Optional[np.ndarray|list[np.ndarray]] = None,
             u_val: Optional[np.ndarray] = None,
             dt: float = 0.01,
             n_processes: int = 4,
@@ -273,9 +287,10 @@ class SINDYcEstimator:
         # Predvolene obmedzenie (poziadavky na model)
         default_constraints = {
             "sim_steps": 350,
+            "coeff_precision": None,
             "max_sparsity": 50,
             "max_coeff": 1e2,
-            "max_rmse": 1e3,
+            "max_predict_r2": 1e3,
             "max_state": 1e3,
             "rmse_weight": 0.6
         }
@@ -295,60 +310,68 @@ class SINDYcEstimator:
             warnings.warn(f"RMSE weight out of bounds: {default_constraints["rmse_weight"]}. Must satisfy 0 < rmse_weight < 1. Automatically changed to 0.6")
 
         # Raise warning-u, ak je malo validacnych krokov a zmena na 11
-        if default_constraints["sim_steps"] <= 10:
-            default_constraints["sim_steps"] = 11
-            warnings.warn(f"Minimum required simulation steps are 10, validation steps increased automatically to 11")
+        if default_constraints["sim_steps"] <= 20:
+            default_constraints["sim_steps"] = 21
+            warnings.warn(f"Minimum required simulation steps are 20, validation steps increased automatically to 21")
 
         # Raise error-u, ak nie je dostatocne vela validacnych dat
         if total_val_samples < default_constraints["sim_steps"]:
             raise ValueError(f"Not enough validation samples. Increase validation steps to {default_constraints["sim_steps"]} or validation size")
 
-        # Zbalenie dat a konfiguracie, kvoli multiprocessingu
-        configurations_and_data = [
-            (config, x_train, x_val, u_train, u_val, dt, default_constraints)
-            for config in self.configurations
-        ]
-        self.configurations.clear()
+        with multiprocessing.Manager() as manager:
+            cache_dict = manager.dict()
+            lock = manager.Lock()
 
-        # Zistenie celkoveho poctu konfiguracii
-        total_configurations = len(configurations_and_data)
+            # Zbalenie dat a konfiguracie, kvoli multiprocessingu
+            configurations_and_data = [
+                    (config, x_train, x_val, u_train, u_val, dt, default_constraints, cache_dict, lock)
+                    for config in self.configurations
+                ]
 
-        # UI/UX
-        start_time = datetime.now()
-        print(f"\nParameter search started...")
-        print(f"Total configurations to explore: {total_configurations}")
-        print(f"Using {n_processes} parallel processes")
-        print(f"Start time: {start_time.strftime("%H:%M:%S")}")
+            self.configurations.clear()
 
-        # Ak je definovana CustomLibrary, pepisat na pri exporte na string
-        # Bol problem pri exporte kniznice a tym aj reprodukovani modelu
-        def sanitize_input(record):
-            if isinstance(record.get("configuration")["feature_library"], ps.CustomLibrary):
-                record.get("configuration")["feature_library"] = "ps.CustomLibrary"
+            # Zistenie celkoveho poctu konfiguracii
+            total_configurations = len(configurations_and_data)
 
-        # Otvorenie docasnych suborov na zapis konfiguracii
-        with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file, \
-             tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyE", suffix=".pkl") as errors_file:
+            # UI/UX
+            start_time = datetime.now()
+            print(f"\nParameter search started...")
+            print(f"Total configurations to explore: {total_configurations}")
+            print(f"Using {n_processes} parallel processes")
+            print(f"Start time: {start_time.strftime("%H:%M:%S")}")
 
-            # Ziskanie ciest k docasnym suborom - umoznuje pracu s nimi
-            self.results_file_name = results_file.name
-            self.errors_file_name = errors_file.name
+            # Ak je definovana CustomLibrary, pepisat na pri exporte na string
+            # Bol problem pri exporte kniznice a tym aj s reprodukovanim modelu
+            def sanitize_input(record):
+                try:
+                    if isinstance(record.get("configuration")["feature_library"], ps.CustomLibrary):
+                        record.get("configuration")["feature_library"] = "CustomLibrary"        
+                except Exception:
+                    pass
 
-            # Multiprocessing
-            with multiprocessing.Pool(processes=n_processes) as pool:
-                for index, (result, error) in enumerate(pool.imap(run_config, configurations_and_data), 1):
-                    # Filtorvanie na Error a Result
-                    if result is not None:
-                        sanitize_input(result)
-                        result["index"] = index
-                        pickle.dump(result, results_file)
-                    if error is not None:
-                        sanitize_input(error)
-                        error["index"] = index
-                        pickle.dump(error, errors_file)
-                    # UI/UX
-                    print(f"Processing configuration {index}/{total_configurations} ({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
-                print()
+            # Otvorenie docasnych suborov na zapis konfiguracii
+            with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file, \
+                tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyE", suffix=".pkl") as errors_file:
+
+                # Ziskanie ciest k docasnym suborom - umoznuje pracu s nimi
+                self.results_file_name = results_file.name
+                self.errors_file_name = errors_file.name
+
+                # Multiprocessing
+                with multiprocessing.Pool(processes=n_processes) as pool:
+                    for index, (result, error) in enumerate(pool.imap(run_config, configurations_and_data), 1):
+                        # Filtorvanie na Error a Result
+                        if result is not None:
+                            sanitize_input(result)
+                            result["index"] = index
+                            pickle.dump(result, results_file)
+                        if error is not None:
+                            sanitize_input(error)
+                            error["index"] = index
+                            pickle.dump(error, errors_file)
+                        # UI/UX
+                        print(f"Processing configuration {index}/{total_configurations} ({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
+                    print()
 
         # Znovuzapnutie warningov a vycistenie nepotrebnych dat
         warnings.filterwarnings("default", category=UserWarning)
@@ -367,7 +390,10 @@ class SINDYcEstimator:
         # UI/UX
         print("\nParameter search complete.")
         duraction = datetime.now() - start_time
-        print(f"The process took {duraction} hours")
+        seconds = duraction.total_seconds()
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        print(f"The process took {int(hours):02}:{int(minutes):02}:{int(seconds):02} hours")
         valid_configs = sum(1 for result in pareto_results if result is not None)
         print(f"Valid configurations found: {valid_configs} out of {total_configurations}")
 
@@ -497,8 +523,7 @@ class SINDYcEstimator:
 def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndarray, Optional[np.ndarray], Optional[np.ndarray], float, Dict[str, Any]]) -> Tuple[Optional[Dict[str, Any]], Dict[str, Any], Optional[str]]:  
     try:
         # Rozbalenie dat
-        config, x_train, x_val, u_train, u_val, dt, constraints = configuration_and_data
-
+        config, x_train, x_val, u_train, u_val, dt, constraints, cache_dict, lock = configuration_and_data
         # Ignorovanie warningov pocas hladania
         warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -509,21 +534,41 @@ def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndar
             differentiation_method=config["differentiation_method"]
         )
 
+        key = str(config["differentiation_method"])
+        if key in cache_dict.keys():
+            x_dot_train, x_dot_val = cache_dict[key]
+        else:
+            with lock:
+                if key not in cache_dict.keys():
+                    if isinstance(x_train, list):
+                        x_dot_train = [model.differentiation_method(traj, dt) for traj in x_train]
+                    else:
+                        x_dot_train = model.differentiation_method(x_train, dt)
+                    x_dot_val = model.differentiation_method(x_val, dt)
+                    cache_dict[key] = (x_dot_train, x_dot_val)
+                else:
+                    x_dot_train, x_dot_val = cache_dict[key]
+
         # Fitting dat do modelu
         model.fit(
             x=x_train,
             u=u_train,
+            x_dot=x_dot_train,
             t=dt
         )
+
+        # Nastavenie presnoti koeficientov v modeli
+        if constraints.get("coeff_precision") is not None:
+            model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=constraints["coeff_precision"])
 
         # Zistenie celkoveho poctu validacnych dat
         total_val_samples = x_val.shape[0]
         # Pocet krokov na rychlu validaciu
-        val_steps = 10
+        val_steps = 20
         # Poznamka: bola by vhodna kontrola ci je total_val_samples > val_steps
 
         model_coeffs = model.coefficients()
-        model_sparsity = np.count_nonzero(model_coeffs)
+        model_sparsity = model.complexity
 
         # Ak je poziadavka na pocet koeficientov nesplnena alebo je model trivialny
         if model_sparsity == 0 or model_sparsity > constraints["max_sparsity"]:
@@ -535,48 +580,34 @@ def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndar
             error = {"configuration": config, "error": "Model coeff exceed max coeff or is Inf/Nan"}
             return None, error
 
-        # Ak model presiel predoslimi kontrolami, kontrola ci spravne predikuje derivacie
-        rmse_predict = root_mean_squared_error(model.differentiation_method(x_val), model.predict(x_val, u_val))
-
-        # Ak je rmse pre predikciu vacsie ako poziadavka na maximalne rmse
-        if rmse_predict > constraints["max_rmse"]:
+        # Ak je r2 pre predikciu vacsie ako poziadavka na maximalne r2
+        if model.score(x_val, dt, x_dot_val, u_val) < constraints["max_predict_r2"]:
             error = {"configuration": config, "error": "Model can't predict"}
             return None, error
 
-        # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny pre simulaciach
-        # Starty simulacii (jeden na zaciatku, druhy v strede valicanych dat, ak sa da, ak nie total_val_samples - val_steps)
-        starts = [0, min(total_val_samples // 2, total_val_samples - val_steps)]
-        for start in starts:
-            # Data pre simulaciu
-            x0 = x_val[start]
-            t = np.arange(val_steps) * dt
-            u = u_val[start : start + val_steps] if u_val is not None else None
-            try:
-                x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws={"rtol": 0.1, "atol": 0.1})
+        # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny pri simulaciach
+        current_steps = min(val_steps, total_val_samples)
+        start_index = max(0, min(2 * total_val_samples // 3, total_val_samples - current_steps))
 
-                # Ak model simuluje prilis nespravne
-                if np.max(np.abs(x_sim)) > constraints["max_state"]:
-                    error = {"configuration": config, "error": "Model diverg too much (exceed max state)"}
-                    return None, error
+        # Data pre simulaciu
+        x0 = x_val[start_index]
+        t = np.arange(current_steps) * dt
+        u = u_val[start_index : start_index + current_steps] if u_val is not None else None
+        try:
+            x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws={"rtol": 1e-2, "atol": 1e-2})
 
-                # Ak predikuje Inf
-                if not np.all(np.isfinite(x_sim)):
-                    error = {"configuration": config, "error": "Model is not stable"}
-                    return None, error
-
-            # Vznikla ina neocakavana chyba
-            except Exception as e:
-                error = {"configuration": config, "error": e}
+            # Ak model simuluje prilis nespravne
+            if np.max(np.abs(x_sim)) > constraints["max_state"] or not np.all(np.isfinite(x_sim)):
+                error = {"configuration": config, "error": "Model diverg too much (exceed max state) or is not stable"}
                 return None, error
 
-        # Neda sa vybrat nehodny start simulacie
-        if total_val_samples < constraints["sim_steps"]:
-            start_index = 0
-            current_steps = total_val_samples
-        # Da sa vybrat nahodny start simulacie
-        else:
-            start_index = np.random.randint(0, total_val_samples - constraints["sim_steps"])
-            current_steps = constraints["sim_steps"]
+        # Vznikla ina neocakavana chyba
+        except Exception as e:
+            error = {"configuration": config, "error": e}
+            return None, error
+
+        current_steps = min(total_val_samples, constraints["sim_steps"])
+        start_index = max(0, min(total_val_samples // 2, total_val_samples - current_steps))
 
         # Vytvorenie dat pre finalnu simulacie kvoli RMSE stavov
         # Model.predict a Model.score pracuju s derivaciami stavov, 
@@ -585,26 +616,29 @@ def run_config(configuration_and_data: Tuple[Dict[str, Any], np.ndarray, np.ndar
         t_segment = np.arange(current_steps) * dt
         u_segment = u_val[start_index : start_index + current_steps] if u_val is not None else None
         x_ref = x_val[start_index : start_index + current_steps]
+        try:
+            x_sim = model.simulate(
+                    x0=x0,
+                    t=t_segment,
+                    u=u_segment,
+                    integrator="solve_ivp",
+                    integrator_kws={"rtol": 1e-6,"atol": 1e-6}
+            )
+            min_len = min(len(x_ref), len(x_sim))
 
-        x_sim = model.simulate(
-                x0=x0,
-                t=t_segment,
-                u=u_segment,
-                integrator="solve_ivp",
-                integrator_kws={"rtol": 1e-6,"atol": 1e-6}
-        )
-        min_len = min(len(x_ref), len(x_sim))
+            rmse = root_mean_squared_error(x_ref[:min_len], x_sim[:min_len])
 
-        rmse = root_mean_squared_error(x_ref[:min_len], x_sim[:min_len])
-        sparsity = np.count_nonzero(model_coeffs)
+            result = {
+                "configuration": config,
+                "equations": model.equations(),
+                "rmse": rmse,
+                "sparsity": model_sparsity
+            }
+            return result, None
 
-        result = {
-            "configuration": config,
-            "rmse": rmse,
-            "sparsity": sparsity
-        }
-
-        return result, None
+        except Exception as e:
+            error = {"configuration": config, "error": e}
+            return None, error
 
     # Zlyhanie este pre trenovanim modelu
     except Exception as e:
