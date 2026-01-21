@@ -117,6 +117,7 @@ def vizualize_trajectory(time_vector, trajectory, comparison_trajectory=None, in
     return 0
 
 if __name__ == "__main__":
+    np.random.seed(100)
     class DynamicSystem:  
         def __init__(self, a11=0.0, a12=0.0, a13=0.0, a21=0.0, a22=0.0, a23=0.0, a31=0.0, a32=0.0, a33=0.0, b1=0.0, b2=0.0, b3=0.0):  
             # Stavova matica systemu  
@@ -150,7 +151,7 @@ if __name__ == "__main__":
     num_samples = int((time_span[1] - time_span[0]) / time_step) + 1 # pocet vzoriek
     time_vector = np.linspace(time_span[0], time_span[1], num_samples) # casovy vektor
     initial_conditions = [-8.0, 8.0, 27.0] # pociatocne podmienky
-    noise_ratio = 0.05 # * 100 sum v datach [%]: 0.02 = 2%
+    noise_ratio = 0.02 # * 100 sum v datach [%]: 0.02 = 2%
 
     # Inicializacia systemu
     dynamic_system = DynamicSystem(

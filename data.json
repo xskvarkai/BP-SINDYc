@@ -1,0 +1,1048 @@
+{
+     "best_result": {
+          "configuration": {
+               "differentiation_method": null,
+               "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(0.22009018194843363),\n      unbias=False)",
+               "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+          },
+          "equations": [
+               "-10.007 x0 +  10.006 x1 +  1.001 u0^2",
+               " 27.999 x0 + -1.000 x1 + -1.000 x0 x2",
+               "-1.000 x2 +  1.000 x0 x1"
+          ],
+          "r2_score": 0.9996876223579099,
+          "rmse": 0.002989439645574934,
+          "complexity": "8",
+          "aic": -1134.7307473148448,
+          "random_seed": 177,
+          "index": 136
+     },
+     "pareto_front": [
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(0.22009018194843363),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "equations": [
+                    "-10.007 x0 +  10.006 x1 +  1.001 u0^2",
+                    " 27.999 x0 + -1.000 x1 + -1.000 x0 x2",
+                    "-1.000 x2 +  1.000 x0 x1"
+               ],
+               "r2_score": 0.9996876223579099,
+               "rmse": 0.002989439645574934,
+               "complexity": "8",
+               "aic": -1134.7307473148448,
+               "random_seed": 177,
+               "index": 136
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(0.22009018194843363),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "equations": [
+                    "-9.996 x0 +  9.996 x1 +  1.000 u0^2",
+                    " 23.629 x0 + -0.855 x0 x2",
+                    "-1.000 x2 +  1.000 x0 x1"
+               ],
+               "r2_score": 0.9838802925289515,
+               "rmse": 0.03334691751905179,
+               "complexity": "7",
+               "aic": -659.2025617892594,
+               "random_seed": 47,
+               "index": 6
+          }
+     ],
+     "errors": [
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 7
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 8
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 9
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 10
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 11
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 12
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 19
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 20
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 21
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 22
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 23
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 24
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 31
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 32
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 33
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 34
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 35
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 36
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 43
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 44
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 45
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 46
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 47
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 48
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 55
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 56
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 57
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 58
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 59
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 60
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 67
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 68
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 69
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 70
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 71
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=170, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 72
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 79
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 80
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 81
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 82
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 83
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 84
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 91
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 92
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 93
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 94
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 95
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 96
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 103
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 104
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 105
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 106
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 107
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 108
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 115
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 116
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 117
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 118
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 119
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 120
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 127
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 128
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 129
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 130
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 131
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 132
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 139
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 140
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 141
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 142
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 143
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 144
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 151
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 152
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 153
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 154
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 155
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 156
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 163
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 164
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 165
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 166
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 167
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=3,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 168
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 175
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 176
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 177
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 178
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 179
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 180
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 187
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 188
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 189
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 190
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 191
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[],\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 192
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 199
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 200
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 201
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 202
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 203
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 204
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 211
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 212
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(1.0664504667223103),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 213
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 214
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 215
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(5.167502647795087),\n      unbias=False)",
+                    "feature_library": "WeakPDELibrary(H_xt=AxesArray([0.9999]), K=230, derivative_order=1,\n               differentiation_method=FiniteDifference(),\n               function_library=PolynomialLibrary(include_bias=False),\n               multiindices=[], p=5,\n               spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               },
+               "error": "Model is trivial or exceed max complexity",
+               "index": 216
+          }
+     ],
+     "user_data": {
+          "np.random.seed": 42,
+          "dt": 0.002,
+          "val_size": 0.2,
+          "test_size": 0.2,
+          "train_multi_trajectories_num": 5,
+          "train_multi_trajectories_samples": 10000,
+          "constraints": {
+               "sim_steps": 100,
+               "coeff_precision": null,
+               "max_complexity": 24,
+               "max_coeff": 100.0,
+               "min_r2": 0.7,
+               "max_state": 100.0
+          }
+     }
+}
