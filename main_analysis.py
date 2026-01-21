@@ -15,15 +15,16 @@ def squared_x_name(x): return x + "^2"
 # ========== Funkcia pre hladanie SINDY modelu ==========
 def sindyc_model(data):
 
-    X_train, U_train, X_val, U_val, X_test, U_test, time_step = data
+    X, U, time_step, random_seed = data
+    val_size, test_size = 0.2, 0.2
+    noise_level = lib.find_noise(X)
+    lib.find_periodicity(X)
 
-    total_size = X_train.shape[0] + X_val.shape[0] + X_test.shape[0]
-    val_size = np.round(X_val.shape[0]/total_size, decimals=3)
-    test_size = np.round(X_test.shape[0]/total_size, decimals=3)
+    X_train, X_val, _, U_train, U_val, _ = lib.split_data(X, U, val_size=val_size, test_size=test_size)
 
     # Tvorba viacerych trajektorii
-    np.random.seed(42)
-    num_samples = int(10 // time_step)
+    np.random.seed(random_seed)
+    num_samples = int(X.shape[0] * val_size)
     num_trajectories = 5
     X_train, U_train = lib.generate_trajectories(X_train, U_train, num_samples=num_samples, num_trajectories=num_trajectories)
 
@@ -31,64 +32,55 @@ def sindyc_model(data):
     constraints = {
         "sim_steps": 100,
         "coeff_precision": None,
-        "max_sparsity": 24,
+        "max_complexity": 24,
         "max_coeff": 1e2,
-        "max_predict_r2": 0.7,
-        "max_state": 1e2,
-        "rmse_weight": 0.6
+        "min_r2": 0.7,
+        "max_state": 1e2
     }
 
     # Vytvorenie gridu
-    
-    window_lengths = []
-    for time_interval in [0.05, 0.1, 0.5]:
-        window_length = time_interval / time_step
-        window_lengths.append(int(window_length))
+    with lib.SINDYcEstimator() as estimator:
 
-    polyorders = [2, 3]
-    
-    # alphas = [1e-2, 1e-1]
+        library = ps.PolynomialLibrary(degree=2, include_bias=False)
+        time_vec = (np.arange(X.shape[0]) * time_step)
+        Ks = [170, 200, 230]
+        pses = [3, 4, 5]
+        derivative_orders = [0, 1]
 
-    relax_coeff_nus = [0.01, 0.1, 1.0, 10.0, 100.0]
-    reg_weight_lams = [0.1, 1.0, 10.0, 100.0]
-    regularizers = ["l1", "l2"]
-    unbiases = [False]
+        for K in Ks:
+            for p in pses:
+                for derivative_order in derivative_orders:
+                    estimator.set_feature_library("WeakPDELibrary", function_library=library, spatiotemporal_grid=time_vec, K=K, derivative_order=derivative_order, p=p)
 
-    estimator = lib.SINDYcEstimator()
-    
-    # for polyorder in polyorders:
-    #     for alpha in alphas:
-    #         estimator.set_differentiation_method("TotalVariationDenoising", order=polyorder, alpha=alpha)
+        estimator.set_differentiation_method("FiniteDifference")
 
-    for window_length in window_lengths:
-        for polyorder in polyorders:
-            estimator.set_differentiation_method("SmoothedFiniteDifference", window_length=window_length, polyorder=polyorder)
+        thresholds = lib.estimate_threshold(X, time_step, U, library, noise_level)
+        alphas = [0.001, 0.01, 0.1]
 
-    for relax_coeff_nu in relax_coeff_nus:
-        for reg_weight_lam in reg_weight_lams:
-            for regularizer in regularizers:
-                for unbias in unbiases:
-                    estimator.set_optimizer("SR3", reg_weight_lam=reg_weight_lam, relax_coeff_nu=relax_coeff_nu, regularizer=regularizer, unbias=unbias)
-    
-    estimator.set_feature_library("PolynomialLibrary", include_bias=False)
+        for threshold in thresholds:
+            for alpha in alphas:
+                estimator.set_optimizer("STLSQ", threshold=threshold, alpha=alpha, normalize_columns=False)
 
-    # Vytvorenie a hladanie konfiguracie
-    estimator.generate_configurations()
-    estimator.search_configurations(X_train, X_val, U_train, U_val, dt=time_step, n_processes=8, **constraints)
-    estimator.plot_pareto()
+                
+        X, U = None, None
 
-    data = {
-        "np.random.seed": 42,
-        "dt": time_step,
-        "val_size": val_size,
-        "test_size": test_size,
-        "train_multi_trajectories_num": num_trajectories,
-        "train_multi_trajectories_samples": num_samples,
-        "constraints": constraints
-    }
+        # Vytvorenie a hladanie konfiguracie
+        estimator.generate_configurations()
+        estimator.search_configurations(X_train, X_val, U_train, U_val, dt=time_step, n_processes=8, **constraints)
+        estimator.plot_pareto()
 
-    estimator.export_data(data, "data.json")
-    estimator.delete_tempfiles()
+        data = {
+            "np.random.seed": random_seed,
+            "dt": time_step,
+            "val_size": val_size,
+            "test_size": test_size,
+            "train_multi_trajectories_num": num_trajectories,
+            "train_multi_trajectories_samples": num_samples,
+            "constraints": constraints
+        }
+
+        estimator.export_data(data, "data.json")
+        estimator.delete_tempfiles()
 
 # ========== Funkcia pre hladanie koopmanovho operatora ==========
 def koopman_model(data):
@@ -96,10 +88,13 @@ def koopman_model(data):
     warnings.filterwarnings("ignore", category=UserWarning)
     import pykoopman
 
-    X_train, U_train, X_val, U_val, X_test, U_test, time_step = data
+    X, U, time_step, random_seed= data
+    val_size, test_size = 0.2, 0.2
+
+    X_train, X_val, X_test, U_train, U_val, U_test = lib.split_data(X, U, val_size=val_size, test_size=test_size)
 
     # Tvorba viacerych trajektorii
-    np.random.seed(42)
+    np.random.seed(random_seed)
     num_samples = int(20 / time_step)
     num_trajectories = 5
     X_train, U_train = lib.generate_trajectories(X_train, U_train, num_samples=num_samples, num_trajectories=num_trajectories)
@@ -129,7 +124,6 @@ def koopman_model(data):
     # Vytvaranie trajektorie
     X_koopman_train = sindy.simulate(x0=x_train[0], u=u_train, t=t_train)
     X_koopman_val = sindy.simulate(x0=x_val[0], u=u_val, t=t_val)
-
     
     print("SINDYc trajectory generation done.", end="\r", flush=True)
 
@@ -162,16 +156,15 @@ def koopman_model(data):
 
 if __name__ == "__main__":
     # Hlavne data
-    np.random.seed(42)
     data_csv = pd.read_csv("Simulacia.csv")
     data = data_csv.to_numpy()
     time_step = np.round(np.median(np.diff(data[:, 0])), decimals=5)
     print(f"\nEstimated time step (dt): {time_step}")
     X = np.stack((data[:, 1], data[:, 2], data[:, 3]), axis=-1)
     U = np.stack((data[:, 4]), axis=-1)
-    X_train, X_val, X_test, U_train, U_val, U_test = lib.split_data(X, U, val_size=0.2, test_size=0.2)
-    data_csv, data, X, U = None, None, None, None
-
-    data = [X_train, U_train, X_val, U_val, X_test, U_test, time_step]
+    random_seed = 42
+    data_csv, data,= None, None
+ 
+    data = [X, U, time_step, random_seed]
     sindyc_model(data)
     # koopman_model(data)
