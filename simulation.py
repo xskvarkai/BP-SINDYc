@@ -13,7 +13,7 @@ def rk4_step(dynamic_system, x_k, u_k, dt):
     return x_k + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
 # Generovanie vstupneho signalu 
-def generate_input_signal(num_samples, is_free_body, dt, noise_ratio=None):
+def generate_input_signal(num_samples, is_free_body, dt):
     if is_free_body:
         input_signal = np.zeros(num_samples, dtype=float)
             
@@ -51,17 +51,17 @@ def generate_input_signal(num_samples, is_free_body, dt, noise_ratio=None):
             system_val += (u - system_val) / tau * dt
             prev_error = error
 
-        if noise_ratio is not None:
-            noise_level = noise_ratio * np.std(input_signal)
-            noise = np.random.normal(0, noise_level, input_signal.shape)
-            input_signal += noise
-
     return input_signal
 
 def simulate(dynamic_system, initial_state, dt, num_samples, is_free_body=True, noise_ratio=None):
-    input_signal = generate_input_signal(num_samples=num_samples, is_free_body=is_free_body, dt=dt, noise_ratio=noise_ratio)
+    input_signal = generate_input_signal(num_samples=num_samples, is_free_body=is_free_body, dt=dt)
     state_trajectory = np.zeros((num_samples, len(initial_state)))
     current_state = initial_state.copy()
+
+    if noise_ratio is not None:
+        noise_level = noise_ratio * np.std(input_signal)
+        noise = np.random.normal(0, noise_level, input_signal.shape)
+        input_signal += noise
 
     for k in range(num_samples):
         current_input = input_signal[k]
@@ -72,7 +72,7 @@ def simulate(dynamic_system, initial_state, dt, num_samples, is_free_body=True, 
         noise_level = noise_ratio * np.std(state_trajectory)
         noise = np.random.normal(0, noise_level, state_trajectory.shape)
         noisy_state_trajectory = state_trajectory + noise
-
+        
         print(f"Pridaný šum na úrovni {noise_ratio * 100} % voči dátam")
 
     return state_trajectory, noisy_state_trajectory, input_signal
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     num_samples = int((time_span[1] - time_span[0]) / time_step) + 1 # pocet vzoriek
     time_vector = np.linspace(time_span[0], time_span[1], num_samples) # casovy vektor
     initial_conditions = [-8.0, 8.0, 27.0] # pociatocne podmienky
-    noise_ratio = 0.02 # * 100 sum v datach [%]: 0.02 = 2%
+    noise_ratio = 0.1 # * 100 sum v datach [%]: 0.02 = 2%
 
     # Inicializacia systemu
     dynamic_system = DynamicSystem(

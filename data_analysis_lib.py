@@ -57,9 +57,11 @@ def generate_trajectories(
     x_train: np.ndarray,
     u_train: Optional[np.ndarray] = None,
     num_samples: int = 10000,
-    num_trajectories: int = 5
+    num_trajectories: int = 5,
+    randomseed: int = 42,
 ) -> Tuple[List[np.ndarray], Optional[List[np.ndarray]]]:
 
+    np.random.seed(randomseed)
     # Ziskanie poctu vzoriek tranovacej sady
     total_train_samples = x_train.shape[0]
 
@@ -161,7 +163,10 @@ def estimate_threshold(
     min_val = np.min(trimmed_coeffs)
     max_val = np.max(trimmed_coeffs)
 
-    return np.logspace(np.log10(min_val), np.log10(max_val), 4)
+    thresholds_non_rounded = np.logspace(np.log10(min_val), np.log10(max_val), 4)
+    thresholds = [np.round(threshold, decimals=8) for threshold in thresholds_non_rounded]
+
+    return thresholds
 
 # ========== Trieda pre hladanie modelu ========== 
 class SINDYcEstimator:
@@ -174,7 +179,6 @@ class SINDYcEstimator:
         self.pareto_front = []
         self.best_config = None
         self.results_file_name = None
-        self.errors_file_name = None
 
     def __enter__(self):
         return self
@@ -453,25 +457,18 @@ class SINDYcEstimator:
                     pass
 
             # Otvorenie docasnych suborov na zapis konfiguracii
-            with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file, \
-                tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyE", suffix=".pkl") as errors_file:
+            with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file:
 
                 # Ziskanie ciest k docasnym suborom - umoznuje pracu s nimi
                 self.results_file_name = results_file.name
-                self.errors_file_name = errors_file.name
 
                 # Multiprocessing
                 with multiprocessing.Pool(processes=n_processes) as pool:
-                    for index, (result, error) in enumerate(pool.imap(run_config, configurations_and_data), 1):
-                        # Filtorvanie na Error a Result
+                    for index, result in enumerate(pool.imap(run_config, configurations_and_data), 1):
                         if result is not None:
                             sanitize_input(result)
                             result["index"] = index
                             pickle.dump(result, results_file)
-                        if error is not None:
-                            sanitize_input(error)
-                            error["index"] = index
-                            pickle.dump(error, errors_file)
                         gc.collect()
                         # UI/UX
                         print(f"Processing configuration {index}/{total_configurations} ({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
@@ -567,15 +564,13 @@ class SINDYcEstimator:
                 data = []
                 try:
                     while True:
-                        result = pickle.load(f)
-                        data.append(result)
+                        data.append(pickle.load(f))
                 except EOFError:
                     pass
             return data
         
         # Data pre export
         all_results = read_temp_file(self.results_file_name)
-        errors = read_temp_file(self.errors_file_name)
         
         if self.pareto_front is None:
             warnings.warn("Pareto front is None")
@@ -585,7 +580,7 @@ class SINDYcEstimator:
         payload = {
             "best_result": self.best_config,
             "pareto_front": self.pareto_front,
-            "errors": errors,
+            "all_results": all_results,
             "user_data": data
         }
 
@@ -601,11 +596,8 @@ class SINDYcEstimator:
     def delete_tempfiles(self):
         if self.results_file_name and os.path.exists(self.results_file_name):
             os.remove(self.results_file_name)
-        if self.errors_file_name and os.path.exists(self.errors_file_name):
-            os.remove(self.errors_file_name)
             
         self.results_file_name = None
-        self.errors_file_name = None
         return self
 
 # ========== Spustanie konfiguracie na kazdom procesore ========== 
@@ -673,7 +665,9 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
         )
 
         # Nastavenie presnoti koeficientov v modeli
+        precision = 3
         if constraints.get("coeff_precision") is not None:
+            precision = constraints["coeff_precision"]
             model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=constraints["coeff_precision"])
 
         # Zistenie celkoveho poctu validacnych dat
@@ -687,13 +681,11 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
 
         # Ak je poziadavka na pocet koeficientov nesplnena alebo je model trivialny
         if model_complexity == 0 or model_complexity > constraints["max_complexity"]:
-            error = {"configuration": config, "error": "Model is trivial or exceed max complexity"}
-            return None, error
+            return None
 
         # Ak je poziadavka na maximalnu velkost koefficientov nesplnena alebo su Nan/Inf
         if np.max(np.abs(model_coeffs)) > constraints["max_coeff"] or not np.all(np.isfinite(model_coeffs)):
-            error = {"configuration": config, "error": "Model coeff exceed max coeff or is Inf/Nan"}
-            return None, error
+            return None
         
         if isinstance(config["feature_library"], ps.WeakPDELibrary):
             model_sim = ps.SINDy(
@@ -719,20 +711,17 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
                 min_len = min(len(x_ref), len(x_sim))
 
                 if r2_score(x_ref[:min_len], x_sim[:min_len]) < constraints["min_r2"]:
-                    error = {"configuration": config, "error": "Model can't predict"}
-                    return None, error
+                    return None
 
             # Vznikla ina neocakavana chyba
             except Exception as e:
-                error = {"configuration": config, "error": e}
-                return None, error
+                return None
 
         else:
             model_sim = model
             # Ak je r2 pre predikciu vacsie ako poziadavka na maximalne r2      
             if model_sim.score(x_val, dt, x_dot_val, u_val) < constraints["min_r2"]:
-                error = {"configuration": config, "error": "Model can't predict"}
-                return None, error
+                return None
 
         current_steps = min(total_val_samples, constraints["sim_steps"])
         start_index = max(0, min(total_val_samples // 2, total_val_samples - current_steps))
@@ -756,8 +745,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
 
             # Ak model simuluje prilis nespravne
             if np.max(np.abs(x_sim)) > constraints["max_state"] or not np.all(np.isfinite(x_sim)):
-                error = {"configuration": config, "error": "Model diverg too much (exceed max state) or is not stable"}
-                return None, error
+                return None
 
             rmse = root_mean_squared_error(x_ref[:min_len], x_sim[:min_len])
             r2 = r2_score(x_ref[:min_len], x_sim[:min_len])
@@ -765,20 +753,19 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
             
             result = {
                 "configuration": config,
-                "equations": model.equations(),
+                "equations": model.equations(precision=precision),
                 "r2_score": r2,
                 "rmse": rmse,
                 "complexity": model_complexity,
                 "aic": aic,
                 "random_seed": index + 42,
             }
-            return result, None
+            return result
 
         except Exception as e:
-            error = {"configuration": config, "error": e}
-            return None, error
+            return None
 
     # Zlyhanie este pre trenovanim modelu
     except Exception as e:
-        error = {"configuration": None, "error": e}
-        return None, error
+        print(e)
+        return None
