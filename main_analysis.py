@@ -23,10 +23,9 @@ def sindyc_model(data):
     X_train, X_val, _, U_train, U_val, _ = lib.split_data(X, U, val_size=val_size, test_size=test_size)
 
     # Tvorba viacerych trajektorii
-    np.random.seed(random_seed)
     num_samples = int(X.shape[0] * val_size)
     num_trajectories = 5
-    X_train, U_train = lib.generate_trajectories(X_train, U_train, num_samples=num_samples, num_trajectories=num_trajectories)
+    X_train, U_train = lib.generate_trajectories(X_train, U_train, num_samples=num_samples, num_trajectories=num_trajectories, randomseed=random_seed)
 
     # Obmedzenia kladene na model
     constraints = {
@@ -88,25 +87,37 @@ def koopman_model(data):
     warnings.filterwarnings("ignore", category=UserWarning)
     import pykoopman
 
-    X, U, time_step, random_seed= data
+    X, U, _, _= data
+    time_step = 0.002
     val_size, test_size = 0.2, 0.2
 
     X_train, X_val, X_test, U_train, U_val, U_test = lib.split_data(X, U, val_size=val_size, test_size=test_size)
 
     # Tvorba viacerych trajektorii
-    np.random.seed(random_seed)
-    num_samples = int(20 / time_step)
+    num_samples = 10000
     num_trajectories = 5
-    X_train, U_train = lib.generate_trajectories(X_train, U_train, num_samples=num_samples, num_trajectories=num_trajectories)
+    X_train, U_train = lib.generate_trajectories(X_train, U_train, num_samples=num_samples, num_trajectories=num_trajectories, randomseed=42)
 
     # Ziskany model
-    sindy = ps.SINDy(
-        optimizer=ps.SR3(max_iter=100000, normalize_columns=True, reg_weight_lam=1.0, regularizer='L1', relax_coeff_nu=100.0, tol=1e-10),
-        differentiation_method=ps.SmoothedFiniteDifference(smoother_kws={'axis': 0, 'mode': 'interp', 'polyorder': 3, 'window_length': 51}),
-        feature_library=ps.PolynomialLibrary(include_bias=False)
+    np.random.seed(175)
+    finded_sindy = ps.SINDy(
+        optimizer=ps.STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(0.07339287), unbias=False),
+        differentiation_method=None,
+        feature_library = ps.WeakPDELibrary(
+            K=200,
+            derivative_order=1,
+            differentiation_method=ps.FiniteDifference(),
+            function_library=ps.PolynomialLibrary(include_bias=False),
+            p=5,
+            spatiotemporal_grid=np.arange(0.0, 1.9998e+01 + time_step, time_step))
     )
+    finded_sindy.fit(x=X_train, u=U_train, t=time_step)
 
-    sindy.fit(x=X_train, u=U_train, t=time_step)
+    sindy = ps.SINDy(
+        feature_library=ps.PolynomialLibrary(include_bias=False),
+    )
+    sindy.fit(x=X_train[:5], u=U_train[:5], t=time_step)
+    sindy.optimizer.coef_ = finded_sindy.optimizer.coef_
     print()
     sindy.print()
     print(sindy.score(x=X_test, u=U_test, t=time_step), end="\n\n")
@@ -121,9 +132,10 @@ def koopman_model(data):
     u_val = U_test[:val_steps]
     x_val = X_test[:val_steps]
 
+    print("SINDYc trajectory generation started.", end="\r")
     # Vytvaranie trajektorie
-    X_koopman_train = sindy.simulate(x0=x_train[0], u=u_train, t=t_train)
-    X_koopman_val = sindy.simulate(x0=x_val[0], u=u_val, t=t_val)
+    X_koopman_train = sindy.simulate(x0=x_train[0], u=u_train, t=t_train, integrator_kws={"rtol": 1e-6,"atol": 1e-6})
+    X_koopman_val = sindy.simulate(x0=x_val[0], u=u_val, t=t_val, integrator_kws={"rtol": 1e-6,"atol": 1e-6})
     
     print("SINDYc trajectory generation done.", end="\r", flush=True)
 
@@ -138,7 +150,7 @@ def koopman_model(data):
     observables = pykoopman.observables.CustomObservables(library_functions, function_names)
     edmdc = pykoopman.regression.EDMDc()
     koopman_model = pykoopman.KoopmanContinuous(observables=observables, regressor=edmdc)
-    koopman_model.fit(x=X_koopman_train, u=u_train.reshape(-1, 1), dt=time_step)
+    koopman_model.fit(x=X_koopman_train, y=X_koopman_train, u=u_train.reshape(-1, 1), dt=time_step)
 
     min_len = len(X_koopman_val)
     u_val = u_val[:min_len]
@@ -166,5 +178,5 @@ if __name__ == "__main__":
     data_csv, data,= None, None
  
     data = [X, U, time_step, random_seed]
-    sindyc_model(data)
-    # koopman_model(data)
+    # sindyc_model(data)
+    koopman_model(data)
