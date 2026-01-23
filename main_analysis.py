@@ -178,5 +178,5 @@ if __name__ == "__main__":
     data_csv, data,= None, None
  
     data = [X, U, time_step, random_seed]
-    # sindyc_model(data)
-    koopman_model(data)
+    sindyc_model(data)
+    # koopman_model(data)

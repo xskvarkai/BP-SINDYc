@@ -95,21 +95,37 @@ def find_noise(x: np.ndarray, detail_level: int = 1) -> float:
     print(f"\nNoise Analysis -> Sigma: {sigma_noise:.4f}")
     return sigma_noise
 
-def find_periodicity(x:np.ndarray) -> bool:
+def find_periodicity(x:np.ndarray, sigma_noise: float = 0.0) -> bool:
     N = len(x)
-    signal_centred = x - np.mean(x)
+    window = np.hanning(N)
+    window = window[:, np.newaxis]
+    signal_centred = x - np.mean(x, axis=0) * window
 
-    fft_spectrum = np.fft.fft(signal_centred)
-    power_spectrum = np.abs(fft_spectrum[:N//2]) ** 2
-    total_energy = np.sum(power_spectrum)
+    fft_spectrum = np.fft.rfft(signal_centred, axis=0)
 
-    if total_energy == 0:
-        warnings.warn("Signal have zero energy")
+    amplitudes = np.abs(fft_spectrum) / N * 4
+    amplitudes[0, :] = 0
+    
+    if sigma_noise > 0:
+        noise_threshold = 3.0 * sigma_noise
+        mask = amplitudes > noise_threshold
+        amplitudes_clean = amplitudes * mask
+    else:
+        amplitudes_clean = amplitudes
+
+
+    power_spectrum = amplitudes_clean ** 2
+    power_spectrum[0, :] = 0
+    total_energy = np.sum(power_spectrum, axis=0)
+
+    if total_energy.all() == 0:
+        warnings.warn("Signal have zero energy!")
         return False
 
-    max_peak = np.max(power_spectrum)
-    concentration = max_peak / total_energy
-    is_periodic = True if concentration > 0.15 else False
+    total_energy[total_energy == 0] = 1.0
+    max_peak = np.max(power_spectrum, axis=0)
+    concentration = np.mean(max_peak / total_energy)
+    is_periodic = True if concentration > 0.45 else False
 
     status = "Periodic" if is_periodic else "Aperiodic"
     print(f"\nPeriodicity Check -> Status: {status} (Concentration: {concentration:.3f})")
