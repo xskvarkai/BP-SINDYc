@@ -26,22 +26,27 @@ def split_data(
 ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray], 
            Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
 
+    # Rozdelenie casovych radov 
+    # musime zachovat casovu naslednost dynamiky:  
+    # Train: [0 ... t1], Val: [t1 ... t2], Test: [t2 ... end]
+
     # Ziskanie poctu vzoriek a poctu pre validacnu a testovaciu sadu
     num_samples = x.shape[0]
     val_count = int(np.floor(num_samples * val_size)) if val_size > 0 else 0
     test_count = int(np.floor(num_samples * test_size)) if test_size > 0 else 0
 
     # Vypocet indexov na rozdelenie dat
+    # train_index je bod zlomu medzi treningovou a (validacnou alebo testovacou) sadou
     train_index = num_samples - val_count - test_count
     val_index = train_index + val_count
     test_index = num_samples
 
-    # Rozdelenie dat na casti
+    # Rozdelenie stavovych premennych x
     x_train = x[:train_index]
     x_val = x[train_index:val_index] if val_count > 0 else None
     x_test = x[val_index:test_index] if test_count > 0 else None
 
-    # Rozdelenie vstupneho signalu ak existuje
+    # Rozdelenie vstupneho signalu u, ak existuje
     if not np.any(u) or u is None:
         u_train = u_val = u_test = None
     else:
@@ -61,24 +66,29 @@ def generate_trajectories(
     randomseed: int = 42,
 ) -> Tuple[List[np.ndarray], Optional[List[np.ndarray]]]:
 
+    # Funkcia nahodne "vysekne" pod-trajektorie z treningovych dat.
+
     np.random.seed(randomseed)
     # Ziskanie poctu vzoriek tranovacej sady
     total_train_samples = x_train.shape[0]
 
-    x_multi = []
-    u_multi = []
+    x_multi = [] # Zoznam pre stavove premenne
+    u_multi = [] # Zoznam pre riadece signaly
 
     for trajectory in range(0, num_trajectories):
+        # Kontrola poctu dat na vytvorenie trajektorie pozadovanej dlzky
         if total_train_samples < num_samples:
             start_index = 0
             warnings.warn("Insufficient samples for diverse trajectories. Consider adding more data or reducing the sample size.")
         else:
+            # Nahodny start, tak aby sa okno zmestilo do dat
             start_index = np.random.randint(0, total_train_samples - num_samples)
         
         end_index = start_index + num_samples
         trajectory = x_train[start_index:end_index]
         x_multi.append(trajectory)
 
+        # Spracovanie riadiaceho signalu
         if not np.any(u_train) or u_train is None:
             u_multi = None
         else:
@@ -88,43 +98,65 @@ def generate_trajectories(
     return x_multi, u_multi
 
 def find_noise(x: np.ndarray, detail_level: int = 1) -> float:
+    
+    # Odhad sumu pomocou vlnkovej transformacie (Wavelet Denoising princip).
+    # Predpoklad: sum je obsiahnuty v najvyssich frekvenciach (detail coefficients).
+    # Pouziva sa 'Haar' wavelet, ktory je citlivy na nahle zmeny.
+    
     coeffs = pywt.wavedec(x, "haar", axis=0)
-    details = coeffs[-detail_level] 
+    details = coeffs[-detail_level]
+
+    # Vzorec: sigma = MAD / 0.6745 (pre normalne rozdelenie sumu)
     sigma_noise = median_abs_deviation(details, scale="normal", axis=None) / np.sqrt(2)
     
     print(f"\nNoise Analysis -> Sigma: {sigma_noise:.4f}")
     return sigma_noise
 
 def find_periodicity(x:np.ndarray, sigma_noise: float = 0.0) -> bool:
+    
+    # Spektralna analyza na urcenie, ci je signal periodicky alebo chaoticky/aperiodicky.
+    
     N = len(x)
+
+    # Aplikacia Hanningovho okna na potlacenie spectral leakage
     window = np.hanning(N)
     window = window[:, np.newaxis]
+
+    # Centrovanie signalu (odstranenie DC zlozky) vazene oknom
     signal_centred = x - np.mean(x, axis=0) * window
 
+    # Rychla Fourierova Transformacia - FFT realna cast
     fft_spectrum = np.fft.rfft(signal_centred, axis=0)
 
+    # Vypocet amplitud a normalizacia
     amplitudes = np.abs(fft_spectrum) / N * 4
-    amplitudes[0, :] = 0
+    amplitudes[0, :] = 0 # Nulovanie DC zlozky natvrdo
     
+    # Prahovanie amplitud na zaklade odhadnuteho sumu (Hard Thresholding)
     if sigma_noise > 0:
-        noise_threshold = 3.0 * sigma_noise
+        noise_threshold = 3.0 * sigma_noise # 3-sigma pravidlo
         mask = amplitudes > noise_threshold
         amplitudes_clean = amplitudes * mask
     else:
         amplitudes_clean = amplitudes
 
-
+    # Vypocet vykonoveho spektra (Power Spectrum Density - PSD)
     power_spectrum = amplitudes_clean ** 2
     power_spectrum[0, :] = 0
     total_energy = np.sum(power_spectrum, axis=0)
 
+    # Ochrana proti deleniu nulou
     if total_energy.all() == 0:
         warnings.warn("Signal have zero energy!")
         return False
-
     total_energy[total_energy == 0] = 1.0
+
+    # Vypocet koncentracie energie.
+    # Ak je "vacsina" energie sustredena v maxime (dominantna frekvencia), signal je periodicky.
     max_peak = np.max(power_spectrum, axis=0)
     concentration = np.mean(max_peak / total_energy)
+
+    # Heuristicky prah 0.45
     is_periodic = True if concentration > 0.45 else False
 
     status = "Periodic" if is_periodic else "Aperiodic"
@@ -140,9 +172,15 @@ def estimate_threshold(
     normalized_columns: bool = False
 ) -> np.ndarray:
 
+    # Heuristicka funkcia na odhad optimalnej mriezky prahov (thresholds) pre algoritmus.
+    # Namiesto slepeho hadania lambda parametra, SINDy s nulovym prahom,
+    # pozrieme sa na vsetky koeficienty a vygenerujeme logaritmicku skalu
+    # medzi najmensim a najvacsim relevantnym koeficientom.
+
     if feature_library is None or x is None or dt is None:
         raise ValueError(f"Data (x), time_step (dt) and feature_library are required.")
 
+    # Spustenie predbezneho modelu bez prahovania (metoda najmensich stvorcov)
     model = ps.SINDy(
         optimizer=ps.STLSQ(threshold=0.0, alpha=1e-5, normalize_columns=True),
         feature_library=feature_library
@@ -151,6 +189,9 @@ def estimate_threshold(
     model.fit(x=x, t=dt, u=u)
     coeffs = np.abs(model.coefficients())
 
+
+    # Ak budeme pouzivat normalizaciu stlpcov, musime koeficienty "denormalizovat" pre odhad,
+    # alebo pracovat s vazenymi hodnotami, aby prahy davali zmysel v realnom meritku
     if normalized_columns:
         if u is not None:
             u_reshaped = u.reshape(-1, 1) if u.ndim == 1 else u
@@ -160,16 +201,19 @@ def estimate_threshold(
 
         Theta = model.feature_library.transform(x_for_lib)
         norms = np.linalg.norm(Theta, axis=0)
-        norms[norms == 0] = 1.0
+        norms[norms == 0] = 1.0 # Ochrana proti deleniu nulou
         coeffs = coeffs * norms
     
+    # Nastavenie minimalneho prahu sumu
     coeffs_threshold = noise_level if noise_level is not None else 1e-10
     non_zero_coeffs = coeffs[coeffs > coeffs_threshold].flatten()
 
+    # Ak su vsetky koeficienty nulove (model nenasiel nic), vrati default grid
     if len(non_zero_coeffs) == 0:
         warnings.warn(f"All coefficients for feature_library {str(feature_library)} are nearly to zero. Returning default grid.")
         return np.logspace(-3, 1, 4)
 
+    # Odrezanie extremov (percentily 5% a 95%)
     lower_bound = np.percentile(non_zero_coeffs, 5)
     upper_bound = np.percentile(non_zero_coeffs, 95)
     trimmed_coeffs = non_zero_coeffs[(non_zero_coeffs >= lower_bound) & (non_zero_coeffs <= upper_bound)]
@@ -179,6 +223,7 @@ def estimate_threshold(
     min_val = np.min(trimmed_coeffs)
     max_val = np.max(trimmed_coeffs)
 
+    # Generovanie 4 bodov na logaritmickej skale pre grid search
     thresholds_non_rounded = np.logspace(np.log10(min_val), np.log10(max_val), 4)
     thresholds = [np.round(threshold, decimals=8) for threshold in thresholds_non_rounded]
 
@@ -196,6 +241,7 @@ class SINDYcEstimator:
         self.best_config = None
         self.results_file_name = None
 
+    # Implementacia Context Managera pre automaticke cistenie docasnych suborov
     def __enter__(self):
         return self
 
@@ -233,6 +279,7 @@ class SINDYcEstimator:
                 method_kwargs[key] = value
 
         # Ak je metoda SmoothedFiniteDifference, overit ci je window_length neparne, ak nie je + 1 (malo by byt vacsie ako polyorder)
+        # Savitzky-Golay vyzaduje neparnu dlzku okna.
         if method == "SmoothedFiniteDifference":
             method_kwargs["window_length"] = max(11, method_kwargs["window_length"] if method_kwargs["window_length"] % 2 != 0 else method_kwargs["window_length"] + 1)
             # Zapisanie do self
@@ -242,7 +289,8 @@ class SINDYcEstimator:
             self.differentiation_methods.append(valid_methods[method](**method_kwargs))
         return self
 
-    # Nastavenie optimalizera
+    # Nastavenie optimalizera (riesitela riedkej regresie)
+    # Riesi problem: min ||dx - Theta * Xi|| + lambda * ||Xi||
     def set_optimizer(self, method: str, ensemble: bool = False, ensemble_kwargs: Optional[Dict] = None, **kwargs: Any) -> "SINDYcEstimator":
         # Povolene metody
         valid_methods = {
@@ -267,8 +315,6 @@ class SINDYcEstimator:
                 "regularizer": "L1",
                 "reg_weight_lam": 0.1,
                 "relax_coeff_nu": 1.0,
-                "trimming_fraction": 0.0,
-                "trimming_step_size": 1.0,
                 "max_iter": 1e5,
                 "tol": 1e-8,
                 "normalize_columns": True,
@@ -289,6 +335,9 @@ class SINDYcEstimator:
 
         base_optimizer = valid_methods[method](**method_kwargs)
 
+        # Konfigurácia Ensemble metedy (Bagging / Bootstrapping)
+        # Vytvori viacero modelov na podmnozinach dat a spriemeruje/vyberie najcastejsie koeficienty.
+        # Zvysuje robustnost voci sumu.
         if ensemble:
             default_ensemble_kwargs = {
                 "bagging": True,
@@ -309,7 +358,7 @@ class SINDYcEstimator:
         
         return self
 
-    # Nastavenie kniznice
+    # Nastavenie kniznice kandidatskych funkcii Theta(X)
     def set_feature_library(self, method: str, **kwargs: Any) -> "SINDYcEstimator":
 
         # Povolene metody
@@ -319,7 +368,7 @@ class SINDYcEstimator:
             "CustomLibrary": ps.CustomLibrary,
             "ConcatLibrary": ps.ConcatLibrary,
             "TensoredLibrary": ps.TensoredLibrary,
-            "WeakPDELibrary": ps.WeakPDELibrary
+            "WeakPDELibrary": ps.WeakPDELibrary # Pre slabu formulaciu (integralna forma), vhodne pre vysoky sum
         }
 
         # Raise error-u, ak pozadovana metoda nie je povolena
@@ -374,7 +423,7 @@ class SINDYcEstimator:
 
     # Generovanie konfiguracii
     def generate_configurations(self) -> "SINDYcEstimator":
-        # Pripad, ked nastavene poziadavky
+        # Pripad, ked nie su nastavene poziadavky
         if not self.differentiation_methods:
             raise ValueError("No differentiation methods defined. Use set_differentiation_method() first.")
         if not self.optimizers:
@@ -382,7 +431,7 @@ class SINDYcEstimator:
         if not self.feature_libraries:
             raise ValueError("No feature libraries defined. Use set_feature_library() first.")
 
-        # Iterovanie cez vsetky moznosti a vytvorenie konfiguracie pre kazdu jednu
+        # Iterovanie cez vsetky moznosti a vytvorenie zoznamu konfiguracii
         configurations = []
         for feature_library in self.feature_libraries:
             for optimizer in self.optimizers:
@@ -415,12 +464,12 @@ class SINDYcEstimator:
 
         # Predvolene obmedzenie (poziadavky na model)
         default_constraints = {
-            "sim_steps": 350,
-            "coeff_precision": None,
-            "max_complexity": 50,
-            "max_coeff": 1e2,
-            "min_r2": 0.7,
-            "max_state": 1e3
+            "sim_steps": 350, # Kolko krokov simulovat pre validaciu
+            "coeff_precision": None, # Zaokruhlovanie koeficientov
+            "max_complexity": 50, # Max pocet nenulovych členov
+            "max_coeff": 1e2, # Max hodnota koeficientu (ochrana proti explozii)
+            "min_r2": 0.7, # Minimalna presnost predikcie alebo simulacie (kratkej)
+            "max_state": 1e3 # Prah pre detekciu nestability pri integracii
         }
         # Ak su poziadavky ine, update poziadaviek
         default_constraints.update(constraints)
@@ -432,7 +481,7 @@ class SINDYcEstimator:
         if not self.configurations:
             raise ValueError("No configurations defined. Use generate_configurations() first.")
 
-        # Raise warning-u, ak je malo validacnych krokov a zmena na 11
+        # Raise warning-u, ak je malo validacnych krokov a zmena na 21
         if default_constraints["sim_steps"] <= 20:
             default_constraints["sim_steps"] = 21
             warnings.warn(f"Minimum required simulation steps are 20, validation steps increased automatically to 21")
@@ -441,11 +490,15 @@ class SINDYcEstimator:
         if total_val_samples < default_constraints["sim_steps"]:
             raise ValueError(f"Not enough validation samples. Increase validation steps to {default_constraints["sim_steps"]} or validation size")
 
+        # Pouzitie multiprocessing Manager-a pre zdielanu pamat
         with multiprocessing.Manager() as manager:
+            # Cache pre vypocitane derivacie (x_dot).
+            # Rozne konfiguracie mozu pouzivat rovnaku metodu derivacie,
+            # takze je zbytocne to pocitat znova v kazdom procese.
             cache_dict = manager.dict()
             lock = manager.Lock()
 
-            # Zbalenie dat a konfiguracie, kvoli multiprocessingu
+            # Zbalenie dat a konfiguracie, kvoli multiprocessingu (argument pre map funkciu)
             configurations_and_data = [
                     (index, config, x_train, x_val, u_train, u_val, dt, default_constraints, cache_dict, lock)
                     for index, config in enumerate(self.configurations)
@@ -473,6 +526,8 @@ class SINDYcEstimator:
                     pass
 
             # Otvorenie docasnych suborov na zapis konfiguracii
+            # Pouzivame subor namiesto drzania v pamati, pretoze vysledky mozu byt velke
+            # a pri velkom pocte konfiguracii by doslo k MemoryError.
             with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file:
 
                 # Ziskanie ciest k docasnym suborom - umoznuje pracu s nimi
@@ -480,13 +535,14 @@ class SINDYcEstimator:
 
                 # Multiprocessing
                 with multiprocessing.Pool(processes=n_processes) as pool:
+                    # imap vracia vysledky postupne ako su hotove
                     for index, result in enumerate(pool.imap(run_config, configurations_and_data), 1):
                         if result is not None:
                             sanitize_input(result)
                             result["index"] = index
                             pickle.dump(result, results_file)
-                        gc.collect()
-                        # UI/UX
+                        gc.collect() # Vynutenie Garbage Collection
+                        # UI/UX - progress bar
                         print(f"Processing configuration {index}/{total_configurations} ({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
                     print()
 
@@ -494,7 +550,7 @@ class SINDYcEstimator:
         warnings.filterwarnings("default", category=UserWarning)
         configurations_and_data.clear()
 
-        # Nacitanie vysledkov do zaznamov
+        # Nacitanie vysledkov zo suboru do pamate
         with open(self.results_file_name, "rb") as f:
             try:
                 while True:
@@ -502,7 +558,7 @@ class SINDYcEstimator:
             except EOFError:
                 pass
 
-        # UI/UX
+        # UI/UX - štatistika trvania
         print("\nParameter search complete.")
         duraction = datetime.now() - start_time
         seconds = duraction.total_seconds()
@@ -514,12 +570,12 @@ class SINDYcEstimator:
 
         # Ak existuje aspon jeden zaznam
         if self.results:
-            # Najdi najlepsi vysledok
+            # Najdi najlepsi vysledok (podla AIC - Akaike information criterion)
             self.best_config = self._select_best_config(self.results)
 
         return self
 
-    # Zostavenie pareto fronty
+    # Zostavenie pareto fronty (kompromis medzi chybou a zlozitostou)
     def _compute_pareto_front(self, results: List[Dict]) -> List[Dict]:
         # Nacitanie iba validnych (not None) zaznamov
         valid_results = [result for result in results if result is not None]
@@ -534,7 +590,9 @@ class SINDYcEstimator:
 
         # Definicia a priradienie najlespieho rmse do pareto frontu
         pareto_front = [sorted_results[0]]
-        # Kazdeho kandidata, ktory je jednoduchsi ako ten z najlepsim rmse prirad do pareto fronty
+        # Algoritmus: Kazdeho kandidata, ktory je jednoduchsi (nizsia complexity) 
+        # ako ten s najlepsim rmse, prirad do pareto fronty.
+        # Hladáme dominantne riesenia
         for candidate in sorted_results[1:]:
             if candidate["complexity"] < pareto_front[-1]["complexity"]:
                     pareto_front.append(candidate)
@@ -543,6 +601,8 @@ class SINDYcEstimator:
 
     # Vyber najlepsieho modelu z pareto zaznamov (fronty)
     def _select_best_config(self, records: List[Dict]) -> Dict[str, Any]:
+        # Vyber na zaklade AIC (Akaike Information Criterion), 
+        # ktore penalizuje zlozitost modelu
         sorted_results = sorted(records, key=lambda x: x["aic"])
         best_model = sorted_results[0]
         
@@ -551,7 +611,7 @@ class SINDYcEstimator:
     # Zobrazenie pareto fronty v grafe
     def plot_pareto(self)  -> "SINDYcEstimator":
         self.pareto_front = self._compute_pareto_front(self.results)
-        self.results.clear()
+        self.results.clear() # Uvolnenie pamate
         if self.pareto_front is None:
             return self
 
@@ -572,9 +632,9 @@ class SINDYcEstimator:
 
         return self
 
-    # Export dat
+    # Export dat do JSON
     def export_data(self, data: dict = None, path: str = "data.json") -> "SINDYcEstimator":
-        # Nacitanie docasneho suboru a dat pre export
+        # Helper na nacitanie temp suboru
         def read_temp_file(path):
             with open(path, "rb") as f:
                 data = []
@@ -602,6 +662,7 @@ class SINDYcEstimator:
 
         try:
             with open(path, "w", encoding="utf-8") as f:
+                # default=str zabezpeci serializaciu objektov ako NumPy polia
                 json.dump(payload, f, indent=5, default=str)
         except Exception as e:
             warnings.warn(e)
@@ -622,12 +683,16 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
         # Rozbalenie dat
         index, config, x_train, x_val, u_train, u_val, dt, constraints, cache_dict, lock = configuration_and_data
 
+        # Fix seedu pre reprodukovatelnost v kazdom procese
         np.random.seed(index + 42)
 
         # Ignorovanie warningov pocas hladania
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", module="pysindy.utils")
 
+        # Specialne osetrenie pre WeakPDELibrary (integralna formulacia)
+        # Tento typ kniznice interne pocita derivacie inak, preto differentiation_method = None
+        # Taktiez problem s AxesArray
         if isinstance(config["feature_library"], ps.WeakPDELibrary):
             params = config["feature_library"].get_params()
 
@@ -647,19 +712,23 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
 
             config["differentiation_method"] = None
 
-        # Zostavenie modelu
+        # Zostavenie SINDy modelu
         model = ps.SINDy(
             optimizer=config["optimizer"],
             feature_library=config["feature_library"],
             differentiation_method=config["differentiation_method"]
         )
 
+        # Caching derivacii (x_dot)
+        # Vypocet derivacie je drahy. Ak uz iny proces vypocital deriváciu
+        # pre rovnake parametre, pouzijeme ju zo zdielanej pamate.
         if config["differentiation_method"] is not None:
             key = str(config["differentiation_method"])
             if key in cache_dict.keys():
                 x_dot_train, x_dot_val = cache_dict[key]
             else:
                 with lock:
+                    # Double-check locking pattern
                     if key not in cache_dict.keys():
                         if isinstance(x_train, list):
                             x_dot_train = [model.differentiation_method(traj, dt) for traj in x_train]
@@ -688,21 +757,24 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
 
         # Zistenie celkoveho poctu validacnych dat
         total_val_samples = x_val.shape[0]
-        # Pocet krokov na rychlu validaciu
+        # Pocet krokov na rychlu validaciu (stabilita)
         val_steps = 20
-        # Poznamka: bola by vhodna kontrola ci je total_val_samples > val_steps
 
         model_coeffs = model.coefficients()
         model_complexity = np.count_nonzero(model_coeffs)
 
+        # FILTER 1: Zlozitost
         # Ak je poziadavka na pocet koeficientov nesplnena alebo je model trivialny
         if model_complexity == 0 or model_complexity > constraints["max_complexity"]:
             return None
 
+        # FILTER 2: Velkost koeficientov
         # Ak je poziadavka na maximalnu velkost koefficientov nesplnena alebo su Nan/Inf
         if np.max(np.abs(model_coeffs)) > constraints["max_coeff"] or not np.all(np.isfinite(model_coeffs)):
             return None
         
+        # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny
+        # Specialna vetva pre simulaciu WeakPDE (vyzaduje iny pristup k simulatoru)
         if isinstance(config["feature_library"], ps.WeakPDELibrary):
             model_sim = ps.SINDy(
                     feature_library=model.feature_library.get_params().get("function_library"),
@@ -713,7 +785,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
             model_sim.fit(dummy_x[:10], t=dt, u=dummy_u)
             model_sim.optimizer.coef_ = model.optimizer.coef_
 
-            # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny pri simulaciach
+            # Robime kratku simulaciu (val_steps).
             current_steps = min(val_steps, total_val_samples)
             start_index = max(0, min(2 * total_val_samples // 3, total_val_samples - current_steps))
 
@@ -726,6 +798,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
                 x_sim = model_sim.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws={"rtol": 1e-3, "atol": 1e-3})
                 min_len = min(len(x_ref), len(x_sim))
 
+                # Ak model nepredikuje trajektoriu dostatocne presne (podla R2), zahodime ho.
                 if r2_score(x_ref[:min_len], x_sim[:min_len]) < constraints["min_r2"]:
                     return None
 
@@ -735,16 +808,17 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
 
         else:
             model_sim = model
-            # Ak je r2 pre predikciu vacsie ako poziadavka na maximalne r2      
+            # Rychly check pre standardne modely:
+            # model.score() pocita R2 derivacie x_dot = f(x), nie trajektorie x(t).
+            # Je to rychlejsie ako simulacia.
             if model_sim.score(x_val, dt, x_dot_val, u_val) < constraints["min_r2"]:
                 return None
 
+        # FINAL SIMULATION
+        # Dlhsia simulacia pre vypocet finalnych metrik.
         current_steps = min(total_val_samples, constraints["sim_steps"])
         start_index = max(0, min(total_val_samples // 2, total_val_samples - current_steps))
 
-        # Vytvorenie dat pre finalnu simulacie kvoli RMSE stavov
-        # Model.predict a Model.score pracuju s derivaciami stavov, 
-        # je lespie kontrolovat stavy a derivacie budu spravne
         x0 = x_val[start_index]
         t_segment = np.arange(current_steps) * dt
         u_segment = u_val[start_index : start_index + current_steps] if u_val is not None else None
@@ -759,12 +833,18 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
             )
             min_len = min(len(x_ref), len(x_sim))
 
-            # Ak model simuluje prilis nespravne
+            # Ak model simuluje prilis nespravne (diverguje do nekonecna)
             if np.max(np.abs(x_sim)) > constraints["max_state"] or not np.all(np.isfinite(x_sim)):
                 return None
 
+            # Vypocet metrik
             rmse = root_mean_squared_error(x_ref[:min_len], x_sim[:min_len])
             r2 = r2_score(x_ref[:min_len], x_sim[:min_len])
+            
+            # AIC (Akaike Information Criterion)
+            # Aproximacia pre Gaussian noise: AIC = N * ln(MSE) + 2k
+            # Pouzita korekcia AICc pre male vzorky: + (2k(k+1)) / (n - k - 1)
+            # Penalizuje modely, ktore su prilis komplexne (vela koeficientov k).
             aic = min_len * np.log(rmse ** 2) + 2 * model_complexity + 2 * model_complexity / (min_len - model_complexity - 1) # Korigovane AIC
             
             result = {

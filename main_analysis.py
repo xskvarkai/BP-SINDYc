@@ -87,18 +87,19 @@ def koopman_model(data):
     warnings.filterwarnings("ignore", category=UserWarning)
     import pykoopman
 
+    # Podla dat z grid search
     X, U, _, _= data
     time_step = 0.002
     val_size, test_size = 0.2, 0.2
 
     X_train, X_val, X_test, U_train, U_val, U_test = lib.split_data(X, U, val_size=val_size, test_size=test_size)
 
-    # Tvorba viacerych trajektorii
+    # Tvorba viacerych trajektorii podla dat z grid search
     num_samples = 10000
     num_trajectories = 5
     X_train, U_train = lib.generate_trajectories(X_train, U_train, num_samples=num_samples, num_trajectories=num_trajectories, randomseed=42)
 
-    # Ziskany model
+    # Ziskany model z grid search
     np.random.seed(175)
     finded_sindy = ps.SINDy(
         optimizer=ps.STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(0.07339287), unbias=False),
@@ -113,12 +114,14 @@ def koopman_model(data):
     )
     finded_sindy.fit(x=X_train, u=U_train, t=time_step)
 
+    # Pristup k weak formulation a simulacii trajektorii
     sindy = ps.SINDy(
         feature_library=ps.PolynomialLibrary(include_bias=False),
     )
     sindy.fit(x=X_train[:5], u=U_train[:5], t=time_step)
     sindy.optimizer.coef_ = finded_sindy.optimizer.coef_
     print()
+    # Vypisanie modelu a jeho skore na testovacej sade (ina ako validacna)
     sindy.print()
     print(sindy.score(x=X_test, u=U_test, t=time_step), end="\n\n")
 
