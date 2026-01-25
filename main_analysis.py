@@ -20,7 +20,7 @@ def sindyc_model(data):
     noise_level = lib.find_noise(X)
     lib.find_periodicity(X)
 
-    X_train, X_val, _, U_train, U_val, _ = lib.split_data(X, U, val_size=val_size, test_size=test_size)
+    X_train, X_val, X_test, U_train, U_val, U_test = lib.split_data(X, U, val_size=val_size, test_size=test_size)
 
     # Tvorba viacerych trajektorii
     num_samples = int(X.shape[0] * val_size)
@@ -29,7 +29,7 @@ def sindyc_model(data):
 
     # Obmedzenia kladene na model
     constraints = {
-        "sim_steps": 100,
+        "sim_steps": 300,
         "coeff_precision": None,
         "max_complexity": 24,
         "max_coeff": 1e2,
@@ -67,6 +67,7 @@ def sindyc_model(data):
         estimator.generate_configurations()
         estimator.search_configurations(X_train, X_val, U_train, U_val, dt=time_step, n_processes=8, **constraints)
         estimator.plot_pareto()
+        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt=time_step)
 
         data = {
             "np.random.seed": random_seed,
@@ -78,7 +79,7 @@ def sindyc_model(data):
             "constraints": constraints
         }
 
-        estimator.export_data(data, "data.json")
+        estimator.export_data(data, "data_pokus.json")
         estimator.delete_tempfiles()
 
 # ========== Funkcia pre hladanie koopmanovho operatora ==========
@@ -101,7 +102,7 @@ def koopman_model(data):
 
     # Ziskany model z grid search
     np.random.seed(175)
-    finded_sindy = ps.SINDy(
+    found_sindy = ps.SINDy(
         optimizer=ps.STLSQ(alpha=0.01, max_iter=100000, threshold=np.float64(0.07339287), unbias=False),
         differentiation_method=None,
         feature_library = ps.WeakPDELibrary(
@@ -112,14 +113,14 @@ def koopman_model(data):
             p=5,
             spatiotemporal_grid=np.arange(0.0, 1.9998e+01 + time_step, time_step))
     )
-    finded_sindy.fit(x=X_train, u=U_train, t=time_step)
+    found_sindy.fit(x=X_train, u=U_train, t=time_step)
 
     # Pristup k weak formulation a simulacii trajektorii
     sindy = ps.SINDy(
         feature_library=ps.PolynomialLibrary(include_bias=False),
     )
     sindy.fit(x=X_train[:5], u=U_train[:5], t=time_step)
-    sindy.optimizer.coef_ = finded_sindy.optimizer.coef_
+    sindy.optimizer.coef_ = found_sindy.optimizer.coef_
     print()
     # Vypisanie modelu a jeho skore na testovacej sade (ina ako validacna)
     sindy.print()
