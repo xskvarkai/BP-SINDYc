@@ -16,6 +16,51 @@ from scipy.stats import median_abs_deviation
 
 import pywt
 
+# Vlastná upravená verzia WeakPDELibrary na obídenie chyby
+class FixedWeakPDELibrary(ps.WeakPDELibrary):
+    def __init__(
+        self,
+        function_library: Optional[ps.feature_library.base.BaseFeatureLibrary] = None,
+        derivative_order: int = 0,
+        spatiotemporal_grid=None,
+        include_bias: bool = False,
+        include_interaction: bool = True,
+        K: int = 100,
+        H_xt=None,
+        p: int = 4,
+        num_pts_per_domain=None,
+        implicit_terms: bool = False,
+        multiindices=None,
+        differentiation_method=ps.FiniteDifference,
+        diff_kwargs: dict = {},
+        is_uniform=None,
+        periodic=None,
+    ):
+        # Zavolajte pôvodný konstruktor rodičovskej triedy
+        # Dôležité: parametre is_uniform a periodic sú odovzdané,
+        # aj keď ich pôvodný konstruktor nepoužíva na nastavenie atribútov.
+        super().__init__(
+            function_library=function_library,
+            derivative_order=derivative_order,
+            spatiotemporal_grid=spatiotemporal_grid,
+            include_bias=include_bias,
+            include_interaction=include_interaction,
+            K=K,
+            H_xt=H_xt,
+            p=p,
+            num_pts_per_domain=num_pts_per_domain,
+            implicit_terms=implicit_terms,
+            multiindices=multiindices,
+            differentiation_method=differentiation_method,
+            diff_kwargs=diff_kwargs,
+            is_uniform=is_uniform,
+            periodic=periodic,
+        )
+        # Explicitne nastavte chýbajúce atribúty, ktoré očakáva zvyšok knižnice pysindy
+        self.is_uniform = is_uniform
+        self.periodic = periodic
+        self.num_pts_per_domain = num_pts_per_domain
+
 # ========== Pomocne funkcie pre spracovanie dat ==========
 
 def split_data(
@@ -270,7 +315,8 @@ class SINDYcEstimator:
             }
         }
 
-        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac), inac warning.
+        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac), 
+        # inac warning.
         method_kwargs = default_kwargs[method].copy()
         for key, value in kwargs.items():
             if key not in method_kwargs:
@@ -322,7 +368,8 @@ class SINDYcEstimator:
             }
         }
 
-        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac), inac warning.
+        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac),
+        # inac warning.
         method_kwargs = default_kwargs[method].copy()
         for key, value in kwargs.items():
             if key not in method_kwargs:
@@ -368,7 +415,7 @@ class SINDYcEstimator:
             "CustomLibrary": ps.CustomLibrary,
             "ConcatLibrary": ps.ConcatLibrary,
             "TensoredLibrary": ps.TensoredLibrary,
-            "WeakPDELibrary": ps.WeakPDELibrary # Pre slabu formulaciu (integralna forma), vhodne pre vysoky sum
+            "WeakPDELibrary": FixedWeakPDELibrary # Pre slabu formulaciu (integralna forma), vhodne pre vysoky sum
         }
 
         # Raise error-u, ak pozadovana metoda nie je povolena
@@ -409,7 +456,8 @@ class SINDYcEstimator:
             }
         }
         
-        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac), inac warning.
+        # Nastavenie argumentov pre pozadovanu metodu. Musia byt zadane iba tie co su v predovelnej (pripadne menej, nie viac),
+        # inac warning.
         method_kwargs = default_kwargs[method].copy()
         for key, value in kwargs.items():
             if key not in method_kwargs:
@@ -544,17 +592,18 @@ class SINDYcEstimator:
                     for index, result in enumerate(pool.imap(run_config, configurations_and_data), 1):
                         try:
                             sanitize_input(result)
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            f_log.write(f"[{timestamp}] Result {index}: {str(result)}\n{"-"*180}\n\n")
+                            f_log.flush()
                             if not result.get("error"):
                                 result["index"] = index
                                 pickle.dump(result, results_file)
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            f_log.write(f"[{timestamp}] Result {index}: {str(result)}\n")
-                            f_log.flush()
                         except Exception as e:
                             warnings.warn(e)
                         gc.collect() # Vynutenie Garbage Collection
                         # UI/UX - progress bar
-                        print(f"Processing configuration {index}/{total_configurations} ({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
+                        print(f"Processing configuration {index}/{total_configurations}" 
+                              f"({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
                     print()
 
         # Znovuzapnutie warningov a vycistenie nepotrebnych dat
@@ -693,14 +742,14 @@ class SINDYcEstimator:
         np.random.seed(self.best_config.get("random_seed", 42))
 
         # Osetrenie pre WeakPDE (rovnaka logika ako v run_config)
-        if isinstance(config["feature_library"], ps.WeakPDELibrary):
+        if isinstance(config["feature_library"], FixedWeakPDELibrary):
             params = config["feature_library"].get_params()
             if isinstance(x_train, list):
                 time_vec = (np.arange(x_train[0].shape[0]) * dt)
             else:
                 time_vec = (np.arange(x_train.shape[0]) * dt)
             
-            config["feature_library"] = ps.WeakPDELibrary(
+            config["feature_library"] = FixedWeakPDELibrary(
                 function_library=params.get("function_library", None),
                 derivative_order=params.get("derivative_order", 0),
                 spatiotemporal_grid=time_vec,
@@ -810,7 +859,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
         # Specialne osetrenie pre WeakPDELibrary (integralna formulacia)
         # Tento typ kniznice interne pocita derivacie inak, preto differentiation_method = None
         # Taktiez problem s AxesArray
-        if isinstance(config["feature_library"], ps.WeakPDELibrary):
+        if isinstance(config["feature_library"], FixedWeakPDELibrary):
             params = config["feature_library"].get_params()
 
             if isinstance(x_train, list):
@@ -818,7 +867,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
             else:
                 time_vec = (np.arange(x_train.shape[0]) * dt)
             
-            config["feature_library"] = ps.WeakPDELibrary(
+            config["feature_library"] = FixedWeakPDELibrary(
                 function_library=params.get("function_library", None),
                 derivative_order=params.get("derivative_order", 0),
                 spatiotemporal_grid=time_vec,
@@ -892,7 +941,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
         
         # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny
         # Specialna vetva pre simulaciu WeakPDE (vyzaduje iny pristup k simulatoru)
-        if isinstance(config["feature_library"], ps.WeakPDELibrary):
+        if isinstance(config["feature_library"], FixedWeakPDELibrary):
             model_sim = ps.SINDy(
                     feature_library=model.feature_library.get_params().get("function_library"),
                 )

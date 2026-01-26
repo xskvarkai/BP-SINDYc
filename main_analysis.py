@@ -67,7 +67,6 @@ def sindyc_model(data):
         estimator.generate_configurations()
         estimator.search_configurations(X_train, X_val, U_train, U_val, dt=time_step, n_processes=8, **constraints)
         estimator.plot_pareto()
-        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt=time_step)
 
         data = {
             "np.random.seed": random_seed,
@@ -79,6 +78,7 @@ def sindyc_model(data):
             "constraints": constraints
         }
 
+        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt=time_step)
         estimator.export_data(data, "data_pokus.json")
         estimator.delete_tempfiles()
 
@@ -120,6 +120,8 @@ def koopman_model(data):
         feature_library=ps.PolynomialLibrary(include_bias=False),
     )
     sindy.fit(x=X_train[:5], u=U_train[:5], t=time_step)
+
+    
     sindy.optimizer.coef_ = found_sindy.optimizer.coef_
     print()
     # Vypisanie modelu a jeho skore na testovacej sade (ina ako validacna)
