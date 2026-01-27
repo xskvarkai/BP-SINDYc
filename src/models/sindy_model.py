@@ -9,270 +9,10 @@ import gc
 import os
 import matplotlib.pyplot as plt
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple, Union
-
+from typing import List, Dict, Any, Optional, Tuple
 from sklearn.metrics import root_mean_squared_error, r2_score
-from scipy.stats import median_abs_deviation
 
-import pywt
-
-# Vlastná upravená verzia WeakPDELibrary na obídenie chyby
-class FixedWeakPDELibrary(ps.WeakPDELibrary):
-    def __init__(
-        self,
-        function_library: Optional[ps.feature_library.base.BaseFeatureLibrary] = None,
-        derivative_order: int = 0,
-        spatiotemporal_grid=None,
-        include_bias: bool = False,
-        include_interaction: bool = True,
-        K: int = 100,
-        H_xt=None,
-        p: int = 4,
-        num_pts_per_domain=None,
-        implicit_terms: bool = False,
-        multiindices=None,
-        differentiation_method=ps.FiniteDifference,
-        diff_kwargs: dict = {},
-        is_uniform=None,
-        periodic=None,
-    ):
-        # Zavolajte pôvodný konstruktor rodičovskej triedy
-        # Dôležité: parametre is_uniform a periodic sú odovzdané,
-        # aj keď ich pôvodný konstruktor nepoužíva na nastavenie atribútov.
-        super().__init__(
-            function_library=function_library,
-            derivative_order=derivative_order,
-            spatiotemporal_grid=spatiotemporal_grid,
-            include_bias=include_bias,
-            include_interaction=include_interaction,
-            K=K,
-            H_xt=H_xt,
-            p=p,
-            num_pts_per_domain=num_pts_per_domain,
-            implicit_terms=implicit_terms,
-            multiindices=multiindices,
-            differentiation_method=differentiation_method,
-            diff_kwargs=diff_kwargs,
-            is_uniform=is_uniform,
-            periodic=periodic,
-        )
-        # Explicitne nastavte chýbajúce atribúty, ktoré očakáva zvyšok knižnice pysindy
-        self.is_uniform = is_uniform
-        self.periodic = periodic
-        self.num_pts_per_domain = num_pts_per_domain
-
-# ========== Pomocne funkcie pre spracovanie dat ==========
-
-def split_data(
-    x: np.ndarray,
-    u: Optional[np.ndarray] = None,
-    val_size: float = 0.0,
-    test_size: float = 0.2
-) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray], 
-           Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
-
-    # Rozdelenie casovych radov 
-    # musime zachovat casovu naslednost dynamiky:  
-    # Train: [0 ... t1], Val: [t1 ... t2], Test: [t2 ... end]
-
-    # Ziskanie poctu vzoriek a poctu pre validacnu a testovaciu sadu
-    num_samples = x.shape[0]
-    val_count = int(np.floor(num_samples * val_size)) if val_size > 0 else 0
-    test_count = int(np.floor(num_samples * test_size)) if test_size > 0 else 0
-
-    # Vypocet indexov na rozdelenie dat
-    # train_index je bod zlomu medzi treningovou a (validacnou alebo testovacou) sadou
-    train_index = num_samples - val_count - test_count
-    val_index = train_index + val_count
-    test_index = num_samples
-
-    # Rozdelenie stavovych premennych x
-    x_train = x[:train_index]
-    x_val = x[train_index:val_index] if val_count > 0 else None
-    x_test = x[val_index:test_index] if test_count > 0 else None
-
-    # Rozdelenie vstupneho signalu u, ak existuje
-    if not np.any(u) or u is None:
-        u_train = u_val = u_test = None
-    else:
-        if u.ndim == 1:
-            u = u.reshape(-1, 1)
-        u_train = u[:train_index]
-        u_val = u[train_index:val_index] if val_count > 0 else None
-        u_test = u[val_index:test_index] if test_count > 0 else None
-        
-    return x_train, x_val, x_test, u_train, u_val, u_test
-
-def generate_trajectories(
-    x_train: np.ndarray,
-    u_train: Optional[np.ndarray] = None,
-    num_samples: int = 10000,
-    num_trajectories: int = 5,
-    randomseed: int = 42,
-) -> Tuple[List[np.ndarray], Optional[List[np.ndarray]]]:
-
-    # Funkcia nahodne "vysekne" pod-trajektorie z treningovych dat.
-
-    np.random.seed(randomseed)
-    # Ziskanie poctu vzoriek tranovacej sady
-    total_train_samples = x_train.shape[0]
-
-    x_multi = [] # Zoznam pre stavove premenne
-    u_multi = [] # Zoznam pre riadece signaly
-
-    for trajectory in range(0, num_trajectories):
-        # Kontrola poctu dat na vytvorenie trajektorie pozadovanej dlzky
-        if total_train_samples < num_samples:
-            start_index = 0
-            warnings.warn("Insufficient samples for diverse trajectories. Consider adding more data or reducing the sample size.")
-        else:
-            # Nahodny start, tak aby sa okno zmestilo do dat
-            start_index = np.random.randint(0, total_train_samples - num_samples)
-        
-        end_index = start_index + num_samples
-        trajectory = x_train[start_index:end_index]
-        x_multi.append(trajectory)
-
-        # Spracovanie riadiaceho signalu
-        if not np.any(u_train) or u_train is None:
-            u_multi = None
-        else:
-            input_signal = u_train[start_index:end_index]
-            u_multi.append(input_signal)
-
-    return x_multi, u_multi
-
-def find_noise(x: np.ndarray, detail_level: int = 1) -> float:
-    
-    # Odhad sumu pomocou vlnkovej transformacie (Wavelet Denoising princip).
-    # Predpoklad: sum je obsiahnuty v najvyssich frekvenciach (detail coefficients).
-    # Pouziva sa 'Haar' wavelet, ktory je citlivy na nahle zmeny.
-    
-    coeffs = pywt.wavedec(x, "haar", axis=0)
-    details = coeffs[-detail_level]
-
-    # Vzorec: sigma = MAD / 0.6745 (pre normalne rozdelenie sumu)
-    sigma_noise = median_abs_deviation(details, scale="normal", axis=None) / np.sqrt(2)
-    
-    print(f"\nNoise Analysis -> Sigma: {sigma_noise:.4f}")
-    return sigma_noise
-
-def find_periodicity(x:np.ndarray, sigma_noise: float = 0.0) -> bool:
-    
-    # Spektralna analyza na urcenie, ci je signal periodicky alebo chaoticky/aperiodicky.
-    
-    N = len(x)
-
-    # Aplikacia Hanningovho okna na potlacenie spectral leakage
-    window = np.hanning(N)
-    window = window[:, np.newaxis]
-
-    # Centrovanie signalu (odstranenie DC zlozky) vazene oknom
-    signal_centred = x - np.mean(x, axis=0) * window
-
-    # Rychla Fourierova Transformacia - FFT realna cast
-    fft_spectrum = np.fft.rfft(signal_centred, axis=0)
-
-    # Vypocet amplitud a normalizacia
-    amplitudes = np.abs(fft_spectrum) / N * 4
-    amplitudes[0, :] = 0 # Nulovanie DC zlozky natvrdo
-    
-    # Prahovanie amplitud na zaklade odhadnuteho sumu (Hard Thresholding)
-    if sigma_noise > 0:
-        noise_threshold = 3.0 * sigma_noise # 3-sigma pravidlo
-        mask = amplitudes > noise_threshold
-        amplitudes_clean = amplitudes * mask
-    else:
-        amplitudes_clean = amplitudes
-
-    # Vypocet vykonoveho spektra (Power Spectrum Density - PSD)
-    power_spectrum = amplitudes_clean ** 2
-    power_spectrum[0, :] = 0
-    total_energy = np.sum(power_spectrum, axis=0)
-
-    # Ochrana proti deleniu nulou
-    if total_energy.all() == 0:
-        warnings.warn("Signal have zero energy!")
-        return False
-    total_energy[total_energy == 0] = 1.0
-
-    # Vypocet koncentracie energie.
-    # Ak je "vacsina" energie sustredena v maxime (dominantna frekvencia), signal je periodicky.
-    max_peak = np.max(power_spectrum, axis=0)
-    concentration = np.mean(max_peak / total_energy)
-
-    # Heuristicky prah 0.45
-    is_periodic = True if concentration > 0.45 else False
-
-    status = "Periodic" if is_periodic else "Aperiodic"
-    print(f"\nPeriodicity Check -> Status: {status} (Concentration: {concentration:.3f})")
-    return is_periodic
-
-def estimate_threshold(
-    x: np.ndarray,
-    dt: float,
-    u: Optional[np.ndarray] = None,
-    feature_library: ps.feature_library = None,
-    noise_level: Optional[float] = None,
-    normalized_columns: bool = False
-) -> np.ndarray:
-
-    # Heuristicka funkcia na odhad optimalnej mriezky prahov (thresholds) pre algoritmus.
-    # Namiesto slepeho hadania lambda parametra, SINDy s nulovym prahom,
-    # pozrieme sa na vsetky koeficienty a vygenerujeme logaritmicku skalu
-    # medzi najmensim a najvacsim relevantnym koeficientom.
-
-    if feature_library is None or x is None or dt is None:
-        raise ValueError(f"Data (x), time_step (dt) and feature_library are required.")
-
-    # Spustenie predbezneho modelu bez prahovania (metoda najmensich stvorcov)
-    model = ps.SINDy(
-        optimizer=ps.STLSQ(threshold=0.0, alpha=1e-5, normalize_columns=True),
-        feature_library=feature_library
-    )
-
-    model.fit(x=x, t=dt, u=u)
-    coeffs = np.abs(model.coefficients())
-
-
-    # Ak budeme pouzivat normalizaciu stlpcov, musime koeficienty "denormalizovat" pre odhad,
-    # alebo pracovat s vazenymi hodnotami, aby prahy davali zmysel v realnom meritku
-    if normalized_columns:
-        if u is not None:
-            u_reshaped = u.reshape(-1, 1) if u.ndim == 1 else u
-            x_for_lib = np.hstack((x, u_reshaped))
-        else:
-            x_for_lib = x
-
-        Theta = model.feature_library.transform(x_for_lib)
-        norms = np.linalg.norm(Theta, axis=0)
-        norms[norms == 0] = 1.0 # Ochrana proti deleniu nulou
-        coeffs = coeffs * norms
-    
-    # Nastavenie minimalneho prahu sumu
-    coeffs_threshold = noise_level if noise_level is not None else 1e-10
-    non_zero_coeffs = coeffs[coeffs > coeffs_threshold].flatten()
-
-    # Ak su vsetky koeficienty nulove (model nenasiel nic), vrati default grid
-    if len(non_zero_coeffs) == 0:
-        warnings.warn(f"All coefficients for feature_library {str(feature_library)} are nearly to zero. Returning default grid.")
-        return np.logspace(-3, 1, 4)
-
-    # Odrezanie extremov (percentily 5% a 95%)
-    lower_bound = np.percentile(non_zero_coeffs, 5)
-    upper_bound = np.percentile(non_zero_coeffs, 95)
-    trimmed_coeffs = non_zero_coeffs[(non_zero_coeffs >= lower_bound) & (non_zero_coeffs <= upper_bound)]
-    if len(trimmed_coeffs) < 2:
-        trimmed_coeffs = non_zero_coeffs
-    
-    min_val = np.min(trimmed_coeffs)
-    max_val = np.max(trimmed_coeffs)
-
-    # Generovanie 4 bodov na logaritmickej skale pre grid search
-    thresholds_non_rounded = np.logspace(np.log10(min_val), np.log10(max_val), 4)
-    thresholds = [np.round(threshold, decimals=8) for threshold in thresholds_non_rounded]
-
-    return thresholds
+from utils.custom_libraries import FixedWeakPDELibrary
 
 # ========== Trieda pre hladanie modelu ========== 
 class SINDYcEstimator:
@@ -576,7 +316,7 @@ class SINDYcEstimator:
             # Otvorenie docasnych suborov na zapis konfiguracii
             # Pouzivame subor namiesto drzania v pamati, pretoze vysledky mozu byt velke
             # a pri velkom pocte konfiguracii by doslo k MemoryError.
-            log_file_path = "worker_results.log"
+            log_file_path = "data/processed/worker_results.log"
             if os.path.exists(log_file_path):
                 os.remove(log_file_path)
 
@@ -714,7 +454,7 @@ class SINDYcEstimator:
         }
 
         try:
-            with open(path, "w", encoding="utf-8") as f:
+            with open("data/processed/" + path, "w", encoding="utf-8") as f:
                 # default=str zabezpeci serializaciu objektov ako NumPy polia
                 json.dump(payload, f, indent=5, default=str)
         except Exception as e:
@@ -781,6 +521,7 @@ class SINDYcEstimator:
 
         model = None
 
+        print("\nStarting validation on test data...")
         x0 = x_test[0]
         t_test = np.arange(x_test.shape[0]) * dt
         u_test = u_test[0 : 0 + x_test.shape[0]] if u_test is not None else None
@@ -810,22 +551,9 @@ class SINDYcEstimator:
             }
 
             if plot:
-                num_state_vars = x_test.shape[1] # Počet stavových premenných
-                
-                plt.figure(figsize=(12, 6))
-                for i in range(num_state_vars):
-                    plt.subplot(num_state_vars, 1, i + 1) # Vytvorí subplott pre každú premennú
-                    plt.plot(t_test_cut, x_test_cut[:, i], "k-", label=f"Skutočné dáta ($x_{i+1}$)")
-                    plt.plot(t_test_cut, x_sim_cut[:, i], "r--", label=f"Predikcia modelu ($x_{i+1}$)")
-                    plt.ylabel(f"$x_{i+1}$")
-                    plt.legend()
-                    if i == 0: # Názov grafu len pre prvý subplot
-                        plt.title("Porovnanie skutočných a simulovaných dát na testovacej sade")
-                    if i == num_state_vars - 1: # X-ová os len pre posledný subplot
-                        plt.xlabel("Čas (s)")
-                    plt.grid(True)
-                plt.tight_layout()
-                plt.show()
+                from utils.vizualization import vizualize_trajectory
+
+                vizualize_trajectory(t_test_cut, x_sim_cut, x_test_cut)
 
             warnings.filterwarnings("default", category=UserWarning)
             return self
