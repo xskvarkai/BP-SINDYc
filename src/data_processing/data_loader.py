@@ -1,15 +1,21 @@
 import pandas as pd
 import numpy as np
 from typing import Optional, List, Tuple
+from pathlib import Path  
+import yaml
+
+from utils import constants
 
 def load_data(
-    file_path: str,
+    file_name: str,
     time: Optional[np.ndarray | float] = None,
     include_control_input: bool = True,
     column_indices: Optional[List[int] | Tuple[int, ...]] = None
 ) -> Tuple[np.ndarray, np.ndarray, float]:
 
-    data_csv = pd.read_csv("data/raw/" + file_path + ".csv")
+    data_dir = Path(constants.DATA_LOAD_PATH)
+    filepath = data_dir / f"{file_name}.csv" 
+    data_csv = pd.read_csv(filepath)
     data = data_csv.to_numpy()
 
     dt_value: float
@@ -30,7 +36,7 @@ def load_data(
         dt_value = time
         print(f"\nProvided time step (dt): {dt_value}")
     else:
-        raise ValueError(f"The 'time' parameter must be None, np.ndarray, or float. Accepted type: {type(time)}")
+        raise ValueError(f"The \"time\" parameter must be None, np.ndarray, or float. Accepted type: {type(time)}")
 
     if not isinstance(column_indices, (list, tuple)) or not all(isinstance(i, int) for i in column_indices):
         raise TypeError("column_indices must be a list or an n-tuple of integers.")
@@ -61,3 +67,10 @@ def load_data(
     X = np.stack([data[:, col_idx] for col_idx in X_cols], axis=-1)
 
     return X, U_data, dt_value
+
+def load_config(file_name: str):
+    data_dir = Path(constants.CONFIGURATION_PATH)
+    filepath = data_dir / f"{file_name}.yaml" 
+
+    with open(filepath, "r") as f:  
+        return yaml.safe_load(f)

@@ -5,9 +5,6 @@ C:.
 │   LICENSE
 │   README.md
 │
-├───.vscode
-│       settings.json
-│
 ├───config
 │       koopman_params.yaml
 │       simulation_params.yaml
@@ -16,6 +13,8 @@ C:.
 ├───data
 │   ├───processed
 │   │       data.json
+|   |       pareto_front.png
+|   |       real_vs_sim.png
 │   │       worker_results.log
 │   │
 │   └───raw
@@ -41,6 +40,7 @@ C:.
     │       __init__.py
     │
     └───utils
+            constants.py
             custom_libraries.py
             helpers.py
             vizualization.py
@@ -48,7 +48,7 @@ C:.
 
 
 ## Config
-Zatiaľ neimplementované
+Základné nastavenia pre simuláciu a hľadanie SINDY modelu
 
 ## src
 Spúštenie kódu pre simuláciu je cez simulation.py

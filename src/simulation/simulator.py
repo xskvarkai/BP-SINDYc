@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+from pathlib import Path
+
+from utils import constants
 
 # Runge-Kutta 4-teho radu pre diskretny system:   
 def rk4_step(dynamic_system, x_k, u_k, dt):
@@ -52,7 +55,9 @@ def generate_input_signal(num_samples, is_free_body, dt):
 
     return input_signal
 
-def export_data(data={}, export_name="data"):
+def export_data(data={}, file_name="data"):
+    data_dir = Path(constants.SIM_DATA_EXPORT_PATH)  
+    file_path = data_dir / f"{file_name}.csv"
     df = pd.DataFrame(data)  
-    df.to_csv(export_name + ".csv", index=False)
-    return 0
+    df.to_csv(file_path, index=False)
+    return None
