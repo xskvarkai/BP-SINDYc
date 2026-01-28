@@ -1,11 +1,15 @@
 import numpy as np
 from typing import Optional, Tuple
+from scipy.signal import savgol_filter
+
+from utils import constants
 
 def split_data(
     x: np.ndarray,
     u: Optional[np.ndarray] = None,
-    val_size: float = 0.0,
-    test_size: float = 0.2
+    val_size: float = 0.2,
+    test_size: float = 0.2,
+    filter_data: bool = False
 ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray], 
            Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
 
@@ -22,21 +26,21 @@ def split_data(
     # train_index je bod zlomu medzi treningovou a (validacnou alebo testovacou) sadou
     train_index = num_samples - val_count - test_count
     val_index = train_index + val_count
-    test_index = num_samples
 
     # Rozdelenie stavovych premennych x
+    if filter_data:
+        x = savgol_filter(x, constants.SAVGOL_WINDOW_LENGTH, constants.SAVGOL_POLYORDER, axis=0)
+
     x_train = x[:train_index]
     x_val = x[train_index:val_index] if val_count > 0 else None
-    x_test = x[val_index:test_index] if test_count > 0 else None
+    x_test = x[val_index:] if test_count > 0 else None
 
     # Rozdelenie vstupneho signalu u, ak existuje
     if not np.any(u) or u is None:
         u_train = u_val = u_test = None
     else:
-        if u.ndim == 1:
-            u = u.reshape(-1, 1)
         u_train = u[:train_index]
         u_val = u[train_index:val_index] if val_count > 0 else None
-        u_test = u[val_index:test_index] if test_count > 0 else None
+        u_test = u[val_index:] if test_count > 0 else None
         
     return x_train, x_val, x_test, u_train, u_val, u_test

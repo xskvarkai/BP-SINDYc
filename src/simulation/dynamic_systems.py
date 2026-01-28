@@ -1,6 +1,8 @@
 import numpy as np
+from typing import Callable, Union
+
+from utils import constants
 from simulation.simulator import generate_input_signal, rk4_step
-from typing import Optional, Callable, Union
 
 class DynamicSystem:  
     def __init__(self, dynamics_func: Callable[[np.ndarray, Union[float, np.ndarray]], np.ndarray]):
@@ -11,14 +13,14 @@ class DynamicSystem:
     def dynamics(self, state_vector: np.ndarray, input_signal: Union[float, np.ndarray]) -> np.ndarray:
         return self._dynamics_func(state_vector, input_signal)
 
-    def simulate(self, initial_state, dt, num_samples, is_free_body=True, noise_ratio=None, random_seed=None):
-        np.random.seed(100 if random_seed is None else random_seed)
+    def simulate(self, initial_state, dt, num_samples, is_free_body=True, noise_ratio=None):
+        np.random.seed(constants.DEFAULT_SIMULATION_RANDOM_SEED)
         input_signal = generate_input_signal(num_samples=num_samples, is_free_body=is_free_body, dt=dt)
         state_trajectory = np.zeros((num_samples, len(initial_state)))
         current_state = initial_state.copy()
 
         if noise_ratio is not None:
-            noise_level = noise_ratio * np.std(input_signal)
+            noise_level = max(noise_ratio * np.std(input_signal), constants.MINIMAL_NOISE_VALUE)
             noise = np.random.normal(0, noise_level, input_signal.shape)
             input_signal += noise
 
@@ -28,7 +30,7 @@ class DynamicSystem:
             state_trajectory[k, :] = current_state
 
         if noise_ratio is not None:
-            noise_level = noise_ratio * np.std(state_trajectory)
+            noise_level = max(noise_ratio * np.std(state_trajectory), constants.MINIMAL_NOISE_VALUE)
             noise = np.random.normal(0, noise_level, state_trajectory.shape)
             noisy_state_trajectory = state_trajectory + noise
             

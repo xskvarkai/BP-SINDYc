@@ -1,0 +1,11 @@
+random_seed: 42
+val_size: 0.2
+test_size: 0.2
+num_trajectories: 5
+constraints:
+  sim_steps: 2500
+  coeff_precision: null
+  max_complexity: 24
+  max_coeff: 100.0
+  min_r2: 0.6
+  max_state: 100.0

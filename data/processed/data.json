@@ -2,23 +2,23 @@
      "best_result": {
           "configuration": {
                "differentiation_method": null,
-               "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(0.22009018),\n      unbias=False)",
-               "feature_library": "FixedWeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n                    differentiation_method=None,\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=6000,\n                  opt=STLSQ(alpha=1, max_iter=100000,\n                            threshold=np.float64(0.4008633)))",
+               "feature_library": "FixedWeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n                    differentiation_method=None,\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
           },
           "equations": [
-               "-10.007 x0 +  10.006 x1 +  1.001 u0^2",
-               " 27.999 x0 + -1.000 x1 + -1.000 x0 x2",
-               "-1.000 x2 +  1.000 x0 x1"
+               "-9.884 x0 +  9.851 x1 +  0.991 u0^2",
+               " 27.934 x0 + -1.003 x1 + -0.998 x0 x2",
+               "-1.001 x2 +  1.006 x0 x1"
           ],
-          "r2_score": 0.9999853013610408,
-          "rmse": 0.003256122953963072,
+          "r2_score": 0.8516125523319582,
+          "rmse": 0.6110554658727336,
           "complexity": "8",
-          "aic": -3408.821233016334,
-          "random_seed": 177,
-          "index": 136,
+          "aic": -2445.846164648247,
+          "random_seed": 77,
+          "index": 36,
           "test_metrics": {
-               "rmse": 1.1460034834618147,
-               "r2": 0.9087290133973428,
+               "rmse": 3.7420779773414323,
+               "r2": 0.0972224456474204,
                "simulation_length": 9999
           }
      },
@@ -26,43 +26,25 @@
           {
                "configuration": {
                     "differentiation_method": null,
-                    "optimizer": "STLSQ(alpha=0.001, max_iter=100000, threshold=np.float64(0.22009018),\n      unbias=False)",
-                    "feature_library": "FixedWeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n                    differentiation_method=None,\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+                    "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=6000,\n                  opt=STLSQ(alpha=1, max_iter=100000,\n                            threshold=np.float64(0.4008633)))",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n                    differentiation_method=None,\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
                },
                "equations": [
-                    "-10.007 x0 +  10.006 x1 +  1.001 u0^2",
-                    " 27.999 x0 + -1.000 x1 + -1.000 x0 x2",
-                    "-1.000 x2 +  1.000 x0 x1"
+                    "-9.884 x0 +  9.851 x1 +  0.991 u0^2",
+                    " 27.934 x0 + -1.003 x1 + -0.998 x0 x2",
+                    "-1.001 x2 +  1.006 x0 x1"
                ],
-               "r2_score": 0.9999853013610408,
-               "rmse": 0.003256122953963072,
+               "r2_score": 0.8516125523319582,
+               "rmse": 0.6110554658727336,
                "complexity": "8",
-               "aic": -3408.821233016334,
-               "random_seed": 177,
-               "index": 136,
+               "aic": -2445.846164648247,
+               "random_seed": 77,
+               "index": 36,
                "test_metrics": {
-                    "rmse": 1.1460034834618147,
-                    "r2": 0.9087290133973428,
+                    "rmse": 3.7420779773414323,
+                    "r2": 0.0972224456474204,
                     "simulation_length": 9999
                }
-          },
-          {
-               "configuration": {
-                    "differentiation_method": null,
-                    "optimizer": "STLSQ(alpha=0.1, max_iter=100000, threshold=np.float64(0.22009018),\n      unbias=False)",
-                    "feature_library": "FixedWeakPDELibrary(H_xt=AxesArray([0.9999]), K=200, derivative_order=1,\n                    differentiation_method=FiniteDifference(),\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
-               },
-               "equations": [
-                    "-9.994 x0 +  9.994 x1 +  0.999 u0^2",
-                    " 24.526 x0 + -0.888 x0 x2",
-                    "-1.000 x2 +  1.000 x0 x1"
-               ],
-               "r2_score": 0.9553133232156071,
-               "rmse": 0.2744707220694792,
-               "complexity": "7",
-               "aic": -759.1124783778398,
-               "random_seed": 179,
-               "index": 138
           }
      ],
      "user_data": {
@@ -73,11 +55,11 @@
           "train_multi_trajectories_num": 5,
           "train_multi_trajectories_samples": 10000,
           "constraints": {
-               "sim_steps": 300,
+               "sim_steps": 2500,
                "coeff_precision": null,
                "max_complexity": 24,
                "max_coeff": 100.0,
-               "min_r2": 0.7,
+               "min_r2": 0.6,
                "max_state": 100.0
           }
      }

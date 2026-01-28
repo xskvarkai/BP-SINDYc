@@ -6,6 +6,7 @@ from scipy.stats import median_abs_deviation
 import pywt
 
 from utils.custom_libraries import FixedWeakPDELibrary
+from utils import constants
 
 def find_noise(x: np.ndarray, detail_level: int = 1) -> float:
     
@@ -44,7 +45,7 @@ def find_periodicity(x:np.ndarray, sigma_noise: float = 0.0) -> bool:
     
     # Prahovanie amplitud na zaklade odhadnuteho sumu (Hard Thresholding)
     if sigma_noise > 0:
-        noise_threshold = 3.0 * sigma_noise # 3-sigma pravidlo
+        noise_threshold = constants.NOISE_3SIGMA_FACTOR * sigma_noise # 3-sigma pravidlo
         mask = amplitudes > noise_threshold
         amplitudes_clean = amplitudes * mask
     else:
@@ -67,7 +68,7 @@ def find_periodicity(x:np.ndarray, sigma_noise: float = 0.0) -> bool:
     concentration = np.mean(max_peak / total_energy)
 
     # Heuristicky prah 0.45
-    is_periodic = True if concentration > 0.45 else False
+    is_periodic = True if concentration > constants.PERIODICITY_CONCENTRATION_THRESHOLD else False
 
     status = "Periodic" if is_periodic else "Aperiodic"
     print(f"\nPeriodicity Check -> Status: {status} (Concentration: {concentration:.3f})")
@@ -115,7 +116,7 @@ def estimate_threshold(
         coeffs = coeffs * norms
     
     # Nastavenie minimalneho prahu sumu
-    coeffs_threshold = noise_level if noise_level is not None else 1e-10
+    coeffs_threshold = noise_level / constants.NOISE_3SIGMA_FACTOR if noise_level is not None else 1e-10
     non_zero_coeffs = coeffs[coeffs > coeffs_threshold].flatten()
 
     # Ak su vsetky koeficienty nulove (model nenasiel nic), vrati default grid
@@ -144,7 +145,7 @@ def generate_trajectories(
     u_train: Optional[np.ndarray] = None,
     num_samples: int = 10000,
     num_trajectories: int = 5,
-    randomseed: int = 42,
+    randomseed: int = constants.DEFAULT_RANDOM_SEED,
 ) -> Tuple[List[np.ndarray], Optional[List[np.ndarray]]]:
 
     # Funkcia nahodne "vysekne" pod-trajektorie z treningovych dat.
@@ -155,6 +156,9 @@ def generate_trajectories(
 
     x_multi = [] # Zoznam pre stavove premenne
     u_multi = [] # Zoznam pre riadece signaly
+
+    if num_trajectories == 1:
+        return x_train, u_train
 
     for trajectory in range(0, num_trajectories):
         # Kontrola poctu dat na vytvorenie trajektorie pozadovanej dlzky
@@ -177,3 +181,43 @@ def generate_trajectories(
             u_multi.append(input_signal)
 
     return x_multi, u_multi
+
+def sanitize_WeakPDELibrary(config, time_vec):
+    if isinstance(config.get("feature_library"), FixedWeakPDELibrary):
+        params = config["feature_library"].get_params()
+        
+        config["feature_library"] = FixedWeakPDELibrary(
+            function_library=params.get("function_library", None),
+            derivative_order=params.get("derivative_order", 0),
+            spatiotemporal_grid=time_vec,
+            K=params.get("K", 100),
+            p=params.get("p", 4),
+            differentiation_method=config["differentiation_method"]
+        )
+        config["differentiation_method"] = None
+
+    return config
+
+def compute_time_vector(x, dt):
+    if isinstance(x, list):
+        time_vec = (np.arange(x[0].shape[0]) * dt)
+    else:
+        time_vec = (np.arange(x.shape[0]) * dt)
+
+    return time_vec
+
+def make_model_callable(model, x_train, u_train, dt):
+    if isinstance(model.feature_library, FixedWeakPDELibrary):
+        model_sim = ps.SINDy(
+                feature_library=model.feature_library.get_params().get("function_library"),
+            )
+        dummy_x = x_train[0] if isinstance(x_train, list) else x_train
+        dummy_u = u_train[0] if isinstance(u_train, list) else u_train
+        dummy_u = dummy_u[:10] if dummy_u is not None else None
+        model_sim.fit(dummy_x[:10], t=dt, u=dummy_u)
+        model_sim.optimizer.coef_.fill(0)
+        model_sim.optimizer.coef_ = model.optimizer.coef_
+    else:
+        model_sim = model
+        
+    return model_sim

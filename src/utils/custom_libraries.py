@@ -1,5 +1,5 @@
-from pysindy import WeakPDELibrary
-import pysindy
+from pysindy import WeakPDELibrary, FiniteDifference
+from pysindy.feature_library.base import BaseFeatureLibrary
 from typing import Optional
 
 
@@ -7,7 +7,7 @@ from typing import Optional
 class FixedWeakPDELibrary(WeakPDELibrary):
     def __init__(
         self,
-        function_library: Optional[pysindy.feature_library.base.BaseFeatureLibrary] = None,
+        function_library: Optional[BaseFeatureLibrary] = None,
         derivative_order: int = 0,
         spatiotemporal_grid=None,
         include_bias: bool = False,
@@ -18,7 +18,7 @@ class FixedWeakPDELibrary(WeakPDELibrary):
         num_pts_per_domain=None,
         implicit_terms: bool = False,
         multiindices=None,
-        differentiation_method=pysindy.FiniteDifference,
+        differentiation_method=FiniteDifference,
         diff_kwargs: dict = {},
         is_uniform=None,
         periodic=None,

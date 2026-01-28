@@ -1,0 +1,11 @@
+time_step: 0.002
+time_span_start: 0
+time_span_end: 100
+initial_conditions: [-8.0, 8.0, 27.0]
+noise_ratio: 0.1
+pid_kp: 2.0
+pid_ki: 0.5
+pid_kd: 0.1
+target_change_interval_sec: 10
+target_clip_min: -15.0
+target_clip_max: 15.0
