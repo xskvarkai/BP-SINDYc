@@ -1,5 +1,5 @@
 # BP-SINDYc
-
+```
 C:.
 │   .gitignore
 │   LICENSE
@@ -45,11 +45,11 @@ C:.
             helpers.py
             vizualization.py
             __init__.py
-
+```
 
 ## Config
 Základné nastavenia pre simuláciu a hľadanie SINDY modelu
 
 ## src
-Spúštenie kódu pre simuláciu je cez simulation.py
+Spúštenie kódu pre simuláciu je cez simulation.py <br>
 Spúštenie kódu pre SINDY model je cez main.py
