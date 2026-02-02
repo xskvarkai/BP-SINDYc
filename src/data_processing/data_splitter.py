@@ -3,12 +3,15 @@ from typing import Optional, Tuple
 from scipy.signal import savgol_filter
 
 from utils import constants
+from utils.vizualization import vizualize_trajectory
+from utils.helpers import compute_time_vector
 
 def split_data(
     x: np.ndarray,
     u: Optional[np.ndarray] = None,
     val_size: float = 0.2,
     test_size: float = 0.2,
+    dt: float = None,
     filter_data: bool = False
 ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray], 
            Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
@@ -29,7 +32,10 @@ def split_data(
 
     # Rozdelenie stavovych premennych x
     if filter_data:
-        x = savgol_filter(x, constants.SAVGOL_WINDOW_LENGTH, constants.SAVGOL_POLYORDER, axis=0)
+        x_smooth = savgol_filter(x, constants.SAVGOL_WINDOW_LENGTH, constants.SAVGOL_POLYORDER, axis=0)
+        vizualize_trajectory(compute_time_vector(x, dt), x, x_smooth, u)
+        x = x_smooth
+        x_smooth = None 
 
     x_train = x[:train_index]
     x_val = x[train_index:val_index] if val_count > 0 else None

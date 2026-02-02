@@ -81,13 +81,13 @@ def estimate_threshold(
     feature_library: ps.feature_library = None,
     noise_level: Optional[float] = None,
     normalized_columns: bool = False
-) -> np.ndarray:
+) -> Tuple[np.ndarray, float]:
 
     # Heuristicka funkcia na odhad optimalnej mriezky prahov (thresholds) pre algoritmus.
     # Namiesto slepeho hadania lambda parametra, SINDy s nulovym prahom,
     # pozrieme sa na vsetky koeficienty a vygenerujeme logaritmicku skalu
     # medzi najmensim a najvacsim relevantnym koeficientom.
-
+    warnings.filterwarnings("ignore", module="pysindy.utils")
     if feature_library is None or x is None or dt is None:
         raise ValueError(f"Data (x), time_step (dt) and feature_library are required.")
 
@@ -99,10 +99,10 @@ def estimate_threshold(
 
     model.fit(x=x, t=dt, u=u)
     coeffs = np.abs(model.coefficients())
-
+    max_coeff = np.max(coeffs)
 
     # Ak budeme pouzivat normalizaciu stlpcov, musime koeficienty "denormalizovat" pre odhad,
-    # alebo pracovat s vazenymi hodnotami, aby prahy davali zmysel v realnom meritku
+    # alebo pracovat s vazenymi hodnotami, aby prahy davali zmysel v realnom meritku pre SR3
     if normalized_columns:
         if u is not None:
             u_reshaped = u.reshape(-1, 1) if u.ndim == 1 else u
@@ -124,9 +124,9 @@ def estimate_threshold(
         warnings.warn(f"All coefficients for feature_library {str(feature_library)} are nearly to zero. Returning default grid.")
         return np.logspace(-3, 1, 4)
 
-    # Odrezanie extremov (percentily 5% a 95%)
-    lower_bound = np.percentile(non_zero_coeffs, 5)
-    upper_bound = np.percentile(non_zero_coeffs, 95)
+    # Odrezanie extremov (percentily)
+    lower_bound = np.percentile(non_zero_coeffs, constants.LOWER_BOUND_PERCENTILE)
+    upper_bound = np.percentile(non_zero_coeffs, constants.UPPER_BOUND_PERCENTILE)
     trimmed_coeffs = non_zero_coeffs[(non_zero_coeffs >= lower_bound) & (non_zero_coeffs <= upper_bound)]
     if len(trimmed_coeffs) < 2:
         trimmed_coeffs = non_zero_coeffs
@@ -135,10 +135,10 @@ def estimate_threshold(
     max_val = np.max(trimmed_coeffs)
 
     # Generovanie 4 bodov na logaritmickej skale pre grid search
-    thresholds_non_rounded = np.logspace(np.log10(min_val), np.log10(max_val), 4)
+    thresholds_non_rounded = np.logspace(np.log10(min_val), np.log10(max_val), constants.N_THRESHOLDS)
     thresholds = [np.round(threshold, decimals=8) for threshold in thresholds_non_rounded]
 
-    return thresholds
+    return thresholds, max_coeff + coeffs_threshold
 
 def generate_trajectories(
     x_train: np.ndarray,
@@ -192,10 +192,11 @@ def sanitize_WeakPDELibrary(config, time_vec):
             spatiotemporal_grid=time_vec,
             K=params.get("K", 100),
             p=params.get("p", 4),
+            H_xt=np.asarray(params.get("H_xt")),
             differentiation_method=config["differentiation_method"]
         )
         config["differentiation_method"] = None
-
+        
     return config
 
 def compute_time_vector(x, dt):
@@ -215,7 +216,6 @@ def make_model_callable(model, x_train, u_train, dt):
         dummy_u = u_train[0] if isinstance(u_train, list) else u_train
         dummy_u = dummy_u[:10] if dummy_u is not None else None
         model_sim.fit(dummy_x[:10], t=dt, u=dummy_u)
-        model_sim.optimizer.coef_.fill(0)
         model_sim.optimizer.coef_ = model.optimizer.coef_
     else:
         model_sim = model

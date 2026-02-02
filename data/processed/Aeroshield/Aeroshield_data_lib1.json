@@ -1,0 +1,64 @@
+{
+     "best_result": {
+          "configuration": {
+               "differentiation_method": null,
+               "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=750,\n                  opt=STLSQ(alpha=0.01, max_iter=100000, normalize_columns=True,\n                            threshold=np.float64(0.30782883)))",
+               "feature_library": "FixedWeakPDELibrary(H_xt=array([0.2]), K=10, derivative_order=3,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_x at 0x000001D75AC52AE0>,\n                                                                        <function name_sin_x at 0x000001D75AC52F00>,\n                                                                        <function name_cubed_x at 0x000001D75AC52CF0>],\n                                                        library_functions=[<function x at 0x000001D75AC177F0>,\n                                                                           <function sin_x at 0x000001D75AC52400>,\n                                                                           <function cubed_x at 0x000001D75AC521F0>]),\n                    multiindices=[],\n                    spatiotemporal_grid=AxesArray([[0.000e+00],\n           [1.000e-02],\n           [2.000e-02],\n           ...,\n           [1.247e+01],\n           [1.248e+01],\n           [1.249e+01]], shape=(1250, 1)))"
+          },
+          "equations": [
+               " 1.009 x1 + -0.008 sin(x1) + -0.001 x1^3",
+               " 65.621 x0 + -0.518 x1 +  220.236 u0 + -140.711 sin(x0) + -2.173 sin(x1) + -215.199 sin(u0) + -24.305 u0^3"
+          ],
+          "r2_score": 0.55582,
+          "rmse": 0.12931,
+          "complexity": "10",
+          "aic": -1407.7121334957938,
+          "random_seed": 418,
+          "index": 377,
+          "test_metrics": {
+               "rmse": 0.18863,
+               "r2": 0.66433,
+               "simulation_length": 2499
+          }
+     },
+     "pareto_front": [
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=750,\n                  opt=STLSQ(alpha=0.01, max_iter=100000, normalize_columns=True,\n                            threshold=np.float64(0.30782883)))",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([0.2]), K=10, derivative_order=3,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_x at 0x000001D75AC52AE0>,\n                                                                        <function name_sin_x at 0x000001D75AC52F00>,\n                                                                        <function name_cubed_x at 0x000001D75AC52CF0>],\n                                                        library_functions=[<function x at 0x000001D75AC177F0>,\n                                                                           <function sin_x at 0x000001D75AC52400>,\n                                                                           <function cubed_x at 0x000001D75AC521F0>]),\n                    multiindices=[],\n                    spatiotemporal_grid=AxesArray([[0.000e+00],\n           [1.000e-02],\n           [2.000e-02],\n           ...,\n           [1.247e+01],\n           [1.248e+01],\n           [1.249e+01]], shape=(1250, 1)))"
+               },
+               "equations": [
+                    " 1.009 x1 + -0.008 sin(x1) + -0.001 x1^3",
+                    " 65.621 x0 + -0.518 x1 +  220.236 u0 + -140.711 sin(x0) + -2.173 sin(x1) + -215.199 sin(u0) + -24.305 u0^3"
+               ],
+               "r2_score": 0.55582,
+               "rmse": 0.12931,
+               "complexity": "10",
+               "aic": -1407.7121334957938,
+               "random_seed": 418,
+               "index": 377,
+               "test_metrics": {
+                    "rmse": 0.18863,
+                    "r2": 0.66433,
+                    "simulation_length": 2499
+               }
+          }
+     ],
+     "user_data": {
+          "np.random.seed": 42,
+          "dt": 0.01,
+          "val_size": 0.25,
+          "test_size": 0.25,
+          "train_multi_trajectories_num": 5,
+          "train_multi_trajectories_samples": 1250,
+          "constraints": {
+               "sim_steps": 350,
+               "coeff_precision": null,
+               "max_complexity": 12,
+               "max_coeff": 350.0,
+               "min_r2": 0.6,
+               "max_state": 3.0
+          }
+     }
+}

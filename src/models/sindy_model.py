@@ -12,10 +12,9 @@ from typing import List, Dict, Any, Optional, Tuple
 from sklearn.metrics import root_mean_squared_error, r2_score
 from pathlib import Path
 
-from utils.custom_libraries import FixedWeakPDELibrary
+from utils.custom_libraries import FixedWeakPDELibrary, FixedCustomLibrary
 from utils import constants
-from utils.helpers import sanitize_WeakPDELibrary, compute_time_vector, make_model_callable, find_noise
-from utils.vizualization import vizualize_trajectory, plot_pareto
+from utils.helpers import sanitize_WeakPDELibrary, compute_time_vector, make_model_callable
 
 # ========== Trieda pre hladanie modelu ========== 
 class SINDYcEstimator:
@@ -52,9 +51,11 @@ class SINDYcEstimator:
         default_kwargs = {
             "FiniteDifference": {},
             "SmoothedFiniteDifference": {
-                "polyorder": 2,
-                "window_length": 11,
-                "mode": "interp"
+                "polyorder": constants.SAVGOL_POLYORDER,
+                "window_length": constants.SAVGOL_WINDOW_LENGTH,
+                "mode": "interp",
+                "delta": 1,
+                "axis": 0
             }
         }
 
@@ -98,16 +99,18 @@ class SINDYcEstimator:
                 "alpha": 0.05,
                 "max_iter": 1e5,
                 "normalize_columns": True,
-                "unbias": False
+                "unbias": True
             },
             "SR3": {
-                "regularizer": "L1",
+                "regularizer": "L0",
                 "reg_weight_lam": 0.1,
                 "relax_coeff_nu": 1.0,
+                "trimming_fraction": 0.0,
+                "trimming_step_size": 1.0,
                 "max_iter": 1e5,
                 "tol": 1e-8,
                 "normalize_columns": True,
-                "unbias": False
+                "unbias": True
             }
         }
 
@@ -156,7 +159,7 @@ class SINDYcEstimator:
         valid_methods = {
             "PolynomialLibrary": ps.PolynomialLibrary,
             "FourierLibrary": ps.FourierLibrary,
-            "CustomLibrary": ps.CustomLibrary,
+            "CustomLibrary": FixedCustomLibrary,
             "ConcatLibrary": ps.ConcatLibrary,
             "TensoredLibrary": ps.TensoredLibrary,
             "WeakPDELibrary": FixedWeakPDELibrary # Pre slabu formulaciu (integralna forma), vhodne pre vysoky sum
@@ -183,7 +186,7 @@ class SINDYcEstimator:
                 "library_functions": [],
                 "function_names": [],
                 "interaction_only": False,
-                "include_bias": True 
+                "include_bias": False 
             },
             "ConcatLibrary": {
                 "libraries": []
@@ -196,7 +199,8 @@ class SINDYcEstimator:
                 "derivative_order": 0,
                 "spatiotemporal_grid": None,
                 "K": 100,
-                "p": 4
+                "p": 4,
+                "H_xt": None
             }
         }
         
@@ -310,15 +314,6 @@ class SINDYcEstimator:
             print(f"Using {n_processes} parallel processes")
             print(f"Start time: {start_time.strftime("%H:%M:%S")}")
 
-            # Ak je definovana CustomLibrary, pepisat na pri exporte na string
-            # Bol problem pri exporte kniznice a tym aj s reprodukovanim modelu
-            def sanitize_input(record):
-                try:
-                    if isinstance(record.get("configuration")["feature_library"], ps.CustomLibrary):
-                        record.get("configuration")["feature_library"] = "CustomLibrary"        
-                except Exception:
-                    pass
-
             # Otvorenie docasnych suborov na zapis konfiguracii
             # Pouzivame subor namiesto drzania v pamati, pretoze vysledky mozu byt velke
             # a pri velkom pocte konfiguracii by doslo k MemoryError.
@@ -338,16 +333,15 @@ class SINDYcEstimator:
                     # imap vracia vysledky postupne ako su hotove
                     for index, result in enumerate(pool.imap(run_config, configurations_and_data), 1):
                         try:
-                            sanitize_input(result)
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             f_log.write(f"[{timestamp}] Result {index}: {str(result)}\n{"-"*180}\n\n")
                             f_log.flush()
                             if not result.get("error"):
                                 result["index"] = index
                                 pickle.dump(result, results_file)
+                            gc.collect()
                         except Exception as e:
                             warnings.warn(e)
-                        gc.collect() # Vynutenie Garbage Collection
                         # UI/UX - progress bar
                         print(f"Processing configuration {index}/{total_configurations}" 
                               f"({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
@@ -385,11 +379,12 @@ class SINDYcEstimator:
         return self
 
     def plot_pareto(self):
+        from utils.vizualization import plot_pareto
         plot_pareto(self.pareto_front)
         return None
 
     # Export dat do JSON
-    def export_data(self, data: dict = None, file_name: str = "data.json") -> "SINDYcEstimator":
+    def export_data(self, data: dict = None, file_name: str = "data") -> "SINDYcEstimator":
         if self.pareto_front is None:
             warnings.warn("Pareto front is None")
         if self.best_config is None:
@@ -423,9 +418,11 @@ class SINDYcEstimator:
         **constraints
     ):
         if self.best_config is None:
-            raise ValueError("No best configuration found. Run search_configurations() first.")
+            warnings.warn("No best configuration found. Run search_configurations() first.")
+            return None
 
         config = self.best_config["configuration"]
+        config["differentiation_method"] = config["feature_library"].get_params().get("differentiation_method")
         np.random.seed(self.best_config.get("random_seed", constants.DEFAULT_RANDOM_SEED))
 
         # Ignorovanie warningov pocas testovania
@@ -457,7 +454,7 @@ class SINDYcEstimator:
         x0 = x_test[0]
         t_test = np.arange(x_test.shape[0]) * dt
         try:
-            x_sim = model_sim.simulate(x0=x0, t=t_test, u=u_test, integrator="solve_ivp", integrator_kws={"rtol": 1e-6, "atol": 1e-6})
+            x_sim = model_sim.simulate(x0=x0, t=t_test, u=u_test)
             min_len = min(len(x_test), len(x_sim))
             
             x_ref_cut = x_test[:min_len]
@@ -470,12 +467,13 @@ class SINDYcEstimator:
             print(f"Best model R2 score: {test_r2:.3%}")
 
             self.best_config["test_metrics"] = {
-                "rmse": test_rmse,
-                "r2": test_r2,
+                "rmse": np.round(test_rmse, 5),
+                "r2": np.round(test_r2, 5),
                 "simulation_length": min_len
             }
 
             if plot:
+                from utils.vizualization import vizualize_trajectory
                 vizualize_trajectory(t_test_cut, x_ref_cut, x_sim_cut)
 
             warnings.filterwarnings("default", category=UserWarning)
@@ -594,11 +592,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
         precision = 3
         if constraints.get("coeff_precision") is not None:
             precision = constraints["coeff_precision"]
-            if constraints["coeff_precision"] == 0:
-                model.optimizer.coef_ = np.rint(model.optimizer.coef_)
-                precision = 1
-            else:
-                model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=precision)
+            model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=precision)
 
         # Zistenie celkoveho poctu validacnych dat
         total_val_samples = x_val.shape[0]
@@ -611,12 +605,12 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
         # FILTER 1: Zlozitost
         # Ak je poziadavka na pocet koeficientov nesplnena alebo je model trivialny
         if model_complexity == 0 or model_complexity > constraints["max_complexity"]:
-            return {"configuration": config, "error": f"Model is trivial or exceed max complexity. Complexity: {model_complexity}"}
+            return {"configuration": config, "error": f"Model is trivial or exceed max complexity. Early stopped with complexity: {model_complexity}"}
 
         # FILTER 2: Velkost koeficientov
         # Ak je poziadavka na maximalnu velkost koefficientov nesplnena alebo su Nan/Inf
         if np.max(np.abs(model_coeffs)) > constraints["max_coeff"] or not np.all(np.isfinite(model_coeffs)):
-            return {"configuration": config, "error": "Model coeff exceed max coeff or is Inf/Nan"}
+            return {"configuration": config, "error": "Model coeff exceed max coeff or is Inf/Nan. Early stopped due this message."}
         
         # Vsetky predchadzajuce kontroli boli splnene, takze mozeme kontrolovat, ci je model stabilny
         # Specialna vetva pre simulaciu WeakPDE (vyzaduje iny pristup k simulatoru)
@@ -638,7 +632,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
             # Ak model nepredikuje trajektoriu dostatocne presne (podla R2), zahodime ho.
             model_r2_score = r2_score(x_ref[:min_len], x_sim[:min_len])
             if model_r2_score < constraints["min_r2"]:
-                return {"configuration": config, "error": f"Model have low R2 score. Model R2 score: {model_r2_score:.3f}"}
+                return {"configuration": config, "error": f"Model have low R2 score. Early stopped with R2 score: {model_r2_score:.3f}"}
                 
         # Vznikla ina neocakavana chyba
         except Exception as e:
@@ -659,7 +653,7 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
 
             # Ak model simuluje prilis nespravne (diverguje do nekonecna)
             if np.max(np.abs(x_sim)) > constraints["max_state"] or not np.all(np.isfinite(x_sim)):
-                return {"configuration": config, "error": "Model diverg too much (exceed max state) or is not stable"}
+                return {"configuration": config, "error": "Model diverg too much (exceed max state) or is not stable. Early stopped due this message."}
 
             # Vypocet metrik
             rmse = root_mean_squared_error(x_ref[:min_len], x_sim[:min_len])
@@ -674,8 +668,8 @@ def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarr
             result = {
                 "configuration": config,
                 "equations": model.equations(precision=precision),
-                "r2_score": r2,
-                "rmse": rmse,
+                "r2_score": np.round(r2, 5),
+                "rmse": np.round(rmse, 5),
                 "complexity": model_complexity,
                 "aic": aic,
                 "random_seed": index + 42,
