@@ -3,8 +3,8 @@ import gc
 import numpy as np
 
 from utils.helpers import generate_trajectories, find_noise, find_periodicity, estimate_threshold, compute_time_vector
-from utils.custom_libraries import x, squared_x, cubed_x, tanh_x, sin_x, sign_x, x_abs_x,\
-                                   name_x, name_squared_x, name_cubed_x, name_tanh_x, name_sin_x, name_sign_x, name_x_abs_x   
+from utils.custom_libraries import x, squared_x, cubed_x, tanh_x, sin_x, signum_x, x_abs_x,\
+                                   name_x, name_squared_x, name_cubed_x, name_tanh_x, name_sin_x, name_signum_x, name_x_abs_x   
 from utils.custom_libraries import FixedCustomLibrary
 from utils import constants
 from data_processing.data_loader import load_data, load_config
@@ -13,8 +13,8 @@ import models.sindy_model as sindy
 
 if __name__ == "__main__":
     libraries = [
-        FixedCustomLibrary([x, sin_x, squared_x, tanh_x, sign_x, x_abs_x], [name_x, name_sin_x, name_squared_x, name_tanh_x, name_sign_x, name_x_abs_x], include_bias=False),
-        FixedCustomLibrary([x, sin_x, squared_x, tanh_x, sing_x], [name_x, name_sin_x, name_squared_x, name_tanh_x, name_sing_x], include_bias=False),
+        FixedCustomLibrary([x, sin_x, squared_x, tanh_x, signum_x, x_abs_x], [name_x, name_sin_x, name_squared_x, name_tanh_x, name_signum_x, name_x_abs_x], include_bias=False),
+        FixedCustomLibrary([x, sin_x, squared_x, tanh_x, signum_x], [name_x, name_sin_x, name_squared_x, name_tanh_x, name_signum_x], include_bias=False),
         FixedCustomLibrary([x, sin_x, squared_x, tanh_x, x_abs_x], [name_x, name_sin_x, name_squared_x, name_tanh_x, name_x_abs_x], include_bias=False),
         FixedCustomLibrary([x, sin_x, squared_x, tanh_x], [name_x, name_sin_x, name_squared_x, name_tanh_x], include_bias=False),
     ]
