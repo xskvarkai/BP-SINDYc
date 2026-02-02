@@ -8,20 +8,23 @@ def vizualize_trajectory(time_vector, trajectory, comparison_trajectory=None, in
     if input_signal is not None:
         total_plots += 1
 
-    plt.figure(figsize=(12, 3 * total_plots))
+    fig = plt.figure(figsize=(12, 3 * total_plots))
 
     current_plot_idx = 0
 
     for i in range(num_state_vars):
         current_plot_idx += 1
         ax = plt.subplot(total_plots, 1, current_plot_idx)
-        plt.plot(time_vector, trajectory[:, i], "k-", label=f"Real data ($x_{i+1}$)")
+        plt.plot(time_vector, trajectory[:, i], "k-", label=f"Real data ($x_{i}$)")
         if comparison_trajectory is not None:
-            plt.plot(time_vector, comparison_trajectory[:, i], "r--", label=f"Simulated data ($x_{i+1}$)")
-        plt.ylabel(f"$x_{i+1}$")
+            plt.plot(time_vector, comparison_trajectory[:, i], "r--", label=f"Simulated data ($x_{i}$)")
+        plt.ylabel(f"$x_{i}$")
         plt.legend()
         if i == 0:
-            plt.title("Data comparison")
+            if comparison_trajectory is None:
+                plt.title("Vizualization")
+            else:
+                plt.title("Data comparison")
 
         if current_plot_idx != total_plots:
             plt.setp(ax.get_xticklabels(), visible=False)
@@ -46,6 +49,7 @@ def vizualize_trajectory(time_vector, trajectory, comparison_trajectory=None, in
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95]) 
     plt.show()
+    plt.close(fig)
 
     return None
 
