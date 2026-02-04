@@ -1,0 +1,87 @@
+paths:
+  data_raw_dir: data/raw
+  data_processed_dir: data/processed
+  data_export_dir: data/reports
+
+defaults:
+  # Default parameters for SINDy differentiation methods
+  differentiation_methods:
+    FiniteDifference:
+      order: 2
+      d: 1
+      periodic: False 
+    SmoothedFiniteDifference:
+      polyorder: 2
+      window_length: 31
+      mode: interp
+      delta: 1
+      axis: 0
+
+  # Default parameters for SINDy optimizers
+  optimizers:
+    STLSQ:
+      threshold: 0.1
+      alpha: 0.05
+      max_iter: 100000
+      normalize_columns: True
+      unbias: True
+    SR3:
+      regularizer: L0
+      reg_weight_lam: 0.1
+      relax_coeff_nu: 1.0
+      trimming_fraction: 0.0
+      trimming_step_size: 1.0
+      max_iter: 100000
+      tol: 1.0e-8
+      normalize_columns: True
+      unbias: True
+
+  # Default parameters for SINDy feature libraries
+  feature_libraries:
+    PolynomialLibrary:
+      degree: 2
+      include_interaction: True
+      interaction_only: False
+      include_bias: True
+    FourierLibrary:
+      n_frequencies: 1
+      include_sin: True
+      include_cos: True
+    CustomLibrary:
+      library_functions: []
+      function_names: []
+      interaction_only: False
+      include_bias: False
+    ConcatLibrary:
+      libraries: []
+    TensoredLibrary:
+      libraries: []
+    WeakPDELibrary:
+      function_library: null
+      derivative_order: 0
+      K: 100
+      p: 4
+      spatiotemporal_grid: null
+      H_xt: null
+      include_bias: False
+      include_interaction: True
+
+  # Ensemble Optimizer defaults
+  ensemble_optimizer:
+    bagging: True
+    n_models: 50
+    n_subset: null
+
+  # Default constraints for the search_configurations method
+  search_constraints:
+    sim_steps: 350
+    coeff_precision: null
+    max_complexity: 50
+    max_coeff: 1000
+    min_r2: 0.7
+    max_state: 1000
+
+  constants:
+    SINDYEstimator:
+      min_validation_sim_steps: 20 # Minimum steps for quick validation check
+      random_seed: 42
