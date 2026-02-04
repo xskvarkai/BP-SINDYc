@@ -82,6 +82,8 @@ defaults:
     max_state: 1000
 
   constants:
+    values:
+      minimal_noise_value: 1.0e-3
     SINDYEstimator:
       min_validation_sim_steps: 20 # Minimum steps for quick validation check
       random_seed: 42

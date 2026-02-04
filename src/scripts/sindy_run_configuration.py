@@ -7,7 +7,7 @@ import warnings
 from utils.sindy_helpers import sanitize_WeakPDELibrary, make_model_callable
 from utils.helpers import compute_time_vector
 
-def run_config(configuration_and_data: List[Dict[str, Any], np.ndarray, np.ndarray, Optional[np.ndarray], Optional[np.ndarray], float, Dict[str, Any]]) -> List[Optional[Dict[str, Any]], Dict[str, Any], Optional[str]]:  
+def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
     try:
         # Rozbalenie dat
         index, config, x_train, x_val, u_train, u_val, dt, constraints, cache_dict, lock = configuration_and_data
