@@ -104,7 +104,7 @@ Poskytuje funkcie pre vizualizáciu dát:
 
 1.  **Klonujte repozitár:**
     ```bash
-    git clone <URL_VÁŠHO_REPOZITÁRA>
+    git clone <[URL_VÁŠHO_REPOZITÁRA](https://github.com/xskvarkai/BP-SINDYc/)>
     cd <NÁZOV_PROJEKTU>
     ```
 2.  **Vytvorte a aktivujte virtuálne prostredie** (odporúčané):
