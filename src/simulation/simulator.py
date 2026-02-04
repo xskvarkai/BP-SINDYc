@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
-from utils import constants
+from typing import Dict, Any
 
 # Runge-Kutta 4-teho radu pre diskretny system:   
 def rk4_step(dynamic_system, x_k, u_k, dt):
@@ -15,7 +14,7 @@ def rk4_step(dynamic_system, x_k, u_k, dt):
     return x_k + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
 # Generovanie vstupneho signalu 
-def generate_input_signal(num_samples, is_free_body, dt):
+def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Dict[str, Any]):
     if is_free_body:
         input_signal = np.zeros(num_samples, dtype=float)
             
@@ -23,7 +22,7 @@ def generate_input_signal(num_samples, is_free_body, dt):
         input_signal = np.zeros(num_samples, dtype=float)
 
         # Parametre PID simulacie
-        kp, ki, kd = 2.0, 0.5, 0.1  # konstanty regulatora
+        kp, ki, kd = input_signal_params.get("kp", 2.0), input_signal_params.get("ki", 0.5), input_signal_params.get("kd", 0.1)  # konstanty regulatora
         integral = 0.0
         prev_error = 0.0
         
@@ -32,13 +31,17 @@ def generate_input_signal(num_samples, is_free_body, dt):
         tau = 2.0
         target = 0.0
 
+        target_change_interval_sec = input_signal_params.get("target_change_interval_sec", 10)
+        target_clip_min = input_signal_params.get("target_clip_min", -15.0)
+        target_clip_max = input_signal_params.get("target_clip_max", 15.0)
+
         for i in range(num_samples):
             # Kazdych 10 sekund zmeni pozadovanu hodnotu (nahodny skok)
-            if i % int(10/dt) == 0:
+            if i % int(target_change_interval_sec/dt) == 0:
                 target = np.random.uniform(-10.0, 10.0)
-    
+
             # Ulozenie pozadovanej hodnoty
-            target = np.clip(target, -15.0, 15.0) 
+            target = np.clip(target, target_clip_min, target_clip_max) 
             input_signal[i] = target
 
             # Vypocet chyby
@@ -55,9 +58,7 @@ def generate_input_signal(num_samples, is_free_body, dt):
 
     return input_signal
 
-def export_data(data={}, file_name="data"):
-    data_dir = Path(constants.SIM_DATA_EXPORT_PATH)  
-    file_path = data_dir / f"{file_name}.csv"
+def export_data(data={}, file_path="raw/simulation.csv"):
     df = pd.DataFrame(data)  
     df.to_csv(file_path, index=False)
     return None

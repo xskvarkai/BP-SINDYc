@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def vizualize_trajectory(time_vector, trajectory, comparison_trajectory=None, input_signal=None):
+def plot_trajectory(time_vector, trajectory, comparison_trajectory=None, input_signal=None, title="Plot"):
     num_state_vars = trajectory.shape[1]
 
     total_plots = num_state_vars
@@ -21,10 +21,7 @@ def vizualize_trajectory(time_vector, trajectory, comparison_trajectory=None, in
         plt.ylabel(f"$x_{i}$")
         plt.legend()
         if i == 0:
-            if comparison_trajectory is None:
-                plt.title("Vizualization")
-            else:
-                plt.title("Data comparison")
+            plt.title(title)
 
         if current_plot_idx != total_plots:
             plt.setp(ax.get_xticklabels(), visible=False)
@@ -53,7 +50,6 @@ def vizualize_trajectory(time_vector, trajectory, comparison_trajectory=None, in
 
     return None
 
-# Zobrazenie pareto fronty v grafe
 def plot_pareto(pareto_front: dict):
     if pareto_front is None:
         return None

@@ -1,10 +1,8 @@
 from pysindy import WeakPDELibrary, CustomLibrary, FiniteDifference
 from pysindy.feature_library.base import BaseFeatureLibrary
-import numpy as np
 from typing import Optional, Any
-import inspect
+import numpy as np
 
-# Vlastna upravena verzia WeakPDELibrary na obidenie chyby
 class FixedWeakPDELibrary(WeakPDELibrary):
     def __init__(
         self,
@@ -24,7 +22,6 @@ class FixedWeakPDELibrary(WeakPDELibrary):
         is_uniform=None,
         periodic=None,
     ):
-        # Zavolajte povodny konstruktor rodicovskej triedy
         super().__init__(
             function_library=function_library,
             derivative_order=derivative_order,
@@ -54,7 +51,6 @@ class FixedCustomLibrary(CustomLibrary):
         interaction_only: bool = True,
         include_bias: bool = False
     ):
-        # Zavolajte povodny konstruktor rodicovskej triedy
         super().__init__(
             library_functions=library_functions,
             function_names=function_names,
@@ -63,12 +59,15 @@ class FixedCustomLibrary(CustomLibrary):
         )
         self.library_functions = library_functions
 
+
+# ========== Callable functions ========== 
 # Funkcie
 # Polynomicke
 def x(x): return x
 def xy(x, y): return x * y
 def squared_x(x): return x ** 2
 def cubed_x(x): return x ** 3
+def quartered_x(x): return x ** 4
 def abs_x(x): return np.abs(x)
 def x_abs_x(x): return x * np.abs(x)
 # Goniometricke a ine
@@ -90,6 +89,7 @@ def name_x(x): return x
 def name_xy(x, y): return x + " " + y
 def name_squared_x(x): return x + "^2"
 def name_cubed_x(x): return x + "^3"
+def name_quartered_x(x): return x + "^4"
 def name_abs_x(x): return "|" + x + "|"
 def name_x_abs_x(x): return x + " |" + x + "|"
 # Goniometricke a ine
