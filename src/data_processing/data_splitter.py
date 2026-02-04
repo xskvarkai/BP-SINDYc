@@ -12,7 +12,7 @@ from utils.plots import plot_trajectory
 class TimeSeriesSplitter:
     """
     A class for splitting time-series data into training, validation, and test sets,
-    with optional Savitzky-Golay filtering.
+    with optional Savitzky-Golay filtering and input signal perturbing.
     """
 
     def __init__(
@@ -41,6 +41,7 @@ class TimeSeriesSplitter:
         self.dt = dt
 
         self.config_manager.load_config("data_config")
+        self.config_manager.load_config("settings")
         # Nacitanie parametrov pre Savitzky-Golay filter z konfiguracie
         self.savgol_window_length = self.config_manager.get_param(
             'data_preprocessing.savgol_window_length', default=21
@@ -48,7 +49,15 @@ class TimeSeriesSplitter:
         self.savgol_polyorder = self.config_manager.get_param(
             'data_preprocessing.savgol_polyorder', default=2
         )
+        # Nacitanie parametru na perturbaciu vstupneho signalu
+        self.minimal_noise_value = self.config_manager.get_param(
+            'settings.defaults.constants.values.minimal_noise_value'
+        )
+        self.perturb_ratio = self.config_manager.get_param(
+            'data_config.data_preprocessing.perturb_ratio', default=1e-3
+        )
         
+ 
         # Validacia pre Savitzky-Golay filter
         if self.savgol_window_length % 2 == 0 or self.savgol_window_length < 1:
             raise ValueError("Savitzky-Golay window_length must be odd and positive.")
@@ -67,6 +76,7 @@ class TimeSeriesSplitter:
             val_ratio: float = 0.2,
             apply_savgol_filter: bool = False,
             plot_data: bool = False,
+            perturb_input_signal: bool = False,
             verbose: bool = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         
@@ -114,6 +124,9 @@ class TimeSeriesSplitter:
             U_train = self.U_raw[:train_end_index]
             U_val = self.U_raw[train_end_index:val_end_index] if val_ratio > 0 else None
             U_test = self.U_raw[val_end_index:] if test_ratio > 0 else None
+            # Pozadovana perturbacia vstupu
+            if perturb_input_signal:
+                U_train = self._perturb_input_signal(U_train)
 
         if plot_data:
             time_vector = compute_time_vector(X_processed, self.dt)
@@ -122,3 +135,18 @@ class TimeSeriesSplitter:
             plot_trajectory(time_vector[val_end_index:], X_test, input_signal=(U_test if U_test is not None else None), title="Test Data")
 
         return X_train, X_val, X_test, U_train, U_val, U_test
+
+    def _perturb_input_signal(self, U: np.ndarray) -> np.ndarray:
+        """
+        Adds noise to all input signal columns.
+        """
+        
+        # Aplikujeme sum na vsetky stlpce vstupneho signalu
+        for i in range(U.shape[1]):
+            # Pouzijeme `minimal_noise_value` z konfiguracie (nacitany v __init__)
+            noise_level = max(self.perturb_ratio * np.std(U[:, i]), self.minimal_noise_value)
+            noise = np.random.normal(0, noise_level, U[:, i].shape)
+            U[:, i] += noise
+
+        return U
+

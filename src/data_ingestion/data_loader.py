@@ -24,8 +24,7 @@ class DataLoader:
         self.data_load_path = Path(self.config_manager.get_path("settings.paths." + data_dir))
         # Nacitanie minimal_noise_value z konfiguracie pre perturbovanie vstupny dat
         self.minimal_noise_value = self.config_manager.get_param(
-            "data_processing.minimal_noise_value", 
-            default=1e-3
+            "settings.defaults.constants.values.minimal_noise_value", default=1e-3
         )
 
     def __enter__(self):
@@ -99,10 +98,6 @@ class DataLoader:
             U = data[:, U_numpy_column_indices]
             if U.ndim == 1:
                 U = U.reshape(-1, 1)
-
-            # Pozadovana perturbacia vstupu
-            if perturb_input_signal:
-                U = self._perturb_input_signal(U)
         
         data = None # Vymazanie data
 
@@ -239,17 +234,3 @@ class DataLoader:
                              "`state_column_indices` and avoid overlaps with `time_column_index` or `control_input_column_indices`.")
         
         return X_numpy_column_indices, U_numpy_column_indices
-    
-    def _perturb_input_signal(self, U: np.ndarray) -> np.ndarray:
-        """
-        Adds noise to all input signal columns.
-        """
-        
-        # Aplikujeme sum na vsetky stlpce vstupneho signalu
-        for i in range(U.shape[1]):
-            # Pouzijeme `minimal_noise_value` z konfiguracie (nacitany v __init__)
-            noise_level = max(1e-2 * np.std(U[:, i]), self.minimal_noise_value)
-            noise = np.random.normal(0, noise_level, U[:, i].shape)
-            U[:, i] += noise
-
-        return U

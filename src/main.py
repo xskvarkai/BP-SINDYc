@@ -1,4 +1,5 @@
 import gc
+import pysindy as ps
 
 from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
@@ -7,8 +8,8 @@ from data_processing.sindy_preprocessor import find_periodicity, find_noise, est
 from models.sindy_estimator import SINDYcEstimator
 from utils.helpers import compute_time_vector
 from utils.custom_libraries import FixedCustomLibrary
-from utils.custom_libraries import x, sin_x, squared_x, quartered_x, tanh_x, signum_x, x_abs_x, \
-                                   name_x, name_sin_x, name_squared_x, name_quartered_x, name_tanh_x, name_signum_x, name_x_abs_x
+from utils.custom_libraries import x, sin_x, squared_x, cubed_x, quartered_x, x_sin_y, \
+                                   name_x, name_sin_x, name_squared_x, name_cubed_x, name_quartered_x, name_x_sin_y
 
 if __name__ == "__main__":
 
@@ -31,6 +32,7 @@ if __name__ == "__main__":
         find_periodicity(X, 1, noise_level)
         
         X_train, U_train = generate_trajectories(X_train, U_train, int(0.6 * X_train.shape[0]))
+
         library = FixedCustomLibrary(
                 [x, sin_x, squared_x, quartered_x],
                 [name_x, name_sin_x, name_squared_x, name_quartered_x],
@@ -41,19 +43,19 @@ if __name__ == "__main__":
             "WeakPDELibrary": {
                 "function_library": library,
                 "spatiotemporal_grid": compute_time_vector(X, dt),
-                "derivative_order": [1, 2],
-                "K": [100],
-                "H_xt": [[1.5 * dt * 10]],
+                "derivative_order": [1, 2, 3],
+                "K": [10, 50, 100, 200],
+                "H_xt": [[1.0 * dt * 10], [1.5 * dt * 10], [2.0 * dt * 10]],
                 "p": [4, 5, 6]
             }
         }
 
         optimizer_kwargs = {
             "STLSQ": {
-                "threshold": estimate_threshold(X, dt, U, library, 4, noise_level),
+                "threshold": estimate_threshold(X, dt, U, library, 6, noise_level)[0: 4],
                 "ensemble": True,
                 "ensemble_kwargs": {"n_subset": 0.6 * X_train[0].shape[0]},
-                "alpha": [1e-3, 1e-2, 1e-1]
+                "alpha": [1e-4, 1e-3, 1e-2, 1e-1]
             }
         }
 
@@ -69,7 +71,7 @@ if __name__ == "__main__":
         X, U = None, None
         gc.collect()
 
-        estimator.search_configurations(X_train, X_val, U_train, U_val, dt, 8, "Aeroshield/worker_results",  **config_manager.get_param("model_params.constraints"))
+        estimator.search_configurations(X_train, X_val, U_train, U_val, dt, 6, "Aeroshield/worker_results",  **config_manager.get_param("model_params.constraints"))
         estimator.plot_pareto()
         estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("model_params.constraints"))
         estimator.export_data(config_manager.get_param("model_params.constraints"), "Aeroshield/Aeroshield")

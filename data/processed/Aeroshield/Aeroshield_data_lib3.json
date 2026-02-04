@@ -1,0 +1,64 @@
+{
+     "best_result": {
+          "configuration": {
+               "differentiation_method": null,
+               "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=1500,\n                  opt=STLSQ(alpha=0.01, max_iter=100000, normalize_columns=True,\n                            threshold=np.float64(0.36718012)))",
+               "feature_library": "FixedWeakPDELibrary(H_xt=array([0.2]), K=50, derivative_order=2,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_x at 0x7f1d460cf1a0>,\n                                                                        <function name_sin_x at 0x7f1d460cf560>,\n                                                                        <function name_quartered_x at 0x7f1d460cf380>,\n                                                                        <function name_x_abs_x at 0x7f1d460cf4c0>],\n                                                        library_functions=[<function x at 0x7f1d460ce2a0>,\n                                                                           <function sin_x at 0x7f1d460ceb60>,\n                                                                           <function quartered_x at 0x7f1d460ce980>,\n                                                                           <function x_abs_x at 0x7f1d460ceac0>]),\n                    multiindices=[],\n                    spatiotemporal_grid=AxesArray([[0.000e+00],\n           [1.000e-02],\n           [2.000e-02],\n           ...,\n           [2.497e+01],\n           [2.498e+01],\n           [2.499e+01]], shape=(2500, 1)))"
+          },
+          "equations": [
+               " 0.997 x1 +  0.004 sin(x1) +  0.001 x1 |x1|",
+               "-281.963 x0 + -1.170 x1 +  3.439 u0 +  188.253 sin(x0) + -11.959 sin(u0) +  0.105 x1^4 + -4.241 u0^4 +  57.228 x0 |x0| +  27.243 u0 |u0|"
+          ],
+          "r2_score": 0.59397,
+          "rmse": 0.12121,
+          "complexity": "12",
+          "aic": -1448.8436307893335,
+          "random_seed": 898,
+          "index": 857,
+          "test_metrics": {
+               "rmse": 0.18389,
+               "r2": 0.67993,
+               "simulation_length": 2499
+          }
+     },
+     "pareto_front": [
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=1500,\n                  opt=STLSQ(alpha=0.01, max_iter=100000, normalize_columns=True,\n                            threshold=np.float64(0.36718012)))",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([0.2]), K=50, derivative_order=2,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_x at 0x7f1d460cf1a0>,\n                                                                        <function name_sin_x at 0x7f1d460cf560>,\n                                                                        <function name_quartered_x at 0x7f1d460cf380>,\n                                                                        <function name_x_abs_x at 0x7f1d460cf4c0>],\n                                                        library_functions=[<function x at 0x7f1d460ce2a0>,\n                                                                           <function sin_x at 0x7f1d460ceb60>,\n                                                                           <function quartered_x at 0x7f1d460ce980>,\n                                                                           <function x_abs_x at 0x7f1d460ceac0>]),\n                    multiindices=[],\n                    spatiotemporal_grid=AxesArray([[0.000e+00],\n           [1.000e-02],\n           [2.000e-02],\n           ...,\n           [2.497e+01],\n           [2.498e+01],\n           [2.499e+01]], shape=(2500, 1)))"
+               },
+               "equations": [
+                    " 0.997 x1 +  0.004 sin(x1) +  0.001 x1 |x1|",
+                    "-281.963 x0 + -1.170 x1 +  3.439 u0 +  188.253 sin(x0) + -11.959 sin(u0) +  0.105 x1^4 + -4.241 u0^4 +  57.228 x0 |x0| +  27.243 u0 |u0|"
+               ],
+               "r2_score": 0.59397,
+               "rmse": 0.12121,
+               "complexity": "12",
+               "aic": -1448.8436307893335,
+               "random_seed": 898,
+               "index": 857,
+               "test_metrics": {
+                    "rmse": 0.18389,
+                    "r2": 0.67993,
+                    "simulation_length": 2499
+               }
+          }
+     ],
+     "user_data": {
+          "np.random.seed": 42,
+          "dt": 0.01,
+          "val_size": 0.25,
+          "test_size": 0.25,
+          "train_multi_trajectories_num": 5,
+          "train_multi_trajectories_samples": 2500,
+          "constraints": {
+               "sim_steps": 350,
+               "coeff_precision": null,
+               "max_complexity": 12,
+               "max_coeff": 350.0,
+               "min_r2": 0.6,
+               "max_state": 3.0
+          }
+     }
+}
