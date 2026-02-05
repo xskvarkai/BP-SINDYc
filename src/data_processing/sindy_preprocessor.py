@@ -96,7 +96,6 @@ def estimate_threshold(
         feature_library: feature_library = None,
         n_threshold: Optional[int] = 4,
         noise_level: Optional[float] = None,
-        normalized_columns: bool = False,
         verbose: bool = True
     ) -> List:
     """
@@ -119,21 +118,7 @@ def estimate_threshold(
 
     model.fit(x=x, t=dt, u=u)
     coeffs = np.abs(model.coefficients())
-
-    # Ak budeme pouzivat normalizaciu stlpcov, musime koeficienty "denormalizovat" pre odhad,
-    # alebo pracovat s vazenymi hodnotami, aby prahy davali zmysel v realnom meritku
-    if normalized_columns:
-        if u is not None:
-            u_reshaped = u.reshape(-1, 1) if u.ndim == 1 else u
-            x_for_lib = np.hstack((x, u_reshaped))
-        else:
-            x_for_lib = x
-
-        Theta = model.feature_library.transform(x_for_lib)
-        norms = np.linalg.norm(Theta, axis=0)
-        norms[norms == 0] = 1.0 # Ochrana proti deleniu nulou
-        coeffs = coeffs * norms
-    
+   
     # Nastavenie minimalneho prahu sumu
     coeffs_threshold = noise_level / 3 if noise_level is not None else 1e-10
     non_zero_coeffs = coeffs[coeffs > coeffs_threshold].flatten()
@@ -166,7 +151,7 @@ def estimate_threshold(
 def generate_trajectories(
     x_train: np.ndarray,
     u_train: Optional[np.ndarray] = None,
-    num_samples: int = 10000,
+    num_samples_per_trajectory: int = 10000,
     num_trajectories: int = 5,
     randomseed: int = 42,
 ) -> Tuple[List[np.ndarray], Optional[List[np.ndarray]]]:
@@ -188,14 +173,13 @@ def generate_trajectories(
 
     for trajectory in range(0, num_trajectories):
         # Kontrola poctu dat na vytvorenie trajektorie pozadovanej dlzky
-        if total_train_samples < num_samples:
-            start_index = 0
-            warnings.warn("Insufficient samples for diverse trajectories. Consider adding more data or reducing the sample size.")
+        if total_train_samples < num_samples_per_trajectory:
+            raise ValueError(f"Not enough training samples ({total_train_samples}) to create a trajectory of length {num_samples_per_trajectory}.")
         else:
             # Nahodny start, tak aby sa okno zmestilo do dat
-            start_index = np.random.randint(0, total_train_samples - num_samples)
+            start_index = np.random.randint(0, total_train_samples - num_samples_per_trajectory)
         
-        end_index = start_index + num_samples
+        end_index = start_index + num_samples_per_trajectory
         trajectory = x_train[start_index:end_index]
         x_multi.append(trajectory)
 

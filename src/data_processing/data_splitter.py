@@ -40,30 +40,12 @@ class TimeSeriesSplitter:
         self.U_raw = U_raw
         self.dt = dt
 
-        self.config_manager.load_config("data_config")
         self.config_manager.load_config("settings")
-        # Nacitanie parametrov pre Savitzky-Golay filter z konfiguracie
-        self.savgol_window_length = self.config_manager.get_param(
-            'data_preprocessing.savgol_window_length', default=21
-        )
-        self.savgol_polyorder = self.config_manager.get_param(
-            'data_preprocessing.savgol_polyorder', default=2
-        )
         # Nacitanie parametru na perturbaciu vstupneho signalu
-        self.minimal_noise_value = self.config_manager.get_param(
-            'settings.defaults.constants.values.minimal_noise_value'
+        self._minimal_noise_value = self.config_manager.get_param(
+            'settings.constants.values.minimal_noise_value'
         )
-        self.perturb_ratio = self.config_manager.get_param(
-            'data_config.data_preprocessing.perturb_ratio', default=1e-3
-        )
-        
- 
-        # Validacia pre Savitzky-Golay filter
-        if self.savgol_window_length % 2 == 0 or self.savgol_window_length < 1:
-            raise ValueError("Savitzky-Golay window_length must be odd and positive.")
-        if self.savgol_polyorder >= self.savgol_window_length:
-            raise ValueError("Savitzky-Golay polyorder must be less than window_length.")
-    
+
     def __enter__(self):
         return self
 
@@ -75,8 +57,10 @@ class TimeSeriesSplitter:
             train_ratio: float = 0.6,
             val_ratio: float = 0.2,
             apply_savgol_filter: bool = False,
+            savgol_window_length: Optional[int] = None,
+            savgol_polyorder: Optional[int] = None,
+            perturb_input_signal_ratio: Optional[float] = None,
             plot_data: bool = False,
-            perturb_input_signal: bool = False,
             verbose: bool = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         
@@ -92,9 +76,18 @@ class TimeSeriesSplitter:
         if test_ratio < 0: # Ak by sa nieco pokazilo pri prvej validacii
             raise ValueError("Calculated test_ratio is negative. Check train_ratio and val_ratio.")
         
+        # Validacia pre Savitzky-Golay filter
+        if apply_savgol_filter:
+            if savgol_window_length is None or savgol_polyorder is None:
+                raise ValueError("Savitzky-Golay filter parameters must be provided when apply_savgol_filter is True.")
+            if savgol_window_length % 2 == 0 or savgol_window_length < 1:
+                raise ValueError("Savitzky-Golay window_length must be odd and positive.")
+            if savgol_polyorder >= savgol_window_length:
+                raise ValueError("Savitzky-Golay polyorder must be less than window_length.")
+    
         num_samples = self.X_raw.shape[0]
-        if num_samples < (self.savgol_window_length if apply_savgol_filter else 1):
-            raise ValueError(f"Insufficient data samples ({num_samples}) for splitting or Savitzky-Golay filtering (requires at least {self.savgol_window_length} samples).")
+        if num_samples < (savgol_window_length if apply_savgol_filter else 1):
+            raise ValueError(f"Insufficient data samples ({num_samples}) for splitting or Savitzky-Golay filtering (requires at least {savgol_window_length} samples).")
         
         if verbose:
             print(f"\nSplitting data into train ({train_ratio:.1%}), validation ({val_ratio:.1%}), test ({test_ratio:.1%}).")
@@ -102,10 +95,10 @@ class TimeSeriesSplitter:
         X_processed = self.X_raw
         if apply_savgol_filter:
             if verbose:
-                print(f"Applying Savitzky-Golay filter with window_length={self.savgol_window_length}, polyorder={self.savgol_polyorder}.")
+                print(f"Applying Savitzky-Golay filter with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
             
-            # Aplikacia Savitzky-Golay filtera a typova konverzia
-            X_processed = savgol_filter(self.X_raw, self.savgol_window_length, self.savgol_polyorder, axis=0)
+            # Aplikacia Savitzky-Golay filtera
+            X_processed = savgol_filter(self.X_raw, savgol_window_length, savgol_polyorder, axis=0)
             
         # Ziskanie poctu vzoriek a poctu pre validacnu a testovaciu sadu
         train_end_index = int(num_samples * train_ratio)
@@ -125,8 +118,8 @@ class TimeSeriesSplitter:
             U_val = self.U_raw[train_end_index:val_end_index] if val_ratio > 0 else None
             U_test = self.U_raw[val_end_index:] if test_ratio > 0 else None
             # Pozadovana perturbacia vstupu
-            if perturb_input_signal:
-                U_train = self._perturb_input_signal(U_train)
+            if perturb_input_signal_ratio is not None and isinstance(perturb_input_signal_ratio, float):
+                U_train = self._perturb_input_signal(U_train, perturb_input_signal_ratio)
 
         if plot_data:
             time_vector = compute_time_vector(X_processed, self.dt)
@@ -136,15 +129,14 @@ class TimeSeriesSplitter:
 
         return X_train, X_val, X_test, U_train, U_val, U_test
 
-    def _perturb_input_signal(self, U: np.ndarray) -> np.ndarray:
+    def _perturb_input_signal(self, U: np.ndarray, perturb_ratio: float) -> np.ndarray:
         """
         Adds noise to all input signal columns.
         """
         
         # Aplikujeme sum na vsetky stlpce vstupneho signalu
         for i in range(U.shape[1]):
-            # Pouzijeme `minimal_noise_value` z konfiguracie (nacitany v __init__)
-            noise_level = max(self.perturb_ratio * np.std(U[:, i]), self.minimal_noise_value)
+            noise_level = max(perturb_ratio * np.std(U[:, i]), self._minimal_noise_value)
             noise = np.random.normal(0, noise_level, U[:, i].shape)
             U[:, i] += noise
 

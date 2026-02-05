@@ -24,7 +24,7 @@ class DataLoader:
         self.data_load_path = Path(self.config_manager.get_path("settings.paths." + data_dir))
         # Nacitanie minimal_noise_value z konfiguracie pre perturbovanie vstupny dat
         self.minimal_noise_value = self.config_manager.get_param(
-            "settings.defaults.constants.values.minimal_noise_value", default=1e-3
+            "settings.constants.values.minimal_noise_value", default=1e-3
         )
 
     def __enter__(self):
@@ -41,7 +41,6 @@ class DataLoader:
             time: Optional[float|np.ndarray] = None,
             control_input_column_indices: Optional[List[int]] = None,
             plot_data: bool = False,
-            perturb_input_signal: bool = False,
             verbose: bool = True,
         ) -> Tuple[np.ndarray, np.ndarray, float]:
         """
@@ -176,6 +175,7 @@ class DataLoader:
                 time_print = f"\nProvided time step (dt): {dt}"
         else:
             if num_samples > 1: # Pokus o nacitanie z konfiguracie
+                self.config_manager.load_config("data_config")
                 dt = self.config_manager.get_param("data_config.dt")
                 time_print = f"\nUsing default time step (dt) from configuration: {dt}"
             else:

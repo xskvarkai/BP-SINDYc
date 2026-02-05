@@ -22,7 +22,7 @@ from scripts.sindy_run_configuration import run_config
 
 PysindyConfigObject = Union[ps.optimizers.BaseOptimizer, ps.feature_library.base.BaseFeatureLibrary, ps.differentiation.BaseDifferentiation]
 
-class SINDYcEstimator(BaseSindyEstimator):
+class SindyEstimator(BaseSindyEstimator):
     """
     A comprehensive class for estimating SINDy models, managing configurations,
     performing parallel searches for optimal models, and evaluating results.
@@ -34,11 +34,15 @@ class SINDYcEstimator(BaseSindyEstimator):
         """
         Initializes the SINDYcEstimator with a ConfigManager instance.
         """
+        self.pareto_front: List[Dict[str, Any]] = []
+        self.results: List[Dict[str, Any]] = []
+        self.best_config: Optional[Dict[str, Any]] = None
+        self.results_file_name: Optional[str] = None
 
         self.config_manager = config_manager
-        self.results_file_name: Optional[str] = None
         config_manager.load_config("settings")
         self.data_export_path = Path(self.config_manager.get_path("settings.paths.data_export_dir"))
+        self._default_constraints: Dict[str, Any] = self.config_manager.get_param('settings.valid_methods.search_constraints', default={})
         
         super().__init__(config_manager)
 
@@ -73,7 +77,7 @@ class SINDYcEstimator(BaseSindyEstimator):
         if constraints:
             self._default_constraints.update(constraints)
 
-        self._default_constraints.update(self.config_manager.get_param('settings.defaults.constants.SINDYEstimator', default={}))
+        self._default_constraints.update(self.config_manager.get_param('settings.constants.SINDYEstimator', default={}))
         
         total_val_samples = x_val.shape[0]
 
@@ -252,7 +256,7 @@ class SINDYcEstimator(BaseSindyEstimator):
             return None
     
     # Export dat do JSON
-    def export_data(self, data: dict = None, file_name: str = "data"):
+    def export_data(self, data: dict = None, export_file_name: str = "data"):
         if self.pareto_front is None:
             warnings.warn("Pareto front is None")
         if self.best_config is None:
@@ -265,7 +269,7 @@ class SINDYcEstimator(BaseSindyEstimator):
         }
 
         try:   
-            filepath = self.data_export_path / f"{file_name}.json" 
+            filepath = self.data_export_path / f"{export_file_name}.json" 
             with open(filepath, "w", encoding="utf-8") as f:
                 # default=str zabezpeci serializaciu objektov ako NumPy polia
                 json.dump(payload, f, indent=5, default=str)

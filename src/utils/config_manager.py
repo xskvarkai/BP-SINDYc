@@ -81,7 +81,7 @@ class ConfigManager:
 
         try:
             for part in parts:
-                current_config = current_config[part]
+                current_config = current_config.get(part)
             return current_config
         except (KeyError, TypeError):
             if default is not None:

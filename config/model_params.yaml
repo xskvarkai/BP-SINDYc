@@ -1,7 +1,0 @@
-constraints:
-  sim_steps: 350
-  coeff_precision: null
-  max_complexity: 12
-  max_coeff: 100
-  min_r2: 0.6
-  max_state: 3.0
