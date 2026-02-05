@@ -7,8 +7,7 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 <pre>
 ├── README.md
 ├── config 
-│   ├── data_config.yaml
-│   ├── model_params.yaml
+│   ├── sindy_params.yaml
 │   ├── settings.yaml
 │   └── simulation_params.yaml
 ├── data
@@ -66,10 +65,10 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 Obsahuje konfiguračné súbory vo formáte YAML, ktoré definujú parametre pre načítavanie dát, model SINDy, simulácie a globálne nastavenia aplikácie. `ConfigManager` ([`config_manager.py`](src/utils/config_manager.py)) spravuje načítavanie a prístup k týmto nastaveniam.
 
 ### `data_ingestion/data_loader.py`
-Trieda `DataLoader` je zodpovedná za načítavanie časovo-radových dát z CSV súborov. Extrahuje stavové premenné (X), riadiace vstupy (U) a určuje časový krok (dt). Podporuje validáciu vstupu, plotovanie dát a voliteľné perturbácie vstupného signálu.
+Trieda `DataLoader` je zodpovedná za načítavanie časovo-radových dát z CSV súborov. Extrahuje stavové premenné (X), riadiace vstupy (U) a určuje časový krok (dt). Podporuje validáciu vstupu, plotovanie dát.
 
 ### `data_processing/data_splitter.py`
-Trieda `TimeSeriesSplitter` rozdeľuje časovo-radové dáta na trénovacie, validačné a testovacie sady. Ponúka možnosť aplikovať Savitzky-Golay filter pre vyhladenie dát.
+Trieda `TimeSeriesSplitter` rozdeľuje časovo-radové dáta na trénovacie, validačné a testovacie sady. Ponúka možnosť aplikovať Savitzky-Golay filter pre vyhladenie dát a voliteľné perturbácie tréningovej časti vstupného signálu.
 
 ### `data_processing/sindy_preprocessor.py`
 Obsahuje funkcie pre predprocesing signálov:
@@ -79,10 +78,10 @@ Obsahuje funkcie pre predprocesing signálov:
 -   `generate_trajectories`: Generuje náhodné pod-trajektórie z trénovacej sady dát.
 
 ### `models/sindy_estimator.py`
-Trieda `SINDYcEstimator` je hlavná trieda pre odhad SINDy modelov. Spravuje konfigurácie modelu, vykonáva paralelné hľadanie optimálnych modelov na mriežke parametrov, vyhodnocuje výsledky a podporuje validáciu na testovacích dátach. Využíva `multiprocessing` pre efektívne prehľadávanie konfigurácií.
+Trieda `SindyEstimator` je hlavná trieda pre odhad SINDy modelov. Spravuje konfigurácie modelu, vykonáva paralelné hľadanie optimálnych modelov na mriežke parametrov, vyhodnocuje výsledky a podporuje validáciu na testovacích dátach. Využíva `multiprocessing` pre efektívne prehľadávanie konfigurácií.
 
 ### `scripts/sindy_run_configuration.py`
-Funkcia `run_config` je volaná paralelne v rámci `SINDYcEstimator`. Pripravuje a vyhodnocuje jeden SINDy model na základe danej konfigurácie a dát. Obsahuje logiku pre kontrolu zložitosti modelu, veľkosti koeficientov a simuláciu pre vyhodnotenie výkonu (R2 score, RMSE, AIC).
+Funkcia `run_config` je volaná paralelne v rámci `SindyEstimator`. Pripravuje a vyhodnocuje jeden SINDy model na základe danej konfigurácie a dát. Obsahuje logiku pre kontrolu zložitosti modelu, veľkosti koeficientov a simuláciu pre vyhodnotenie výkonu (R2 score, RMSE, AIC).
 
 ### `scripts/hardcoded_derivate.py`
 Funkcia `load_and_deriv` načítava dáta, vypočíta časové derivácie pomocou `numpy.gradient` a ukladá ich do nového CSV súboru.
@@ -91,7 +90,7 @@ Funkcia `load_and_deriv` načítava dáta, vypočíta časové derivácie pomoco
 Tieto moduly umožňujú simuláciu dynamických systémov definovaných funkciou ODE. `DynamicSystem` ([`dynamic_systems.py`](src/simulation/dynamic_systems.py)) spravuje simulačné parametre, generovanie vstupných signálov a integráciu stavových zmien pomocou metódy Runge-Kutta 4. rádu (`rk4_step` v [`simulator.py`](src/simulation/simulator.py)). Podporuje aj pridávanie šumu do simulovaných dát.
 
 ### `utils/custom_libraries.py`
-Definuje vlastné knižnice funkcií (`FixedWeakPDELibrary`, `FixedCustomLibrary`), ktoré rozširujú možnosti PySINDy. Obsahuje rôzne polynomiálne, goniometrické a kombinačné funkcie použiteľné ako báza pre SINDy.
+Definuje vlastné knižnice funkcií (`FixedWeakPDELibrary`, `FixedCustomLibrary`), ktoré opravujú možnosti PySINDy. Obsahuje rôzne polynomiálne, goniometrické a kombinačné funkcie použiteľné ako báza pre SINDy.
 
 ### `utils/plots.py`
 Poskytuje funkcie pre vizualizáciu dát:
@@ -104,8 +103,8 @@ Poskytuje funkcie pre vizualizáciu dát:
 
 1.  **Klonujte repozitár:**
     ```bash
-    git clone <(https://github.com/xskvarkai/BP-SINDYc/)>
-    cd <NÁZOV_PROJEKTU>
+    git clone https://github.com/xskvarkai/BP-SINDYc/
+    cd BP-SINDYc/
     ```
 2.  **Vytvorte a aktivujte virtuálne prostredie** (odporúčané):
     ```bash
@@ -115,9 +114,10 @@ Poskytuje funkcie pre vizualizáciu dát:
     # Pre macOS/Linux
     source venv/bin/activate
     ```
-3.  **Nainštalujte závislosti:**
-    Treba naištalovať závislosti spomenuté v requirements.txt
-
+3.  **Nainštalujte závislosti:** 
+    ```bash  
+    pip install -r requirements.txt  
+    ```  
 ### Spustenie Hlavného Skriptu
 
 Hlavný pracovný tok projektu je definovaný v `main.py`. Tento skript načíta konfigurácie, spracuje dáta, odhadne SINDy modely a vyhodnotí ich.

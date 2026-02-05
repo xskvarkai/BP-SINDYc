@@ -14,17 +14,13 @@ class BaseSindyEstimator():
         self.optimizers: List[PysindyConfigObject] = []
         self.feature_libraries: List[PysindyConfigObject] = []
         self.configurations: List[Dict[str, Any]] = []
-        self.pareto_front: List[Dict[str, Any]] = []
-        self.results: List[Dict[str, Any]] = []
-        self.best_config: Optional[Dict[str, Any]] = None
 
         self.config_manager = config_manager
 
-        self._default_diff_params: Dict[str, Any] = self.config_manager.get_param('settings.defaults.differentiation_methods', default={})
-        self._default_opt_params: Dict[str, Any] = self.config_manager.get_param('settings.defaults.optimizers', default={})
-        self._default_ensemble_opt_params: Dict[str, Any] = self.config_manager.get_param('settings.defaults.ensemble_optimizer', default={})
-        self._default_feat_lib_params: Dict[str, Any] = self.config_manager.get_param('settings.defaults.feature_libraries', default={})
-        self._default_constraints: Dict[str, Any] = self.config_manager.get_param('settings.defaults.search_constraints', default={})
+        self._default_diff_params: Dict[str, Any] = self.config_manager.get_param('settings.valid_methods.differentiation_methods', default={})
+        self._default_opt_params: Dict[str, Any] = self.config_manager.get_param('settings.valid_methods.optimizers', default={})
+        self._default_ensemble_opt_params: Dict[str, Any] = self.config_manager.get_param('settings.valid_methods.ensemble_optimizer', default={})
+        self._default_feat_lib_params: Dict[str, Any] = self.config_manager.get_param('settings.valid_methods.feature_libraries', default={})
 
     def set_differentiation_method(self, method: str, **kwargs: Any):
         """
@@ -178,17 +174,14 @@ class BaseSindyEstimator():
 
     def make_grid(
             self,
-            feature_library: Union[str, List[str]],
-            differentiation_method: Union[str, List[str]],
-            optimizer: Union[str, List[str]],
             feature_library_kwargs: Optional[Dict[str, Dict[str, Any]]] = None,
             differentiation_method_kwargs: Optional[Dict[str, Dict[str, Any]]] = None,
             optimizer_kwargs: Optional[Dict[str, Dict[str, Any]]] = None,
     ):
         
-        _feature_libraries_names = [feature_library] if isinstance(feature_library, str) else feature_library
-        _differentiation_methods_names = [differentiation_method] if isinstance(differentiation_method, str) else differentiation_method
-        _optimizers_names = [optimizer] if isinstance(optimizer, str) else optimizer
+        _feature_libraries_names = feature_library_kwargs.keys() if feature_library_kwargs else ["PolynomialLibrary"]
+        _differentiation_methods_names = differentiation_method_kwargs.keys() if differentiation_method_kwargs else ["FiniteDifference"]
+        _optimizers_names = optimizer_kwargs.keys() if optimizer_kwargs else ["STLSQ"]
 
         self.feature_libraries.clear()
         self.differentiation_methods.clear()
