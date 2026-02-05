@@ -1,8 +1,8 @@
-matplotlib
-numpy
-pandas
-scikit-learn
-scipy
-pysindy
-pyyaml
-pywavelets
+matplotlib==3.10.8
+numpy==2.4.0
+pandas==2.3.3
+scikit-learn==1.8.0
+pysindy==2.1.0
+PyYAML==6.0.3
+PyWavelets==1.9.0
+scipy==1.16.3
