@@ -5,6 +5,7 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 ## Štruktúra Projektu
 
 <pre>
+.
 ├── README.md
 ├── config
 │   ├── settings.yaml
@@ -20,7 +21,8 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 │   └── reports
 │       ├── Aeroshield
 │       │   ├── Aeroshlied_models.json
-│       │   └── Validation_on_test_dataset.png
+│       │   ├── Validation_on_test_dataset.png
+│       │   └── worker_results.log
 │       └── Lorenz System
 │           ├── data.json
 │           ├── pareto_front.png
@@ -28,30 +30,26 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 │           └── worker_results.log
 ├── requirements.txt
 └── src
-    ├── __init__.py
     ├── data_ingestion
-    │   ├── __init__.py
     │   └── data_loader.py
     ├── data_processing
-    │   ├── __init__.py
     │   ├── data_splitter.py
     │   └── sindy_preprocessor.py
     ├── main.py
     ├── models
-    │   ├── __init__.py
     │   ├── base.py
     │   └── sindy_estimator.py
+    ├── run_simulation.py
     ├── scripts
-    │   ├── __init__.py
+    │   ├── __pycache__
+    │   │   ├── __init__.cpython-314.pyc
+    │   │   └── sindy_run_configuration.cpython-314.pyc
     │   ├── hardcoded_derivate.py
     │   └── sindy_run_configuration.py
     ├── simulation
-    │   ├── __init__.py
     │   ├── dynamic_systems.py
     │   └── simulator.py
-    ├── run_simulation.py
     └── utils
-        ├── __init__.py
         ├── config_manager.py
         ├── custom_libraries.py
         ├── helpers.py
