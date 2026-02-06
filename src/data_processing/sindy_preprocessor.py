@@ -1,6 +1,5 @@
 import numpy as np
 import pysindy as ps
-from pysindy import feature_library
 import warnings
 from typing import Optional, List, Tuple
 from scipy.stats import median_abs_deviation
@@ -93,13 +92,16 @@ def estimate_threshold(
         x: np.ndarray,
         dt: float,
         u: Optional[np.ndarray] = None,
-        feature_library: feature_library = None,
+        feature_library: ps.feature_library = None,
         n_threshold: Optional[int] = 4,
         noise_level: Optional[float] = None,
         verbose: bool = True
     ) -> List:
     """
-    Estimates a range of candidate thresholds and maximal coefficient for sparse regression based on data characteristics.
+    Estimates a range of candidate thresholds for sparse regression based on data characteristics.
+    Range consists of n_threshold values logarithmically spaced between the minimum and maximum relevant coefficient magnitudes.
+    Maximum relevant coefficient will filter out all coefficients in sparse regression and its lead to zero model.
+    Returns a list of candidate thresholds for use in grid search from lowest to highest (max coeffient).
     """
 
     # Heuristicka funkcia na odhad optimalnej mriezky prahov (thresholds) pre algoritmus.
@@ -152,12 +154,11 @@ def generate_trajectories(
     u_train: Optional[np.ndarray] = None,
     num_samples_per_trajectory: int = 10000,
     num_trajectories: int = 5,
-    randomseed: int = 42,
+    rng: Optional[np.random.RandomState] = np.random.RandomState(42),
 ) -> Tuple[List[np.ndarray], Optional[List[np.ndarray]]]:
     """
     Generates a random sub-trajectories from trajectory.
     """
-    np.random.seed(randomseed)
     # POZOR: nie je vhodne generovat trajektorie pre systemy ine ako ODE, pretoze moze dochadzat 
     # k naruseniu casovej kontinuity a korelacie v datach, co je kriticke pre SINDy.
     # Pouzivajte s opatrnostou a len pre systemy, kde je to relevantne (napr. ODE systemy s dostatocne dlhou trajektoriou).
@@ -177,7 +178,7 @@ def generate_trajectories(
             raise ValueError(f"Not enough training samples ({total_train_samples}) to create a trajectory of length {num_samples_per_trajectory}.")
         else:
             # Nahodny start, tak aby sa okno zmestilo do dat
-            start_index = np.random.randint(0, total_train_samples - num_samples_per_trajectory)
+            start_index = rng.randint(0, total_train_samples - num_samples_per_trajectory)
         
         end_index = start_index + num_samples_per_trajectory
         trajectory = x_train[start_index:end_index]

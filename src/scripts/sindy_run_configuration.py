@@ -14,6 +14,7 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
 
         # Ignorovanie warningov pocas hladania
         warnings.filterwarnings("ignore", module="pysindy")
+        warnings.filterwarnings("ignore", category=UserWarning)
 
         config = sindy_helpers.sanitize_WeakPDELibrary(config)
 

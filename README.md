@@ -6,10 +6,10 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 
 <pre>
 ├── README.md
-├── config 
-│   ├── sindy_params.yaml
+├── config
 │   ├── settings.yaml
-│   └── simulation_params.yaml
+│   ├── simulation_params.yaml
+│   └── sindy_params.yaml
 ├── data
 │   ├── processed
 │   │   └── Aeroshield_with_deriv.csv
@@ -19,8 +19,8 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 │   │   └── Simulacia.csv
 │   └── reports
 │       ├── Aeroshield
-│       │   ├── Aeroshield.json
-│       │   └── worker_results.log
+│       │   ├── Aeroshlied_models.json
+│       │   └── Validation_on_test_dataset.png
 │       └── Lorenz System
 │           ├── data.json
 │           ├── pareto_front.png
@@ -49,7 +49,7 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
     │   ├── __init__.py
     │   ├── dynamic_systems.py
     │   └── simulator.py
-    ├── simulation.py
+    ├── run_simulation.py
     └── utils
         ├── __init__.py
         ├── config_manager.py
@@ -65,10 +65,10 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 Obsahuje konfiguračné súbory vo formáte YAML, ktoré definujú parametre pre načítavanie dát, model SINDy, simulácie a globálne nastavenia aplikácie. `ConfigManager` ([`config_manager.py`](src/utils/config_manager.py)) spravuje načítavanie a prístup k týmto nastaveniam.
 
 ### `data_ingestion/data_loader.py`
-Trieda `DataLoader` je zodpovedná za načítavanie časovo-radových dát z CSV súborov. Extrahuje stavové premenné (X), riadiace vstupy (U) a určuje časový krok (dt). Podporuje validáciu vstupu, plotovanie dát.
+Trieda `DataLoader` je zodpovedná za načítavanie časovo-radových dát z CSV súborov. Extrahuje stavové premenné (X), riadiace vstupy (U) a určuje časový krok (dt). Podporuje validáciu vstupu, plotovanie dát. Ponúka možnosť aplikovať Savitzky-Golay filter pre vyhladenie dát.
 
 ### `data_processing/data_splitter.py`
-Trieda `TimeSeriesSplitter` rozdeľuje časovo-radové dáta na trénovacie, validačné a testovacie sady. Ponúka možnosť aplikovať Savitzky-Golay filter pre vyhladenie dát a voliteľné perturbácie tréningovej časti vstupného signálu.
+Trieda `TimeSeriesSplitter` rozdeľuje časovo-radové dáta na trénovacie, validačné a testovacie sady. Možnosť použiť voliteľné perturbácie tréningovej časti vstupného signálu.
 
 ### `data_processing/sindy_preprocessor.py`
 Obsahuje funkcie pre predprocesing signálov:
@@ -127,10 +127,10 @@ Paramtre, ktoré sú hľadané treba nastaviť ručne v kóde.
 python src/main.py
 ```
 
-Pre generovanie simulačných dát dynamického systému môžete spustiť skript `simulation.py`:
+Pre generovanie simulačných dát dynamického systému môžete spustiť skript `run_simulation.py`:
 
 ```bash
-python src/simulation.py
+python src/run_simulation.py
 ```
 
 Výsledné simulované dáta budú uložené v data/raw/Simulacia.csv (alebo podľa nastavení v `simulation_params.yaml`)

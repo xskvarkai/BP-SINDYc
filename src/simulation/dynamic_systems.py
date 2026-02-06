@@ -37,6 +37,7 @@ class DynamicSystem:
         Returns the state trajectory, noisy state trajectory, input signal, and time vector.
         """
         np.random.seed(self._simulation.get("random_seed", 100))
+        random_number_generator = np.random.RandomState(self._simulation.get("random_seed", 100))
 
         dt = self._simulation.get("time_step")
         num_samples = (self._simulation.get("time_span_end") - self._simulation.get("time_span_start")) // dt + 1
@@ -52,7 +53,7 @@ class DynamicSystem:
 
         if noise_ratio is not None:
             noise_level = max(noise_ratio * np.std(input_signal), 1e-3)
-            noise = np.random.normal(0, noise_level, input_signal.shape)
+            noise = random_number_generator.normal(0, noise_level, input_signal.shape)
             input_signal += noise
 
         for k in range(num_samples):
@@ -62,7 +63,7 @@ class DynamicSystem:
 
         if noise_ratio is not None:
             noise_level = max(noise_ratio * np.std(state_trajectory), 1e-3)
-            noise = np.random.normal(0, noise_level, state_trajectory.shape)
+            noise = random_number_generator.normal(0, noise_level, state_trajectory.shape)
             noisy_state_trajectory = state_trajectory + noise
             
             if verbose:
@@ -70,7 +71,7 @@ class DynamicSystem:
 
         return state_trajectory, noisy_state_trajectory, input_signal, compute_time_vector(state_trajectory, dt)
     
-    def export_data(data: Dict[str, Any] = {}, file_path="raw/simulation.csv"):
+    def export_data(self, data: Dict[str, Any] = {}, file_path="raw/simulation.csv"):
         """ Exports the user defined data to a CSV file. """
         df = pd.DataFrame(data)  
         df.to_csv(file_path, index=False)

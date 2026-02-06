@@ -56,16 +56,13 @@ class TimeSeriesSplitter:
             self,
             train_ratio: float = 0.6,
             val_ratio: float = 0.2,
-            apply_savgol_filter: bool = False,
-            savgol_window_length: Optional[int] = None,
-            savgol_polyorder: Optional[int] = None,
             perturb_input_signal_ratio: Optional[float] = None,
+            rng: Optional[np.random.RandomState] = np.random.RandomState(42),
             plot_data: bool = False,
             verbose: bool = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Splits the data into training, validation, and test sets.
-        Optionally applies a Savitzky-Golay filter to the state variables (X).
         """
 
         if not (0 < train_ratio < 1 and 0 <= val_ratio < 1 and train_ratio + val_ratio < 1):
@@ -75,38 +72,21 @@ class TimeSeriesSplitter:
         if test_ratio < 0: # Ak by sa nieco pokazilo pri prvej validacii
             raise ValueError("Calculated test_ratio is negative. Check train_ratio and val_ratio.")
         
-        # Validacia pre Savitzky-Golay filter
-        if apply_savgol_filter:
-            if savgol_window_length is None or savgol_polyorder is None:
-                raise ValueError("Savitzky-Golay filter parameters must be provided when apply_savgol_filter is True.")
-            if savgol_window_length % 2 == 0 or savgol_window_length < 1:
-                raise ValueError("Savitzky-Golay window_length must be odd and positive.")
-            if savgol_polyorder >= savgol_window_length:
-                raise ValueError("Savitzky-Golay polyorder must be less than window_length.")
-    
         num_samples = self.X_raw.shape[0]
-        if num_samples < (savgol_window_length if apply_savgol_filter else 1):
-            raise ValueError(f"Insufficient data samples ({num_samples}) for splitting or Savitzky-Golay filtering (requires at least {savgol_window_length} samples).")
+        if num_samples < 1:
+            raise ValueError(f"Insufficient data samples ({num_samples}) for splitting.")
         
         if verbose:
             print(f"\nSplitting data into train ({train_ratio:.1%}), validation ({val_ratio:.1%}), test ({test_ratio:.1%}).")
 
-        X_processed = self.X_raw
-        if apply_savgol_filter:
-            if verbose:
-                print(f"Applying Savitzky-Golay filter with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
-            
-            # Aplikacia Savitzky-Golay filtera
-            X_processed = savgol_filter(self.X_raw, savgol_window_length, savgol_polyorder, axis=0)
-            
         # Ziskanie poctu vzoriek a poctu pre validacnu a testovaciu sadu
         train_end_index = int(num_samples * train_ratio)
         val_end_index = int(num_samples * (train_ratio + val_ratio)) 
 
         # Rozdelenie na 
-        X_train = X_processed[:train_end_index]
-        X_val = X_processed[train_end_index:val_end_index] if val_ratio > 0 else None
-        X_test = X_processed[val_end_index:] if test_ratio > 0 else None
+        X_train = self.X_raw[:train_end_index]
+        X_val = self.X_raw[train_end_index:val_end_index] if val_ratio > 0 else None
+        X_test = self.X_raw[val_end_index:] if test_ratio > 0 else None
 
         U_train: Optional[np.ndarray] = None
         U_val: Optional[np.ndarray] = None
@@ -119,26 +99,25 @@ class TimeSeriesSplitter:
             # Pozadovana perturbacia vstupu
             if (perturb_input_signal_ratio is not None 
             and isinstance(perturb_input_signal_ratio, (float, int)) and perturb_input_signal_ratio > 0):
-                np.random.seed(42) # Pre reprodukovatelnost perturbacie
-                U_train = self._perturb_input_signal(U_train, perturb_input_signal_ratio)
+                U_train = self._perturb_input_signal(U_train, perturb_input_signal_ratio, rng)
 
         if plot_data:
-            time_vector = compute_time_vector(X_processed, self.dt)
+            time_vector = compute_time_vector(self.X_raw, self.dt)
             plot_trajectory(time_vector[:train_end_index], X_train, input_signal=U_train, title="Train Data")
             plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=U_val, title="Validation Data")
             plot_trajectory(time_vector[val_end_index:], X_test, input_signal=U_test, title="Test Data")
 
         return X_train, X_val, X_test, U_train, U_val, U_test
 
-    def _perturb_input_signal(self, U: np.ndarray, perturb_ratio: float) -> np.ndarray:
+    def _perturb_input_signal(self, U: np.ndarray, perturb_ratio: float, rng: np.random.RandomState) -> np.ndarray:
         """
         Adds noise to all input signal columns.
         """
-        
+        # Pouzivame RandomState pre reprodukovatelnost
         # Aplikujeme sum na vsetky stlpce vstupneho signalu
         for i in range(U.shape[1]):
             noise_level = max(perturb_ratio * np.std(U[:, i]), self._minimal_noise_value)
-            noise = np.random.normal(0, noise_level, U[:, i].shape)
+            noise = rng.normal(0, noise_level, U[:, i].shape)
             U[:, i] += noise
 
         return U
