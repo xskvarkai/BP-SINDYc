@@ -199,8 +199,10 @@ class SindyEstimator(BaseSindyEstimator):
         }
 
         config = self.best_config["configuration"]
-        config["differentiation_method"] = config["feature_library"].get_params().get("differentiation_method")
-
+        if "differentiation_method" not in config:
+            # Pre pripad, ze by sa v configu nenachadzala kluc "differentiation_method", ale je potrebna pre validaciu
+            config["differentiation_method"] = config["feature_library"].get_params().get("differentiation_method")
+            
         np.random.seed(self.best_config.get("random_seed"))
         # Ignorovanie warningov pocas testovania
         warnings.filterwarnings("ignore", module="pysindy")
@@ -215,7 +217,6 @@ class SindyEstimator(BaseSindyEstimator):
                 model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=constraints["coeff_precision"])
 
         model_sim = sindy_helpers.make_model_callable(model, data)
-        warnings.filterwarnings("default", category=UserWarning)
 
         print("\nStarting validation on test data...")
         x_sim, rmse, r2, _ = sindy_helpers.evaluate_model(
@@ -225,6 +226,8 @@ class SindyEstimator(BaseSindyEstimator):
             current_steps=x_test.shape[0],
             integrator_kwargs={"rtol": 1e-6,"atol": 1e-6}
         )
+        warnings.filterwarnings("default", category=UserWarning)
+        
         min_len = min(len(x_test), len(x_sim))        
 
         print(f"Best model R2 score: {r2:.3%}")

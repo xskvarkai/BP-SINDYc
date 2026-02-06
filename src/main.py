@@ -1,5 +1,6 @@
 import gc
 import pysindy as ps
+import numpy as np
 
 from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
@@ -16,6 +17,9 @@ if __name__ == "__main__":
     config_manager = ConfigManager("config")
     config_manager.load_config("sindy_params")
 
+    np.random.seed(config_manager.get_param("sindy_params.global.random_seed", 42))
+    random_number_generator = np.random.RandomState(config_manager.get_param("sindy_params.global.random_seed", 42))
+
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
             **config_manager.get_param("sindy_params.data_loading")
@@ -23,7 +27,7 @@ if __name__ == "__main__":
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
         X_train, X_val, X_test, U_train, U_val, U_test = splitter.split_data(
-            **config_manager.get_param("sindy_params.data_splitting")
+            **config_manager.get_param("sindy_params.data_splitting"), rng=random_number_generator
         )
 
     with SindyEstimator(config_manager) as estimator:
@@ -33,8 +37,9 @@ if __name__ == "__main__":
         config_manager.get_param(
             "sindy_params.data_preprocessing"
         )["num_samples_per_trajectory"] = int(config_manager.get_param("sindy_params.data_preprocessing.num_samples_per_trajectory") * X_train.shape[0])
-        X_train, U_train = generate_trajectories(X_train, U_train, **config_manager.get_param("sindy_params.data_preprocessing"))
 
+        # Used for generating sub-trajectories
+        X_train, U_train = generate_trajectories(X_train, U_train, **config_manager.get_param("sindy_params.data_preprocessing"), rng=random_number_generator)
 
         # ===== Sindy model configuration =====
         # All of the configurations for the feature libraries, differentiation methods and optimizers are defined here.
@@ -63,7 +68,7 @@ if __name__ == "__main__":
 
         optimizer_kwargs = {
             "STLSQ": {
-                "threshold": estimate_threshold(X, dt, U, library, 6, noise_level)[0: 4],
+                "threshold": estimate_threshold(X_train, dt, U_train, library, 8, noise_level)[0: 5],
                 "ensemble": True,
                 "ensemble_kwargs": {"n_subset": 0.6 * X_train[0].shape[0]},
                 "alpha": [1e-4, 1e-3, 1e-2, 1e-1]
@@ -77,18 +82,19 @@ if __name__ == "__main__":
         X, U = None, None
         gc.collect()
 
-        estimator.search_configurations(
-            X_train, X_val, U_train, U_val, dt,
-            config_manager.get_param("sindy_params.params_search.n_processes"),
-            config_manager.get_param("sindy_params.params_search.log_file_name"),
-            **config_manager.get_param("sindy_params.constraints")
-        )
+        # estimator.search_configurations(
+        #     X_train, X_val, U_train, U_val, dt,
+        #     config_manager.get_param("sindy_params.params_search.n_processes"),
+        #     config_manager.get_param("sindy_params.params_search.log_file_name"),
+        #     **config_manager.get_param("sindy_params.constraints")
+        # )
         
-        estimator.plot_pareto()
+        # estimator.plot_pareto()
 
-        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
+        # estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
         
         payload = {
+            "random_seed": config_manager.get_param("sindy_params.global.random_seed"),
             "dt": dt,
             "dataset_size_ratio": {
                 "train": config_manager.get_param("sindy_params.data_splitting.train_ratio"),

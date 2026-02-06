@@ -7,7 +7,7 @@ from utils.config_manager import ConfigManager
 
 if __name__ == "__main__":
     config_manager = ConfigManager("config")
-        
+
     def ode(state_vector: np.ndarray, input_signal: Union[float, np.ndarray]) -> np.ndarray:  
         x, y, z = state_vector  
 

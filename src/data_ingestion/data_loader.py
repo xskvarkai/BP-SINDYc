@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from typing import Optional, List, Tuple
 from pathlib import Path
+from scipy.signal import savgol_filter
 
 # Import local modules
 from utils.helpers import compute_time_vector
@@ -40,12 +41,16 @@ class DataLoader:
             time_column_index: Optional[int] = None,
             time: Optional[float|np.ndarray] = None,
             control_input_column_indices: Optional[List[int]] = None,
+            apply_savgol_filter: bool = False,
+            savgol_window_length: Optional[int] = None,
+            savgol_polyorder: Optional[int] = None,
             plot_data: bool = False,
             verbose: bool = True,
         ) -> Tuple[np.ndarray, np.ndarray, float]:
         """
         Loads data from a CSV file, extracts state variables (X),
         control inputs (U), and estimates the time step (dt).
+        Optionally applies a Savitzky-Golay filter to the state variables (X).
         """
 
         filepath = self.data_load_path / f"{file_name}.csv"
@@ -90,6 +95,21 @@ class DataLoader:
         X = data[:, X_numpy_column_indices]
         if X.ndim == 1:
             X = X.reshape(-1, 1)
+
+        # Validacia pre Savitzky-Golay filter
+        if apply_savgol_filter:
+            if savgol_window_length is None or savgol_polyorder is None:
+                raise ValueError("Savitzky-Golay filter parameters must be provided when apply_savgol_filter is True.")
+            if savgol_window_length % 2 == 0 or savgol_window_length < 1:
+                raise ValueError("Savitzky-Golay window_length must be odd and positive.")
+            if savgol_polyorder >= savgol_window_length:
+                raise ValueError("Savitzky-Golay polyorder must be less than window_length.")
+
+            if verbose:
+                print(f"Applying Savitzky-Golay filter with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
+
+            # Aplikacia Savitzky-Golay filtera
+            X = savgol_filter(X, savgol_window_length, savgol_polyorder, axis=0)
 
         # ---------- Vytvorenie U array ----------
         U: Optional[np.ndarray] = None
