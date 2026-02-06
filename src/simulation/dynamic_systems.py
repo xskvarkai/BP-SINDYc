@@ -1,12 +1,21 @@
 import numpy as np
-from typing import Callable, Union, Dict, Any
+import pandas as pd
+from typing import Callable, Union, Dict, Any, Tuple
 
 from utils.config_manager import ConfigManager
 from simulation.simulator import generate_input_signal, rk4_step
 from utils.helpers import compute_time_vector
 
-class DynamicSystem:  
+class DynamicSystem:
+    """
+    Class representing a general dynamic system defined by a set of ordinary differential equations (ODEs).
+    The system is defined by a dynamics function that takes the current state and input and returns
+    the time derivative of the state. The class also includes a method for simulating the system's trajectory over
+    """
     def __init__(self, dynamics_func: Callable[[np.ndarray, Union[float, np.ndarray]], np.ndarray], config_manager: ConfigManager):
+        """
+        Initializes the DynamicSystem with a given dynamics function and configuration manager.
+        """
         if not callable(dynamics_func):
             raise TypeError("The 'dynamics_func' parameter must be a callable object (function).")
         
@@ -18,9 +27,15 @@ class DynamicSystem:
         self._input_signal_params: Dict[str, Any] = self.config_manager.get_param("simulation_params.input_signal")
 
     def dynamics(self, state_vector: np.ndarray, input_signal: Union[float, np.ndarray]) -> np.ndarray:
+        """ Returns the time derivative of the state vector given the current state and input signal. """
         return self._dynamics_func(state_vector, input_signal)
 
-    def simulate(self):
+    def simulate(self, verbose: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Simulates the trajectory of the dynamic system over a specified time span 
+        with given initial conditions and input signal parameters.
+        Returns the state trajectory, noisy state trajectory, input signal, and time vector.
+        """
         np.random.seed(self._simulation.get("random_seed", 100))
 
         dt = self._simulation.get("time_step")
@@ -50,6 +65,13 @@ class DynamicSystem:
             noise = np.random.normal(0, noise_level, state_trajectory.shape)
             noisy_state_trajectory = state_trajectory + noise
             
-            print(f"Pridaný šum na úrovni {noise_ratio:.1%} voči dátam")
+            if verbose:
+                print(f"Added noise in level of the standard deviation of the state trajectory (noise level: {noise_level:.1%}).")
 
         return state_trajectory, noisy_state_trajectory, input_signal, compute_time_vector(state_trajectory, dt)
+    
+    def export_data(data: Dict[str, Any] = {}, file_path="raw/simulation.csv"):
+        """ Exports the user defined data to a CSV file. """
+        df = pd.DataFrame(data)  
+        df.to_csv(file_path, index=False)
+        return None

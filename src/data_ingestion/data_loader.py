@@ -55,11 +55,11 @@ class DataLoader:
         # Validacia vstupu 
         all_cols_to_load = self._comprehend_and_validate(state_column_indices, time_column_index, control_input_column_indices)
 
-        # ---------- Nacitanie dat z csv ----------
+        # Nacitanie dat z csv
         try:
             data_csv = pd.read_csv(filepath, usecols=all_cols_to_load)
         except Exception as e:
-            raise ValueError(f"Error loading CSV file '{filepath}'")
+            raise ValueError(f"Error loading CSV file '{filepath}': {e}")
         
         if data_csv.empty:
             raise ValueError(f"File '{filepath}' is empty or contains no data in the specified columns.")
@@ -161,7 +161,7 @@ class DataLoader:
                     dt = np.round(np.median(np.diff(time)), decimals=4)
                     time_print = f"\nEstimated time step (dt): {dt}"
             else: # Nebol zadany ani casovy krok ani index casoveho vektora
-                raise ValueError("Data are empty, the time step from the first data column cannot be estimated.")
+                raise ValueError("Data are empty, the time step from the first data column cannot be estimated and time is None.")
         elif isinstance(time, (np.ndarray, float, int)): # Zadany casovy krok alebo vektor
             if isinstance(time, np.ndarray): # Zadany je vektor
                 if time.size > 1:

@@ -4,7 +4,6 @@ from typing import Union
 from simulation.dynamic_systems import DynamicSystem
 from utils.plots import plot_trajectory
 from utils.config_manager import ConfigManager
-from simulation.simulator import export_data
 
 if __name__ == "__main__":
     config_manager = ConfigManager("config")
@@ -32,4 +31,4 @@ if __name__ == "__main__":
             "z": noisy_trajectory[:, 2],
             "u": input}
 
-    export_data(data, "Simulacia")
+    dynamic_system.export_data(data, "Simulacia")

@@ -1,6 +1,6 @@
 import yaml
 from pathlib import Path
-from typing import Any, Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Union
 
 class ConfigManager:
     def __init__(self, config_dir: Union[str, Path], default_env: str = "development"):
@@ -83,7 +83,7 @@ class ConfigManager:
             for part in parts:
                 current_config = current_config.get(part)
             return current_config
-        except (KeyError, TypeError):
+        except (KeyError, TypeError, AttributeError):
             if default is not None:
                 return default
             raise KeyError(f"Configuration parameter '{key}' not found and no default provided.")

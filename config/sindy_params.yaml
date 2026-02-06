@@ -13,8 +13,8 @@ data_splitting:
   apply_savgol_filter: False
   savgol_window_length: 21
   savgol_polyorder: 2
-  perturb_input_signal_ratio: 5.0e-2
-  plot_data: True
+  perturb_input_signal_ratio: 1.0e-1
+  plot_data: False
   verbose: True
 
 data_preprocessing:
@@ -23,14 +23,14 @@ data_preprocessing:
   randomseed: 42
 
 params_search:
-  n_processes: 8
+  n_processes: 6
   log_file_name: Aeroshield/worker_results
   export_file_name: Aeroshield/Aeroshield
 
 constraints:
   sim_steps: 350
   coeff_precision: null
-  max_complexity: 12
+  max_complexity: 20
   max_coeff: 100
   min_r2: 0.6
   max_state: 3.0

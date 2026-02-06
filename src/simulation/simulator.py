@@ -1,10 +1,13 @@
 import numpy as np
-import pandas as pd
 
 from typing import Dict, Any
 
 # Runge-Kutta 4-teho radu pre diskretny system:   
-def rk4_step(dynamic_system, x_k, u_k, dt):
+def rk4_step(dynamic_system, x_k, u_k, dt) -> np.ndarray:
+    """
+    Estimate the next state x_{k+1} using the RK4 method for a given dynamic system, current state x_k, input u_k, and time step dt.
+    Returns the estimated next state x_{k+1}.
+    """
     k1 = dynamic_system.dynamics(x_k, u_k)
     k2 = dynamic_system.dynamics(x_k + 0.5 * dt * k1, u_k)
     k3 = dynamic_system.dynamics(x_k + 0.5 * dt * k2, u_k)
@@ -14,7 +17,12 @@ def rk4_step(dynamic_system, x_k, u_k, dt):
     return x_k + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
 # Generovanie vstupneho signalu 
-def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Dict[str, Any]):
+def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Dict[str, Any]) -> np.ndarray:
+    """
+    Generates an input signal for the dynamic system. If 'is_free_body' is True, the input signal will be zero (free body).
+    Otherwise, it generates a signal based on a simple PID control strategy to create a more complex input.
+    Returns the generated input signal.
+    """
     if is_free_body:
         input_signal = np.zeros(num_samples, dtype=float)
             
@@ -57,8 +65,3 @@ def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Di
             prev_error = error
 
     return input_signal
-
-def export_data(data={}, file_path="raw/simulation.csv"):
-    df = pd.DataFrame(data)  
-    df.to_csv(file_path, index=False)
-    return None

@@ -29,7 +29,7 @@ if __name__ == "__main__":
     with SindyEstimator(config_manager) as estimator:
         noise_level = find_noise(X)
         find_periodicity(X, 1, noise_level)
-        
+
         config_manager.get_param(
             "sindy_params.data_preprocessing"
         )["num_samples_per_trajectory"] = int(config_manager.get_param("sindy_params.data_preprocessing.num_samples_per_trajectory") * X_train.shape[0])
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         feature_library_kwargs = {
             "WeakPDELibrary": {
                 "function_library": library,
-                "spatiotemporal_grid": compute_time_vector(X, dt),
+                "spatiotemporal_grid": compute_time_vector(X_train, dt),
                 "derivative_order": [1, 2, 3],
                 "K": [10, 50, 100, 200],
                 "H_xt": [[1.0 * dt * 10], [1.5 * dt * 10], [2.0 * dt * 10]],

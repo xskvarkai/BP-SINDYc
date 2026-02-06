@@ -28,7 +28,7 @@ class TimeSeriesSplitter:
         
         if not isinstance(X_raw, np.ndarray) or X_raw.ndim != 2:
             raise ValueError("X_raw must be a 2D NumPy array.")
-        if not isinstance(U_raw, np.ndarray) or U_raw.ndim != 2:
+        if U_raw is not None and (not isinstance(U_raw, np.ndarray) or U_raw.ndim != 2):
             raise ValueError("U_raw must be a 2D NumPy array.")
         if X_raw.shape[0] != U_raw.shape[0] and U_raw.shape[1] > 0:
              raise ValueError("X_raw and U_raw must have the same number of samples (rows) if U_raw is not empty.")
@@ -63,7 +63,6 @@ class TimeSeriesSplitter:
             plot_data: bool = False,
             verbose: bool = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        
         """
         Splits the data into training, validation, and test sets.
         Optionally applies a Savitzky-Golay filter to the state variables (X).
@@ -118,14 +117,16 @@ class TimeSeriesSplitter:
             U_val = self.U_raw[train_end_index:val_end_index] if val_ratio > 0 else None
             U_test = self.U_raw[val_end_index:] if test_ratio > 0 else None
             # Pozadovana perturbacia vstupu
-            if perturb_input_signal_ratio is not None and isinstance(perturb_input_signal_ratio, float):
+            if (perturb_input_signal_ratio is not None 
+            and isinstance(perturb_input_signal_ratio, (float, int)) and perturb_input_signal_ratio > 0):
+                np.random.seed(42) # Pre reprodukovatelnost perturbacie
                 U_train = self._perturb_input_signal(U_train, perturb_input_signal_ratio)
 
         if plot_data:
             time_vector = compute_time_vector(X_processed, self.dt)
-            plot_trajectory(time_vector[:train_end_index], X_train, input_signal=(U_train if U_train is not None else None), title="Train Data")
-            plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=(U_val if U_val is not None else None), title="Validation Data")
-            plot_trajectory(time_vector[val_end_index:], X_test, input_signal=(U_test if U_test is not None else None), title="Test Data")
+            plot_trajectory(time_vector[:train_end_index], X_train, input_signal=U_train, title="Train Data")
+            plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=U_val, title="Validation Data")
+            plot_trajectory(time_vector[val_end_index:], X_test, input_signal=U_test, title="Test Data")
 
         return X_train, X_val, X_test, U_train, U_val, U_test
 

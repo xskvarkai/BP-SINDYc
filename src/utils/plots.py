@@ -1,7 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import Dict, Union, Optional, List
 
-def plot_trajectory(time_vector, trajectory, comparison_trajectory=None, input_signal=None, title="Plot"):
+def plot_trajectory(
+        time_vector: np.ndarray,
+        trajectory: Union[np.ndarray, List[np.ndarray]],
+        comparison_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+        input_signal: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+        title: str = "Plot"
+    ):
+    """
+    Plots the trajectory of the system states and optionally the input signal and comparison trajectory.
+    """
     num_state_vars = trajectory.shape[1]
 
     total_plots = num_state_vars
@@ -50,17 +60,21 @@ def plot_trajectory(time_vector, trajectory, comparison_trajectory=None, input_s
 
     return None
 
-def plot_pareto(pareto_front: dict):
+def plot_pareto(pareto_front: Dict):
+    """
+    Plots the Pareto front of model configurations based on RMSE and complexity.
+    
+    """
+
     if pareto_front is None:
         return None
 
-    # Nacitanie rmse a riedkosti
     errs = np.array([r.get("rmse") for r in pareto_front], dtype=float)
     spars = np.array([r.get("complexity") for r in pareto_front], dtype=float)
 
     # Vykreslenie
-    plt.figure(figsize=(8, 5))
-    plt.scatter(errs, spars, color="tab:blue", label="Pareto body")
+    fig = plt.figure(figsize=(8, 5))
+    plt.scatter(errs, spars, color="tab:blue", label="Pareto points")
     plt.xlabel("RMSE")
     plt.ylabel("Complexity (count of nonzero coefficients)")
     plt.title("Pareto front")
@@ -68,5 +82,6 @@ def plot_pareto(pareto_front: dict):
     plt.legend()
     plt.tight_layout()
     plt.show()
+    plt.close(fig)
 
     return None

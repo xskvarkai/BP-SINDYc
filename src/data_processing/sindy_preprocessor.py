@@ -81,7 +81,7 @@ def find_periodicity(
     concentration = np.mean(max_peak / total_energy)
 
     # Heuristicky prah 0.45
-    is_periodic = True if concentration > 0.45 else False
+    is_periodic = concentration > 0.45
 
     status = "Periodic" if is_periodic else "Aperiodic"
     if verbose:
@@ -147,7 +147,6 @@ def estimate_threshold(
 
     return list(thresholds.flatten())
 
-
 def generate_trajectories(
     x_train: np.ndarray,
     u_train: Optional[np.ndarray] = None,
@@ -158,10 +157,11 @@ def generate_trajectories(
     """
     Generates a random sub-trajectories from trajectory.
     """
-
-    # Funkcia nahodne "vysekne" pod-trajektorie z treningovych dat.
-
     np.random.seed(randomseed)
+    # POZOR: nie je vhodne generovat trajektorie pre systemy ine ako ODE, pretoze moze dochadzat 
+    # k naruseniu casovej kontinuity a korelacie v datach, co je kriticke pre SINDy.
+    # Pouzivajte s opatrnostou a len pre systemy, kde je to relevantne (napr. ODE systemy s dostatocne dlhou trajektoriou).
+    
     # Ziskanie poctu vzoriek tranovacej sady
     total_train_samples = x_train.shape[0]
 
@@ -184,7 +184,7 @@ def generate_trajectories(
         x_multi.append(trajectory)
 
         # Spracovanie riadiaceho signalu
-        if not np.any(u_train) or u_train is None:
+        if u_train is None:
             u_multi = None
         else:
             input_signal = u_train[start_index:end_index]
