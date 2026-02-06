@@ -2,7 +2,6 @@ import pysindy as ps
 import numpy as np
 from datetime import datetime
 from pathlib import Path
-from sklearn.metrics import r2_score, root_mean_squared_error
 from typing import List, Dict, Any, Optional, Union
 
 import json
@@ -16,8 +15,7 @@ import warnings
 from models.base import BaseSindyEstimator
 from utils.config_manager import ConfigManager
 from utils.plots import plot_trajectory, plot_pareto
-from utils.sindy_helpers import sanitize_WeakPDELibrary, make_model_callable
-from utils.helpers import compute_time_vector
+import utils.sindy_helpers as sindy_helpers
 from scripts.sindy_run_configuration import run_config
 
 PysindyConfigObject = Union[ps.optimizers.BaseOptimizer, ps.feature_library.base.BaseFeatureLibrary, ps.differentiation.BaseDifferentiation]
@@ -84,7 +82,7 @@ class SindyEstimator(BaseSindyEstimator):
         if self._default_constraints.get("sim_steps") <= self._default_constraints.get("min_validation_sim_steps"):
             self._default_constraints["sim_steps"] = self._default_constraints["min_validation_sim_steps"]
             warnings.warn(f"Minimum required simulation steps are {self._default_constraints["min_validation_sim_steps"]},"
-                          f"validation steps increased/decreased automatically to {self._default_constraints["min_validation_sim_steps"]}")
+                          f"validation steps increased/decreased automatically to match this requirement.")
 
         if total_val_samples < self._default_constraints.get("sim_steps"):
             raise ValueError(f"Not enough validation samples. Decrease validation steps to {total_val_samples} or increase validation size.")
@@ -134,7 +132,7 @@ class SindyEstimator(BaseSindyEstimator):
                                 pickle.dump(result, results_file)
                             gc.collect()
                         except Exception as e:
-                            warnings.warn(e)
+                            warnings.warn(str(e))
                         # UI/UX - progress bar
                         if verbose:
                             print(f"Processing configuration {index}/{total_configurations}" 
@@ -192,23 +190,23 @@ class SindyEstimator(BaseSindyEstimator):
 
         self._default_constraints.update(self.config_manager.get_param('settings.defaults.constants.SINDYEstimator', default={}))
 
+        data = {
+            "x_train": x_train,
+            "x_ref": x_test,
+            "u_train": u_train,
+            "u_ref": u_test,
+            "dt": dt
+        }
+
         config = self.best_config["configuration"]
         config["differentiation_method"] = config["feature_library"].get_params().get("differentiation_method")
-        np.random.seed(self.best_config.get("random_seed", self._default_constraints["random_seed"]))
 
+        np.random.seed(self.best_config.get("random_seed"))
         # Ignorovanie warningov pocas testovania
-        warnings.filterwarnings("ignore", category=UserWarning)
-        warnings.filterwarnings("ignore", module="pysindy.utils")
+        warnings.filterwarnings("ignore", module="pysindy")
 
-        time_vec = compute_time_vector(x_train, dt)
-        config = sanitize_WeakPDELibrary(config, time_vec)
-        
-        model = ps.SINDy(
-            optimizer=config["optimizer"],
-            feature_library=config["feature_library"],
-            differentiation_method=config["differentiation_method"]
-        )
-        model.fit(x=x_train, u=u_train, t=dt)
+        config = sindy_helpers.sanitize_WeakPDELibrary(config)
+        model = sindy_helpers.make_model(config, data)
 
         if constraints.get("coeff_precision") is not None:
             if constraints["coeff_precision"] == 0:
@@ -216,45 +214,34 @@ class SindyEstimator(BaseSindyEstimator):
             else:
                 model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=constraints["coeff_precision"])
 
-        model_sim = make_model_callable(model, x_train, u_train, dt)
+        model_sim = sindy_helpers.make_model_callable(model, data)
+        warnings.filterwarnings("default", category=UserWarning)
 
         print("\nStarting validation on test data...")
-        x0 = x_test[0]
-        t_test = np.arange(x_test.shape[0]) * dt
-        try:
-            x_sim = model_sim.simulate(x0=x0, t=t_test, u=u_test)
-            min_len = min(len(x_test), len(x_sim))
-            
+        x_sim, rmse, r2, _ = sindy_helpers.evaluate_model(
+            model_sim,
+            data,
+            start_index=0,
+            current_steps=x_test.shape[0],
+            integrator_kwargs={"rtol": 1e-6,"atol": 1e-6}
+        )
+        min_len = min(len(x_test), len(x_sim))        
+
+        print(f"Best model R2 score: {r2:.3%}")
+        self.best_config["test_metrics"] = {
+            "rmse": np.round(rmse, 5),
+            "r2": np.round(r2, 5),
+            "simulation_length": min_len
+        }
+
+        if plot:
+            t_test = np.arange(min_len) * dt
             x_ref_cut = x_test[:min_len]
             x_sim_cut = x_sim[:min_len]
-            t_test_cut = t_test[:min_len]
+            plot_trajectory(t_test, x_ref_cut, x_sim_cut, title="Validation on test data")
+        
+        return None
 
-            test_rmse = root_mean_squared_error(x_ref_cut, x_sim_cut)
-            test_r2 = r2_score(x_ref_cut, x_sim_cut)
-
-            print(f"Best model R2 score: {test_r2:.3%}")
-
-            self.best_config["test_metrics"] = {
-                "rmse": np.round(test_rmse, 5),
-                "r2": np.round(test_r2, 5),
-                "simulation_length": min_len
-            }
-
-            if plot:
-                plot_trajectory(t_test_cut, x_ref_cut, x_sim_cut, title="Validation on test data")
-
-            warnings.filterwarnings("default", category=UserWarning)
-            
-            return None
-
-        except Exception as e:
-            print(f"Test simulation failed: {e}")
-            self.best_config["test_metrics"] = {"error": str(e)}
-
-            warnings.filterwarnings("default", category=UserWarning)
-
-            return None
-    
     # Export dat do JSON
     def export_data(self, data: dict = None, export_file_name: str = "data"):
         if self.pareto_front is None:
@@ -274,7 +261,7 @@ class SindyEstimator(BaseSindyEstimator):
                 # default=str zabezpeci serializaciu objektov ako NumPy polia
                 json.dump(payload, f, indent=5, default=str)
         except Exception as e:
-            warnings.warn(e)
+            warnings.warn(str(e))
 
         return None
 
@@ -300,7 +287,7 @@ class SindyEstimator(BaseSindyEstimator):
         pareto_front = [sorted_results[0]]
         # Algoritmus: Kazdeho kandidata, ktory je jednoduchsi (nizsia complexity) 
         # ako ten s najlepsim rmse, prirad do pareto fronty.
-        # Hladáme dominantne riesenia
+        # Hladame dominantne riesenia
         for candidate in sorted_results[1:]:
             if candidate["complexity"] < pareto_front[-1]["complexity"]:
                     pareto_front.append(candidate)
@@ -317,8 +304,7 @@ class SindyEstimator(BaseSindyEstimator):
             warnings.warn("No valid configurations with AIC found. Cannot select best configuration.")
             return None
         
-        # Vyber na zaklade AIC (Akaike Information Criterion), 
-        # ktore penalizuje zlozitost modelu
+        # Vyber na zaklade AIC (Akaike Information Criterion)
         sorted_results = sorted(results, key=lambda x: x["aic"])
         best_model = sorted_results[0]
         
