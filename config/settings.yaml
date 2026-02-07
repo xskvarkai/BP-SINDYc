@@ -86,4 +86,4 @@ constants:
     minimal_noise_value: 1.0e-3
   SINDYEstimator:
     min_validation_sim_steps: 20 # Minimum steps for quick validation check
-    random_seed: 42 # Default random seed per cofiguration, than, while run_config + index of config is adding
+    random_seed: 42 # Default random seed per cofiguration
