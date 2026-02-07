@@ -58,7 +58,7 @@ if __name__ == "__main__":
                 "function_library": library,
                 "spatiotemporal_grid": compute_time_vector(X_train, dt),
                 "derivative_order": [1, 2, 3],
-                "K": [50, 100, 200],
+                "K": [10, 50, 100, 200],
                 "H_xt": [[1.0 * dt * 10], [1.5 * dt * 10], [2.0 * dt * 10]],
                 "p": [4, 5, 6]
             }

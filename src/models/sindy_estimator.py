@@ -92,8 +92,8 @@ class SindyEstimator(BaseSindyEstimator):
 
             # Zbalenie dat a konfiguracie, kvoli multiprocessingu (argument pre map funkciu)
             configurations_and_data = [
-                    (config, x_train, x_val, u_train, u_val, dt, self._default_constraints, cache_dict, lock)
-                    for config in self.configurations
+                    (index, config, x_train, x_val, u_train, u_val, dt, self._default_constraints, cache_dict, lock)
+                    for index, config in enumerate(self.configurations)
                 ]
             total_configurations = len(configurations_and_data)
 
