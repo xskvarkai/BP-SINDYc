@@ -82,16 +82,16 @@ if __name__ == "__main__":
         X, U = None, None
         gc.collect()
 
-        estimator.search_configurations(
-            X_train, X_val, U_train, U_val, dt,
-            config_manager.get_param("sindy_params.params_search.n_processes"),
-            config_manager.get_param("sindy_params.params_search.log_file_name"),
-            **config_manager.get_param("sindy_params.constraints")
-        )
+        # estimator.search_configurations(
+        #     X_train, X_val, U_train, U_val, dt,
+        #     config_manager.get_param("sindy_params.params_search.n_processes"),
+        #     config_manager.get_param("sindy_params.params_search.log_file_name"),
+        #     **config_manager.get_param("sindy_params.constraints")
+        # )
         
-        estimator.plot_pareto()
+        # estimator.plot_pareto()
 
-        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
+        # estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
         
         payload = {
             "random_seed": config_manager.get_param("sindy_params.global.random_seed"),
