@@ -75,12 +75,9 @@ class SindyEstimator(BaseSindyEstimator):
         if constraints:
             self._default_constraints.update(constraints)
 
-        self._default_constraints.update(self.config_manager.get_param('settings.constants.SINDYEstimator', default={}))
-        
         total_val_samples = x_val.shape[0]
 
-        if self._default_constraints.get("sim_steps") <= self._default_constraints.get("min_validation_sim_steps"):
-            self._default_constraints["sim_steps"] = self._default_constraints["min_validation_sim_steps"]
+        if self._default_constraints.get("sim_steps") <= self.config_manager.get_param("settings.constants.SINDYEstimator.min_validation_sim_steps"):
             warnings.warn(f"Minimum required simulation steps are {self._default_constraints["min_validation_sim_steps"]},"
                           f"validation steps increased/decreased automatically to match this requirement.")
 
@@ -187,8 +184,6 @@ class SindyEstimator(BaseSindyEstimator):
         
         if constraints:
             self._default_constraints.update(constraints)
-
-        self._default_constraints.update(self.config_manager.get_param('settings.defaults.constants.SINDYEstimator', default={}))
 
         data = {
             "x_train": x_train,
