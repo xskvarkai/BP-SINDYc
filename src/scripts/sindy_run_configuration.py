@@ -9,8 +9,8 @@ import utils.sindy_helpers as sindy_helpers
 
 def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
     try:
-        index, config, x_train, x_val, u_train, u_val, dt, constraints, cache_dict, lock = configuration_and_data
-        np.random.seed(index + constraints.get("random_seed", 42))
+        config, x_train, x_val, u_train, u_val, dt, constraints, cache_dict, lock = configuration_and_data
+        np.random.seed(constraints.get("random_seed", 42))
 
         # Ignorovanie warningov pocas hladania
         warnings.filterwarnings("ignore", module="pysindy")
@@ -73,7 +73,7 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
             "rmse": np.round(rmse, 5),
             "complexity": np.count_nonzero(model.coefficients()),
             "aic": aic,
-            "random_seed": index + constraints.get("random_seed", 42),
+            "random_seed": constraints.get("random_seed", 42),
         }
  
         return result
