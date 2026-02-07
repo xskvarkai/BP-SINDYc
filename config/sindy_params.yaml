@@ -21,7 +21,7 @@ data_splitting:
   verbose: True
 
 data_preprocessing:
-  num_samples_per_trajectory: 0.6 # Ratio of training data used for trajectories generation
+  num_samples_per_trajectory: 0.5 # Ratio of training data used for trajectories generation
   num_trajectories: 5
 
 params_search:
@@ -30,9 +30,9 @@ params_search:
   export_file_name: Aeroshield/Aeroshield
 
 constraints:
-  sim_steps: 350
+  sim_steps: 750
   coeff_precision: null
-  max_complexity: 20
+  max_complexity: 12
   max_coeff: 100
-  min_r2: 0.6
+  min_r2: 0.7
   max_state: 3.0
