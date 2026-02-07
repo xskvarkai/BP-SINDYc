@@ -1,8 +1,8 @@
 import numpy as np
 import pysindy as ps
-from typing import List, Union
+from typing import List
 
-def compute_time_vector(x: Union[np.ndarray, List[np.ndarray]], dt: float):
+def compute_time_vector(x: np.ndarray|List[np.ndarray], dt: float):
     """
     Computes time vector suitable for data shape.
     """
