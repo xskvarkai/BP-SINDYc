@@ -120,7 +120,7 @@ def filter_model(
         start_index: int,
         current_steps: int,
         integrator_kwargs: Dict[str, Any] = {"method": "LSODA","rtol": 1e-12,"atol": 1e-12}
-    ) -> Optional[str]:
+    ) -> Union[np.ndarray, str]:
     """
     Apply a series of filters to the model based on the specified constraints.
     Returns a string message if the model fails any of the filters, or None if the model passes all filters.
@@ -128,12 +128,6 @@ def filter_model(
 
     model_coeffs = model.coefficients()
     model_complexity = np.count_nonzero(model_coeffs)
-
-    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
-    if isinstance(x_sim, str):
-        return f"Model simulation failed with error: {x_sim}"
-    
-    x_ref = data.get("x_ref")[start_index : start_index + current_steps]
 
     # FILTER 1: Zlozitost
     # Ak je poziadavka na pocet koeficientov nesplnena alebo je model trivialny
@@ -144,6 +138,13 @@ def filter_model(
     # Ak je poziadavka na maximalnu velkost koefficientov nesplnena alebo su Nan/Inf
     if np.max(np.abs(model_coeffs)) > constraints.get("max_coeff") or not np.all(np.isfinite(model_coeffs)):
         return "Model coeff exceed max coeff or is Inf/Nan. Early stopped due this message."
+
+    # Simulacia modelu a porovnanie s referencnymi datami
+    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
+    if isinstance(x_sim, str):
+        return f"Model simulation failed with error: {x_sim}"
+    
+    x_ref = data.get("x_ref")[start_index : start_index + current_steps]
 
     # FILTER 3: Stabilita simulacie
     if np.max(np.abs(x_sim)) > constraints.get("max_state") or not np.all(np.isfinite(x_sim)):
@@ -156,13 +157,14 @@ def filter_model(
     if model_r2_score < constraints.get("min_r2"):
         return f"Model have low R2 score. Early stopped with R2 score: {model_r2_score:.3f}"
 
-    return None # Model presiel vsetkymi filtrami
+    return x_sim # Model presiel vsetkymi filtrami
 
 def evaluate_model(
         model: ps.SINDy,
         data: Dict[str, Any],
         start_index: int,
         current_steps: int,
+        x_sim: Optional[np.ndarray] = None,
         integrator_kwargs: Dict[str, Any] = {"method": "LSODA","rtol": 1e-12,"atol": 1e-12}
     ) -> Tuple[np.ndarray, float, float, float]:
     """
@@ -173,7 +175,7 @@ def evaluate_model(
     model_coeffs = model.coefficients()
     model_complexity = np.count_nonzero(model_coeffs)
 
-    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
+    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs) if x_sim is None else x_sim
     if isinstance(x_sim, str):
         return np.inf, -np.inf, np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
     
