@@ -32,7 +32,13 @@ params_search:
 constraints:
   sim_steps: 750
   coeff_precision: null
+<<<<<<< HEAD
   max_complexity: 12
   max_coeff: 100
   min_r2: 0.7
+=======
+  max_complexity: 20
+  max_coeff: 10000
+  min_r2: 0.4
+>>>>>>> parent of 6e7d962 (Drobne opravy, nic nemenene.)
   max_state: 3.0
