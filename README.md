@@ -19,7 +19,7 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 │   │   └── Simulacia.csv
 │   └── reports
 │       ├── Aeroshield
-│       │   ├── Aeroshlied_models.json
+│       │   ├── Aeroshield_models.json
 │       │   └── Validation_on_test_dataset.png
 │       └── Lorenz System
 │           ├── data.json
