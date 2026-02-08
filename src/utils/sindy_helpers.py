@@ -157,14 +157,13 @@ def filter_model(
     if model_r2_score < constraints.get("min_r2"):
         return f"Model have low R2 score. Early stopped with R2 score: {model_r2_score:.3f}"
 
-    return x_sim # Model presiel vsetkymi filtrami
+    return None # Model presiel vsetkymi filtrami
 
 def evaluate_model(
         model: ps.SINDy,
         data: Dict[str, Any],
         start_index: int,
         current_steps: int,
-        x_sim: Optional[np.ndarray] = None,
         integrator_kwargs: Dict[str, Any] = {"method": "LSODA","rtol": 1e-12,"atol": 1e-12}
     ) -> Tuple[np.ndarray, float, float, float]:
     """
@@ -175,7 +174,7 @@ def evaluate_model(
     model_coeffs = model.coefficients()
     model_complexity = np.count_nonzero(model_coeffs)
 
-    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs) if x_sim is None else x_sim
+    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
     if isinstance(x_sim, str):
         return np.inf, -np.inf, np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
     

@@ -60,16 +60,16 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
         current_steps = min(val_steps, total_val_samples)
         start_index = max(0, total_val_samples - current_steps)
 
-        x_sim = sindy_helpers.filter_model(model_sim, constraints, data, start_index, current_steps, {"rtol": 1e-3,"atol": 1e-3})
-        if isinstance(x_sim, str): # Ak model neprejde filtrami, vratime informaciu o zlyhani a zahodime model bez dalsich simulacii a hodnoteni.
-            return {"configuration": config, "error": x_sim}
+        filter_results = sindy_helpers.filter_model(model_sim, constraints, data, start_index, current_steps, {"rtol": 1e-3,"atol": 1e-3})
+        if filter_results is not None: # Ak model neprejde filtrami, vratime informaciu o zlyhani a zahodime model bez dalsich simulacii a hodnoteni.
+            return {"configuration": config, "error": filter_results}
         
         # Dlhsia simulacia pre vypocet finalnych metrik.
         # Simuluje sa bud do konca validacnych dat alebo do maximalneho poctu krokov definovaneho v constraints.
         current_steps = min(total_val_samples, constraints.get("sim_steps"))
         start_index = max(0, total_val_samples - current_steps)
 
-        _, rmse, r2, aic = sindy_helpers.evaluate_model(model_sim, data, start_index, current_steps, x_sim, {"rtol": 1e-6,"atol": 1e-6})
+        _, rmse, r2, aic = sindy_helpers.evaluate_model(model_sim, data, start_index, current_steps, {"rtol": 1e-6,"atol": 1e-6})
         result = {
             "configuration": config,
             "equations": model.equations(precision=precision),

@@ -1,0 +1,27 @@
+{
+     "best_result": null,
+     "pareto_front": [],
+     "user_data": {
+          "random_seed": 42,
+          "dt": 0.01,
+          "dataset_size_ratio": {
+               "train": 0.5,
+               "test": 0.25,
+               "val": 0.25
+          },
+          "perturb_input_signal_ratio": 0.1,
+          "multiple_trajectories": {
+               "num_samples_per_trajectory": 2500,
+               "num_trajectories": 5
+          },
+          "signal_prefiltering": "Non-filtered",
+          "constraints": {
+               "sim_steps": 750,
+               "coeff_precision": null,
+               "max_complexity": 20,
+               "max_coeff": 10000,
+               "min_r2": 0.4,
+               "max_state": 3.0
+          }
+     }
+}
