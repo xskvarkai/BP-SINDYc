@@ -200,11 +200,10 @@ class SindyEstimator(BaseSindyEstimator):
 
         config = self.best_config["configuration"]
 
-        np.random.seed(self.best_config.get("random_seed"))
         # Ignorovanie warningov pocas testovania
         warnings.filterwarnings("ignore", module="pysindy")
 
-        model = sindy_helpers.model_costruction(config, data, constraints.get("coeff_precision"))
+        model = sindy_helpers.model_costruction(config, data, self.best_config.get("random_seed", 42), constraints.get("coeff_precision"))
 
         print("\nStarting validation on test data...")
         x_sim, rmse, r2, _ = sindy_helpers.evaluate_model(

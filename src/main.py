@@ -48,8 +48,8 @@ if __name__ == "__main__":
         # Minimum required parameters for method are provided (None takes defaults), but you can add more parameters as needed.
         
         library = FixedCustomLibrary(
-                [x, sin_x, squared_x, quartered_x],
-                [name_x, name_sin_x, name_squared_x, name_quartered_x],
+                [x, sin_x, squared_x],
+                [name_x, name_sin_x, name_squared_x],
                 include_bias=False
             )
         

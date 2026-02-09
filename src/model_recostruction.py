@@ -41,11 +41,11 @@ if __name__ == "__main__":
 
     model = sindy_helpers.model_costruction(
         config={
-            "feature_library": FixedWeakPDELibrary(H_xt=[0.15], K=10, derivative_order=1, differentiation_method=ps.FiniteDifference(), function_library=library, spatiotemporal_grid=compute_time_vector(X_train, dt)),
+            "feature_library": FixedWeakPDELibrary(H_xt=[0.1], K=50, derivative_order=1, p=5, differentiation_method=ps.FiniteDifference(), function_library=library, spatiotemporal_grid=compute_time_vector(X_train, dt)),
             "differentiation_method": None,
-            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=1500, opt=ps.STLSQ(alpha=0.01, max_iter=100000, normalize_columns=True, threshold=0.8)),
-            "random_seed": 224
+            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=2500, opt=ps.STLSQ(alpha=0.01, max_iter=100000, normalize_columns=True, threshold=0.14341646))
         },
+        random_seed=4259416394,
         data=data
     )
 
