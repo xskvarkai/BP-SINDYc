@@ -199,28 +199,16 @@ class SindyEstimator(BaseSindyEstimator):
         }
 
         config = self.best_config["configuration"]
-        if "differentiation_method" not in config:
-            # Pre pripad, ze by sa v configu nenachadzala kluc "differentiation_method", ale je potrebna pre validaciu
-            config["differentiation_method"] = config["feature_library"].get_params().get("differentiation_method")
-            
+
         np.random.seed(self.best_config.get("random_seed"))
         # Ignorovanie warningov pocas testovania
         warnings.filterwarnings("ignore", module="pysindy")
 
-        config = sindy_helpers.sanitize_WeakPDELibrary(config)
-        model = sindy_helpers.make_model(config, data)
-
-        if constraints.get("coeff_precision") is not None:
-            if constraints["coeff_precision"] == 0:
-                model.optimizer.coef_ = np.rint(model.optimizer.coef_)
-            else:
-                model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=constraints["coeff_precision"])
-
-        model_sim = sindy_helpers.make_model_callable(model, data)
+        model = sindy_helpers.model_costruction(config, data, constraints.get("coeff_precision"))
 
         print("\nStarting validation on test data...")
         x_sim, rmse, r2, _ = sindy_helpers.evaluate_model(
-            model_sim,
+            model,
             data,
             start_index=0,
             current_steps=x_test.shape[0],
