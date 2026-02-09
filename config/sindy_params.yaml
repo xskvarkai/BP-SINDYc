@@ -16,7 +16,7 @@ data_loading:
 data_splitting:
   train_ratio: 0.5
   val_ratio: 0.25
-  perturb_input_signal_ratio: 2.0e-1
+  perturb_input_signal_ratio: 1.0e-1
   plot_data: True
   verbose: True
 
@@ -30,9 +30,9 @@ params_search:
   export_file_name: Aeroshield/Aeroshield
 
 constraints:
-  sim_steps: 750
+  sim_steps: 1250
   coeff_precision: null
   max_complexity: 12
   max_coeff: 100
   min_r2: 0.6
-  max_complexity: 20
+  max_state: 3.0

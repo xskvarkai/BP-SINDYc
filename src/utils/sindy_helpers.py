@@ -176,10 +176,14 @@ def evaluate_model(
     model_coeffs = model.coefficients()
     model_complexity = np.count_nonzero(model_coeffs)
 
+    warnings.filterwarnings("ignore", module="pysindy")
+
     x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
     if isinstance(x_sim, str):
         return x_sim, np.inf, -np.inf, np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
     
+    warnings.filterwarnings("default", category=UserWarning)
+
     x_ref = data.get("x_ref")[start_index : start_index + current_steps]
 
     min_len = min(len(x_ref), len(x_sim))
@@ -198,10 +202,14 @@ def evaluate_model(
 def model_costruction(
         config: Dict[str, Any],
         data: Dict[str, Union[np.ndarray, List[np.ndarray]]],
+        random_seed: Optional[int] = 42,
         coeff_precision: Optional[int] = None
     ) -> ps.SINDy:
     
-    np.random.seed(config.get("random_seed", 42))
+    np.random.seed(random_seed)
+
+    if config.get("differentiation_method") is None:
+        config["differentiation_method"] = config["feature_library"].get_params().get("differentiation_method")
 
     warnings.filterwarnings("ignore", module="pysindy")
     config = sanitize_WeakPDELibrary(config)
@@ -214,6 +222,5 @@ def model_costruction(
             model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=coeff_precision)
 
     model = make_model_callable(model, data)
-    warnings.filterwarnings("default", category=UserWarning)
 
     return model
