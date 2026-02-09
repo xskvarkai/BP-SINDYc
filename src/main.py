@@ -58,7 +58,7 @@ if __name__ == "__main__":
                 "function_library": library,
                 "spatiotemporal_grid": compute_time_vector(X_train, dt),
                 "derivative_order": [1, 2, 3],
-                "K": [10, 50, 100, 200],
+                "K": [10, 50, 100],
                 "H_xt": [[1.0 * dt * 10], [1.5 * dt * 10], [2.0 * dt * 10]],
                 "p": [4, 5, 6]
             }
@@ -70,8 +70,8 @@ if __name__ == "__main__":
             "STLSQ": {
                 "threshold": estimate_threshold(X_train, dt, U_train, library, 8, noise_level)[0: 5],
                 "ensemble": True,
-                "ensemble_kwargs": {"n_subset": 0.6 * X_train[0].shape[0]},
-                "alpha": [1e-4, 1e-3, 1e-2, 1e-1]
+                "ensemble_kwargs": {"n_subset": X_train[0].shape[0]},
+                "alpha": [1e-4, 1e-3, 1e-2]
             }
         }
 

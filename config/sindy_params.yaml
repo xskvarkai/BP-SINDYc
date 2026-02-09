@@ -1,5 +1,5 @@
 global:
-  random_seed: 42
+  random_seed: 100
 
 data_loading:
   file_name: Aeroshield_with_deriv
@@ -16,7 +16,7 @@ data_loading:
 data_splitting:
   train_ratio: 0.5
   val_ratio: 0.25
-  perturb_input_signal_ratio: 1.0e-1
+  perturb_input_signal_ratio: 2.0e-1
   plot_data: True
   verbose: True
 
@@ -34,5 +34,5 @@ constraints:
   coeff_precision: null
   max_complexity: 12
   max_coeff: 100
-  min_r2: 0.7
+  min_r2: 0.6
   max_complexity: 20

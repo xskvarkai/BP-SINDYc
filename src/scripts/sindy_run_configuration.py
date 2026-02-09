@@ -70,6 +70,9 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
         start_index = max(0, total_val_samples - current_steps)
 
         _, rmse, r2, aic = sindy_helpers.evaluate_model(model_sim, data, start_index, current_steps, {"rtol": 1e-6,"atol": 1e-6})
+        if r2 < constraints.get("min_r2"):
+            return {"configuration": config, "error": f"Model have low R2 score. Stopped after long simulation with R2 score: {r2:.3f}"}
+    
         result = {
             "configuration": config,
             "equations": model.equations(precision=precision),

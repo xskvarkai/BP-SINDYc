@@ -1,7 +1,9 @@
 import numpy as np
 import pysindy as ps
 from sklearn.metrics import r2_score, root_mean_squared_error
-from typing import Dict, Any, Optional, Union, Tuple
+from typing import Dict, Any, Optional, Union, Tuple, List
+
+import warnings
 
 from utils.custom_libraries import FixedWeakPDELibrary
 
@@ -106,12 +108,12 @@ def model_simulate(
     t = np.arange(current_steps) * data.get("dt")
     u = data.get("u_ref")[start_index : start_index + current_steps] if data.get("u_ref") is not None else None
 
-    try:
-        x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws=integrator_kwargs)
-        return x_sim
+    # try:
+    x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws=integrator_kwargs)
+    return x_sim
     
-    except Exception as e:
-        return str(e)
+    # except Exception as e:
+    #     return str(e)
 
 def filter_model(
         model: ps.SINDy,
@@ -176,7 +178,7 @@ def evaluate_model(
 
     x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
     if isinstance(x_sim, str):
-        return np.inf, -np.inf, np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
+        return x_sim, np.inf, -np.inf, np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
     
     x_ref = data.get("x_ref")[start_index : start_index + current_steps]
 
@@ -192,3 +194,26 @@ def evaluate_model(
         aic = min_len * np.log(rmse ** 2) + 2 * model_complexity + 2 * model_complexity * (model_complexity + 1) /  aic_denominator # Korigovane AIC
             
     return (x_sim, rmse, r2, aic)
+
+def model_costruction(
+        config: Dict[str, Any],
+        data: Dict[str, Union[np.ndarray, List[np.ndarray]]],
+        coeff_precision: Optional[int] = None
+    ) -> ps.SINDy:
+    
+    np.random.seed(config.get("random_seed", 42))
+
+    warnings.filterwarnings("ignore", module="pysindy")
+    config = sanitize_WeakPDELibrary(config)
+    model = make_model(config, data)
+
+    if coeff_precision is not None: # Ak je definovana poziadavka na presnost koeficientov, aplikujeme ju na koeficienty modelu.
+        if coeff_precision == 0:
+            model.optimizer.coef_ = np.rint(model.optimizer.coef_)
+        else:
+            model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=coeff_precision)
+
+    model = make_model_callable(model, data)
+    warnings.filterwarnings("default", category=UserWarning)
+
+    return model
