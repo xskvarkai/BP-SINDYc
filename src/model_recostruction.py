@@ -6,8 +6,8 @@ from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
 from data_processing.data_splitter import TimeSeriesSplitter
 from utils.custom_libraries import FixedCustomLibrary, FixedWeakPDELibrary
-from utils.custom_libraries import x, sin_x, squared_x, \
-                                   name_x, name_sin_x, name_squared_x
+from utils.custom_libraries import x, sin_x, squared_x, quartered_x, \
+                                   name_x, name_sin_x, name_squared_x, name_quartered_x
 from utils.helpers import compute_time_vector
 from utils.plots import plot_trajectory
 from data_processing.sindy_preprocessor import generate_trajectories
@@ -21,12 +21,22 @@ if __name__ == "__main__":
 
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
-            **config_manager.get_param("sindy_params.data_loading")
+            file_name="Aeroshield_with_deriv",
+            state_column_indices=[0, 1],
+            time_column_index=None,
+            time=0.01,
+            control_input_column_indices=[2],
+            apply_savgol_filter=True,
+            savgol_window_length=31,
+            savgol_polyorder=2
         )
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
         X_train, X_val, X_test, U_train, U_val, U_test = splitter.split_data(
-            **config_manager.get_param("sindy_params.data_splitting"), rng=random_number_generator
+            train_ratio=0.5,
+            val_ratio=0.25,
+            perturb_input_signal_ratio=0.1,
+            rng=random_number_generator
         )
     X_train, U_train = generate_trajectories(X_train, U_train, num_samples_per_trajectory=2500, num_trajectories=5, rng=random_number_generator)
     
@@ -41,13 +51,16 @@ if __name__ == "__main__":
 
     model = sindy_helpers.model_costruction(
         config={
-            "feature_library": FixedWeakPDELibrary(H_xt=[0.1], K=50, derivative_order=1, p=5, differentiation_method=ps.FiniteDifference(), function_library=library, spatiotemporal_grid=compute_time_vector(X_train, dt)),
+            "feature_library": FixedWeakPDELibrary(H_xt=[0.0515], K=20, derivative_order=3, p=4, differentiation_method=ps.FiniteDifference(), function_library=library, spatiotemporal_grid=compute_time_vector(X_train, dt)),
             "differentiation_method": None,
-            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=2500, opt=ps.STLSQ(alpha=0.01, max_iter=100000, normalize_columns=True, threshold=0.14341646))
+            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=2500, opt=ps.STLSQ(alpha=0.0001, max_iter=100000, normalize_columns=True, threshold=0.79, unbias=False))
         },
-        random_seed=4259416394,
+        random_seed=872382840,
         data=data
     )
+
+    print()
+    model.print()
 
     print("\nStarting validation on test data...")
     x_sim, rmse, r2, aic = sindy_helpers.evaluate_model(

@@ -14,8 +14,6 @@ valid_methods:
       polyorder: 2
       window_length: 31
       mode: interp
-      delta: 1
-      axis: 0
 
   # Default parameters for SINDy optimizers
   optimizers:
@@ -23,6 +21,7 @@ valid_methods:
       threshold: 0.1
       alpha: 0.05
       max_iter: 100000
+      initial_guess: null
       normalize_columns: True
       unbias: True
     SR3:
@@ -32,7 +31,7 @@ valid_methods:
       trimming_fraction: 0.0
       trimming_step_size: 1.0
       max_iter: 100000
-      tol: 1.0e-8
+      tol: 1.0e-5
       normalize_columns: True
       unbias: True
 

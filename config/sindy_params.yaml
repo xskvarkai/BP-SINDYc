@@ -8,7 +8,7 @@ data_loading:
   time: 1.0e-2
   control_input_column_indices: [2]
   apply_savgol_filter: False
-  savgol_window_length: 21
+  savgol_window_length: 31
   savgol_polyorder: 2
   plot_data: False
   verbose: True
@@ -16,7 +16,10 @@ data_loading:
 data_splitting:
   train_ratio: 0.5
   val_ratio: 0.25
-  perturb_input_signal_ratio: 1.0e-1
+  perturb_input_signal_ratio: 6.0e-2
+  apply_savgol_filter: True
+  savgol_window_length: 31
+  savgol_polyorder: 2
   plot_data: True
   verbose: True
 
@@ -32,7 +35,7 @@ params_search:
 constraints:
   sim_steps: 1250
   coeff_precision: null
-  max_complexity: 12
-  max_coeff: 100
-  min_r2: 0.6
+  max_complexity: 6
+  max_coeff: 150
+  min_r2: 0.5
   max_state: 3.0

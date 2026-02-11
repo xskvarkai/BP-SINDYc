@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
+
+from scipy.signal import savgol_filter
+
 from data_ingestion.data_loader import DataLoader
 from utils.config_manager import ConfigManager
-
 
 def load_and_deriv():
     config_manager = ConfigManager("config")
@@ -26,6 +28,9 @@ def load_and_deriv():
             verbose=False
         )
 
+    X = savgol_filter(X, 21, 2, axis=0) 
+    X_val = savgol_filter(X_val, 21, 2, axis=0)
+
     X_dot = np.gradient(X, time_step, axis=0)
     X_dot_val = np.gradient(X_val, time_step, axis=0)
 
@@ -39,6 +44,6 @@ def load_and_deriv():
         "u": U_new.flatten()
     }
 
-    file_path = "data/processed/Aeroshield_with_deriv.csv"
+    file_path = "data/processed/Aeroshield_with_deriv_filtered.csv"
     df = pd.DataFrame(data)  
     df.to_csv(file_path, index=False)
