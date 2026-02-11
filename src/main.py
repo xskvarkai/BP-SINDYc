@@ -9,8 +9,8 @@ from data_processing.sindy_preprocessor import find_periodicity, find_noise, est
 from models.sindy_estimator import SindyEstimator
 from utils.helpers import compute_time_vector
 from utils.custom_libraries import FixedCustomLibrary
-from utils.custom_libraries import x, sin_x, squared_x, quartered_x, \
-                                   name_x, name_sin_x, name_squared_x, name_quartered_x
+from utils.custom_libraries import x, sin_x, squared_x, \
+                                   name_x, name_sin_x, name_squared_x
 
 if __name__ == "__main__":
 
@@ -57,10 +57,10 @@ if __name__ == "__main__":
             "WeakPDELibrary": {
                 "function_library": library,
                 "spatiotemporal_grid": compute_time_vector(X_train, dt),
-                "derivative_order": [1, 2, 3],
-                "K": [10, 50, 100],
-                "H_xt": [[1.0 * dt * 10], [1.5 * dt * 10], [2.0 * dt * 10]],
-                "p": [4, 5, 6]
+                "derivative_order": [2, 3, 4],
+                "K": [10, 20, 30, 40, 50],
+                "H_xt": [[5 * dt]],
+                "p": [3, 4, 5]
             }
         }
 
@@ -68,10 +68,13 @@ if __name__ == "__main__":
 
         optimizer_kwargs = {
             "STLSQ": {
-                "threshold": estimate_threshold(X_train, dt, U_train, library, 8, noise_level)[0: 5],
+                "threshold": 1.0,
                 "ensemble": True,
                 "ensemble_kwargs": {"n_subset": X_train[0].shape[0]},
-                "alpha": [1e-4, 1e-3, 1e-2]
+                "alpha": 1e-4,
+                "unbias": False,
+                "initial_guess": np.array([[0., 1., 0., 0., 0., 0., 0., 0., 0.],
+                                           [30., -1.3, 0., -60., 0., 0., 0., 0., 0.]])
             }
         }
 
@@ -94,7 +97,7 @@ if __name__ == "__main__":
         estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
         
         payload = {
-            "random_seed": config_manager.get_param("sindy_params.global.random_seed"),
+            "global_random_seed": config_manager.get_param("sindy_params.global.random_seed"),
             "dt": dt,
             "dataset_size_ratio": {
                 "train": config_manager.get_param("sindy_params.data_splitting.train_ratio"),
@@ -103,10 +106,14 @@ if __name__ == "__main__":
             },
             "perturb_input_signal_ratio": config_manager.get_param("sindy_params.data_splitting.perturb_input_signal_ratio"),
             "multiple_trajectories": config_manager.get_param("sindy_params.data_preprocessing"),
-            "signal_prefiltering": {
+            "signal_loading_prefiltering": {
                 config_manager.get_param("sindy_params.data_loading.savgol_window_length"),
                 config_manager.get_param("sindy_params.data_loading.savgol_polyorder")
-            } if config_manager.get_param("sindy_params.data_loading.apply_savgol_filter") else "Non-filtered",
+            } if config_manager.get_param("sindy_params.data_loading.apply_savgol_filter") else "non-filtered",
+            "signal_splitting_prefiltering": {
+                config_manager.get_param("sindy_params.data_splitting.savgol_window_length"),
+                config_manager.get_param("sindy_params.data_splitting.savgol_polyorder")
+            } if config_manager.get_param("sindy_params.data_splitting.apply_savgol_filter") else "non-filtered",
             "constraints": config_manager.get_param("sindy_params.constraints")
         }
 

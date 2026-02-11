@@ -58,6 +58,9 @@ class TimeSeriesSplitter:
             val_ratio: float = 0.2,
             perturb_input_signal_ratio: Optional[float] = None,
             rng: Optional[np.random.RandomState] = np.random.RandomState(42),
+            apply_savgol_filter: bool = False,
+            savgol_window_length: Optional[int] = None,
+            savgol_polyorder: Optional[int] = None,
             plot_data: bool = False,
             verbose: bool = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -91,6 +94,23 @@ class TimeSeriesSplitter:
         U_train: Optional[np.ndarray] = None
         U_val: Optional[np.ndarray] = None
         U_test: Optional[np.ndarray] = None
+
+        # Validacia pre Savitzky-Golay filter
+        if apply_savgol_filter:
+            if savgol_window_length is None or savgol_polyorder is None:
+                raise ValueError("Savitzky-Golay filter parameters must be provided when apply_savgol_filter is True.")
+            if savgol_window_length % 2 == 0 or savgol_window_length < 1:
+                raise ValueError("Savitzky-Golay window_length must be odd and positive.")
+            if savgol_polyorder >= savgol_window_length:
+                raise ValueError("Savitzky-Golay polyorder must be less than window_length.")
+
+            if verbose:
+                print(f"Applying Savitzky-Golay filter with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
+
+            # Aplikacia Savitzky-Golay filtera
+            X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0)
+            X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
+            X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
 
         if self.U_raw is not None:
             U_train = self.U_raw[:train_end_index]
