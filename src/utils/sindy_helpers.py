@@ -118,10 +118,6 @@ def model_simulate(
 def filter_model(
         model: ps.SINDy,
         constraints: Dict[str, Any],
-        data: Dict[str, Any],
-        start_index: int,
-        current_steps: int,
-        integrator_kwargs: Dict[str, Any] = {"method": "LSODA","rtol": 1e-12,"atol": 1e-12}
     ) -> Union[np.ndarray, str]:
     """
     Apply a series of filters to the model based on the specified constraints.
@@ -134,30 +130,12 @@ def filter_model(
     # FILTER 1: Zlozitost
     # Ak je poziadavka na pocet koeficientov nesplnena alebo je model trivialny
     if model_complexity == 0 or model_complexity > constraints.get("max_complexity"):
-        return f"Model is trivial or exceed max complexity. Early stopped with complexity: {model_complexity}"
+        return f"Model is trivial or exceed max complexity. Early stopped with complexity: {model_complexity}."
 
     # FILTER 2: Velkost koeficientov
     # Ak je poziadavka na maximalnu velkost koefficientov nesplnena alebo su Nan/Inf
     if np.max(np.abs(model_coeffs)) > constraints.get("max_coeff") or not np.all(np.isfinite(model_coeffs)):
         return "Model coeff exceed max coeff or is Inf/Nan. Early stopped due this message."
-
-    # Simulacia modelu a porovnanie s referencnymi datami
-    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
-    if isinstance(x_sim, str):
-        return f"Model simulation failed with error: {x_sim}"
-    
-    x_ref = data.get("x_ref")[start_index : start_index + current_steps]
-
-    # FILTER 3: Stabilita simulacie
-    if np.max(np.abs(x_sim)) > constraints.get("max_state") or not np.all(np.isfinite(x_sim)):
-        return "Model diverg too much (exceed max state) or is not stable. Early stopped due this message."
-
-    # FILTER 4: R2 score
-    # Robime kratku simulaciu (val_steps).
-    min_len = min(len(x_ref), len(x_sim))
-    model_r2_score = r2_score(x_ref[:min_len], x_sim[:min_len])
-    if model_r2_score < constraints.get("min_r2"):
-        return f"Model have low R2 score. Early stopped with R2 score: {model_r2_score:.3f}"
 
     return None # Model presiel vsetkymi filtrami
 

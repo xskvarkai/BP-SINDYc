@@ -47,14 +47,8 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
         model = sindy_helpers.model_costruction(config, data, random_seed, constraints.get("coeff_precision"))
 
         total_val_samples = x_val.shape[0]
-        val_steps = constraints.get("min_validation_sim_steps", 20)
 
-        # Kratka simulacia pre rychle zhodnotenie modelu a aplikovanie filterov. 
-        # Ak model neprejde filtrami, nezacina sa dlha simulacia a model sa zahadzuje hned.
-        current_steps = min(val_steps, total_val_samples)
-        start_index = max(0, total_val_samples - current_steps)
-
-        filter_results = sindy_helpers.filter_model(model, constraints, data, start_index, current_steps, {"rtol": 1e-3,"atol": 1e-3})
+        filter_results = sindy_helpers.filter_model(model, constraints)
         if filter_results is not None: # Ak model neprejde filtrami, vratime informaciu o zlyhani a zahodime model bez dalsich simulacii a hodnoteni.
             return {"configuration": config, "error": filter_results}
         
@@ -63,9 +57,16 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
         current_steps = min(total_val_samples, constraints.get("sim_steps"))
         start_index = max(0, total_val_samples - current_steps)
 
-        _, rmse, r2, aic = sindy_helpers.evaluate_model(model, data, start_index, current_steps, {"rtol": 1e-6,"atol": 1e-6})
+        x_sim, rmse, r2, aic = sindy_helpers.evaluate_model(model, data, start_index, current_steps, {"rtol": 1e-6,"atol": 1e-6})
+
+        if isinstance(x_sim, str):
+            return f"Model simulation failed with error: {x_sim}"
+        
+        if np.max(np.abs(x_sim)) > constraints.get("max_state") or not np.all(np.isfinite(x_sim)):
+            return "Model diverg too much (exceed max state) or is not stable. Stopped after long simulation."
+   
         if r2 < constraints.get("min_r2"):
-            return {"configuration": config, "error": f"Model have low R2 score. Stopped after long simulation with R2 score: {r2:.3f}"}
+            return {"configuration": config, "error": f"Model have low R2 score. Stopped after long simulation with R2 score: {r2:.3f}."}
     
         result = {
             "configuration": config,

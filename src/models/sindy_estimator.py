@@ -40,7 +40,7 @@ class SindyEstimator(BaseSindyEstimator):
         self.config_manager = config_manager
         config_manager.load_config("settings")
         self.data_export_path = Path(self.config_manager.get_path("settings.paths.data_export_dir"))
-        self._default_constraints: Dict[str, Any] = self.config_manager.get_param('settings.valid_methods.search_constraints', default={})
+        self._default_constraints: Dict[str, Any] = self.config_manager.get_param("settings.valid_methods.search_constraints", default={})
         
         super().__init__(config_manager)
 
@@ -74,15 +74,15 @@ class SindyEstimator(BaseSindyEstimator):
 
         if constraints:
             self._default_constraints.update(constraints)
-
-        self._default_constraints.update(self.config_manager.get_param('settings.constants.SINDYEstimator', default={}))
         
         total_val_samples = x_val.shape[0]
 
-        if self._default_constraints.get("sim_steps") <= self._default_constraints.get("min_validation_sim_steps"):
-            self._default_constraints["sim_steps"] = self._default_constraints["min_validation_sim_steps"]
-            warnings.warn(f"Minimum required simulation steps are {self._default_constraints["min_validation_sim_steps"]},"
+        min_validation_sim_steps = self.config_manager.get_param("settings.constants.values.min_validation_sim_steps", 50)
+        if self._default_constraints.get("sim_steps") <= min_validation_sim_steps:
+            self._default_constraints["sim_steps"] = min_validation_sim_steps
+            warnings.warn(f"Minimum required simulation steps are {min_validation_sim_steps},"
                           f"validation steps increased/decreased automatically to match this requirement.")
+        min_validation_sim_steps = None
 
         if total_val_samples < self._default_constraints.get("sim_steps"):
             raise ValueError(f"Not enough validation samples. Decrease validation steps to {total_val_samples} or increase validation size.")
@@ -187,8 +187,6 @@ class SindyEstimator(BaseSindyEstimator):
         
         if constraints:
             self._default_constraints.update(constraints)
-
-        self._default_constraints.update(self.config_manager.get_param('settings.defaults.constants.SINDYEstimator', default={}))
 
         data = {
             "x_train": x_train,

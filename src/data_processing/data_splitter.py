@@ -59,6 +59,7 @@ class TimeSeriesSplitter:
             perturb_input_signal_ratio: Optional[float] = None,
             rng: Optional[np.random.RandomState] = np.random.RandomState(42),
             apply_savgol_filter: bool = False,
+            filtered_set_names: List[str] = None,
             savgol_window_length: Optional[int] = None,
             savgol_polyorder: Optional[int] = None,
             plot_data: bool = False,
@@ -108,9 +109,17 @@ class TimeSeriesSplitter:
                 print(f"Applying Savitzky-Golay filter with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
 
             # Aplikacia Savitzky-Golay filtera
-            X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0)
-            X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
-            X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
+            if "train" in filtered_set_names:
+                X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0) 
+            if "val" in filtered_set_names:
+                X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
+            if "test" in filtered_set_names:
+                X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
+            
+            if filtered_set_names is None:
+                X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0)
+                X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
+                X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
 
         if self.U_raw is not None:
             U_train = self.U_raw[:train_end_index]
