@@ -18,6 +18,7 @@ data_splitting:
   val_ratio: 0.25
   perturb_input_signal_ratio: 6.0e-2
   apply_savgol_filter: True
+  filtered_set_names: [val, test]
   savgol_window_length: 31
   savgol_polyorder: 2
   plot_data: True

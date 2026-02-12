@@ -83,6 +83,4 @@ valid_methods:
 constants:
   values:
     minimal_noise_value: 1.0e-3
-  SINDYEstimator:
-    min_validation_sim_steps: 50 # Minimum steps for quick validation check
-    random_seed: 100 # Default random seed per cofiguration
+    min_validation_sim_steps: 250
