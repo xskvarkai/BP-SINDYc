@@ -2,64 +2,78 @@
      "best_result": {
           "configuration": {
                "differentiation_method": null,
-               "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=6000,\n                  opt=STLSQ(alpha=1, max_iter=100000,\n                            threshold=np.float64(0.4008633)))",
-               "feature_library": "FixedWeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n                    differentiation_method=None,\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+               "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=10000,\n                  opt=STLSQ(alpha=1, max_iter=100000, threshold=0.4))",
+               "feature_library": "FixedWeakPDELibrary(H_xt=array([0.9999]), K=190,\n                    differentiation_method=FiniteDifference(),\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
           },
+          "random_seed": 2116986363,
           "equations": [
-               "-9.884 x0 +  9.851 x1 +  0.991 u0^2",
-               " 27.934 x0 + -1.003 x1 + -0.998 x0 x2",
-               "-1.001 x2 +  1.006 x0 x1"
+               "-9.799 x0 +  9.764 x1 +  0.983 u0^2",
+               " 27.976 x0 + -1.005 x1 + -0.999 x0 x2",
+               "-0.997 x2 +  1.003 x0 x1"
           ],
-          "r2_score": 0.8516125523319582,
-          "rmse": 0.6110554658727336,
+          "r2_score": 0.9344,
+          "rmse": 0.34401,
           "complexity": "8",
-          "aic": -2445.846164648247,
-          "random_seed": 77,
+          "aic": -2649.4695817088473,
           "index": 36,
           "test_metrics": {
-               "rmse": 3.7420779773414323,
-               "r2": 0.0972224456474204,
-               "simulation_length": 9999
+               "rmse": 3.28167,
+               "r2": 0.27247,
+               "simulation_length": 10000
           }
      },
      "pareto_front": [
           {
                "configuration": {
                     "differentiation_method": null,
-                    "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=6000,\n                  opt=STLSQ(alpha=1, max_iter=100000,\n                            threshold=np.float64(0.4008633)))",
-                    "feature_library": "FixedWeakPDELibrary(H_xt=AxesArray([0.9999]), K=170,\n                    differentiation_method=None,\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
+                    "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=10000,\n                  opt=STLSQ(alpha=1, max_iter=100000, threshold=0.4))",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([0.9999]), K=190,\n                    differentiation_method=FiniteDifference(),\n                    function_library=PolynomialLibrary(include_bias=False),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.0000e-03],\n           [4.0000e-03],\n           ...,\n           [1.9994e+01],\n           [1.9996e+01],\n           [1.9998e+01]], shape=(10000, 1)))"
                },
+               "random_seed": 2116986363,
                "equations": [
-                    "-9.884 x0 +  9.851 x1 +  0.991 u0^2",
-                    " 27.934 x0 + -1.003 x1 + -0.998 x0 x2",
-                    "-1.001 x2 +  1.006 x0 x1"
+                    "-9.799 x0 +  9.764 x1 +  0.983 u0^2",
+                    " 27.976 x0 + -1.005 x1 + -0.999 x0 x2",
+                    "-0.997 x2 +  1.003 x0 x1"
                ],
-               "r2_score": 0.8516125523319582,
-               "rmse": 0.6110554658727336,
+               "r2_score": 0.9344,
+               "rmse": 0.34401,
                "complexity": "8",
-               "aic": -2445.846164648247,
-               "random_seed": 77,
+               "aic": -2649.4695817088473,
                "index": 36,
                "test_metrics": {
-                    "rmse": 3.7420779773414323,
-                    "r2": 0.0972224456474204,
-                    "simulation_length": 9999
+                    "rmse": 4.24642,
+                    "r2": -0.18017,
+                    "simulation_length": 10000
                }
           }
      ],
      "user_data": {
-          "np.random.seed": 42,
+          "global_random_seed": 100,
           "dt": 0.002,
-          "val_size": 0.2,
-          "test_size": 0.2,
-          "train_multi_trajectories_num": 5,
-          "train_multi_trajectories_samples": 10000,
+          "dataset_size_ratio": {
+               "train": 0.6,
+               "test": 0.2,
+               "val": 0.2
+          },
+          "perturb_input_signal_ratio": null,
+          "multiple_trajectories": {
+               "num_samples_per_trajectory": 10000,
+               "num_trajectories": 5
+          },
+          "signal_loading_prefiltering": "non-filtered",
+          "signal_splitting_prefiltering": {
+               "savgol_window_length": 31,
+               "savgol_polyorder": 2,
+               "filtered_set_names": [
+                    "val"
+               ]
+          },
           "constraints": {
-               "sim_steps": 2500,
+               "sim_steps": 1250,
                "coeff_precision": null,
-               "max_complexity": 24,
+               "max_complexity": 8,
                "max_coeff": 100.0,
-               "min_r2": 0.6,
+               "min_r2": 0.5,
                "max_state": 100.0
           }
      }

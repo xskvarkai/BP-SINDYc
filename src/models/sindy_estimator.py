@@ -255,7 +255,13 @@ class SindyEstimator(BaseSindyEstimator):
 
 
     def plot_pareto(self):
-        plot_pareto(self.pareto_front)
+        if self.pareto_front is None:
+            return None
+
+        errs = np.array([r.get("rmse") for r in self.pareto_front], dtype=float)
+        spars = np.array([r.get("complexity") for r in self.pareto_front], dtype=float)
+
+        plot_pareto(errs, spars)
         return None
     
     # Zostavenie pareto fronty (kompromis medzi chybou a zlozitostou)

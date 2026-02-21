@@ -30,23 +30,32 @@ def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Di
         input_signal = np.zeros(num_samples, dtype=float)
 
         # Parametre PID simulacie
-        kp, ki, kd = input_signal_params.get("kp", 2.0), input_signal_params.get("ki", 0.5), input_signal_params.get("kd", 0.1)  # konstanty regulatora
+        kp, ki, kd = input_signal_params.get("kp", 2.0), input_signal_params.get("ki", 0.0), input_signal_params.get("kd", 0.1)  # konstanty regulatora
         integral = 0.0
         prev_error = 0.0
         
         # Stav systemu - fiktivny
         system_val = 0.0
-        tau = 2.0
+        tau = input_signal_params.get("tau", 0.1)
         target = 0.0
 
-        target_change_interval_sec = input_signal_params.get("target_change_interval_sec", 10)
         target_clip_min = input_signal_params.get("target_clip_min", -15.0)
         target_clip_max = input_signal_params.get("target_clip_max", 15.0)
 
+        target_min_change_interval_sec = input_signal_params.get("target_min_change_interval_sec", -5.0)
+        target_max_change_interval_sec = input_signal_params.get("target_max_change_interval_sec", 5.0)
+
+        random_change_interval_samples = int(np.random.uniform(target_min_change_interval_sec, target_max_change_interval_sec) / dt)
+        next_target_change_sample_idx = random_change_interval_samples
+
         for i in range(num_samples):
-            # Kazdych 10 sekund zmeni pozadovanu hodnotu (nahodny skok)
-            if i % int(target_change_interval_sec/dt) == 0:
-                target = np.random.uniform(-10.0, 10.0)
+            # Nastal cas zmeny na cielovu hodnotu
+            if i >= next_target_change_sample_idx:
+                target = np.random.uniform(target_clip_min, target_clip_max)
+
+                # Vypocet dalsieho nahodneho casu
+                random_change_interval_samples = int(np.random.uniform(target_min_change_interval_sec, target_max_change_interval_sec) / dt)
+                next_target_change_sample_idx = i + random_change_interval_samples
 
             # Ulozenie pozadovanej hodnoty
             target = np.clip(target, target_clip_min, target_clip_max) 
@@ -64,4 +73,4 @@ def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Di
             system_val += (u - system_val) / tau * dt
             prev_error = error
 
-    return input_signal
+    return input_signal[:, None]

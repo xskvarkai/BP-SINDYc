@@ -74,7 +74,7 @@ if __name__ == "__main__":
                 "alpha": 1e-4,
                 "unbias": False,
                 "initial_guess": np.array([[0., 1., 0., 0., 0., 0., 0., 0., 0.],
-                                           [30., -1.3, 0., -60., 0., 0., 0., 0., 0.]])
+                                           [0., -1.3, 0., -60., 0., 0., 0., 0., 0.]])
             }
         }
 
@@ -107,12 +107,13 @@ if __name__ == "__main__":
             "perturb_input_signal_ratio": config_manager.get_param("sindy_params.data_splitting.perturb_input_signal_ratio"),
             "multiple_trajectories": config_manager.get_param("sindy_params.data_preprocessing"),
             "signal_loading_prefiltering": {
-                config_manager.get_param("sindy_params.data_loading.savgol_window_length"),
-                config_manager.get_param("sindy_params.data_loading.savgol_polyorder")
+                "savgol_window_length": config_manager.get_param("sindy_params.data_loading.savgol_window_length"),
+                "savgol_polyorder": config_manager.get_param("sindy_params.data_loading.savgol_polyorder")
             } if config_manager.get_param("sindy_params.data_loading.apply_savgol_filter") else "non-filtered",
             "signal_splitting_prefiltering": {
-                config_manager.get_param("sindy_params.data_splitting.savgol_window_length"),
-                config_manager.get_param("sindy_params.data_splitting.savgol_polyorder")
+                "savgol_window_length": config_manager.get_param("sindy_params.data_splitting.savgol_window_length"),
+                "savgol_polyorder": config_manager.get_param("sindy_params.data_splitting.savgol_polyorder"),
+                "filtered_set_names": config_manager.get_param("sindy_params.data_splitting.filtered_set_names")
             } if config_manager.get_param("sindy_params.data_splitting.apply_savgol_filter") else "non-filtered",
             "constraints": config_manager.get_param("sindy_params.constraints")
         }

@@ -62,21 +62,14 @@ def plot_trajectory(
 
     return None
 
-def plot_pareto(pareto_front: Dict):
+def plot_pareto(rmses: List[float], complexities: List[int]):
     """
     Plots the Pareto front of model configurations based on RMSE and complexity.
-    
     """
-
-    if pareto_front is None:
-        return None
-
-    errs = np.array([r.get("rmse") for r in pareto_front], dtype=float)
-    spars = np.array([r.get("complexity") for r in pareto_front], dtype=float)
 
     # Vykreslenie
     fig = plt.figure(figsize=(8, 5))
-    plt.scatter(errs, spars, color="tab:blue", label="Pareto points")
+    plt.scatter(rmses, complexities, color="tab:blue", label="Pareto points")
     plt.xlabel("RMSE")
     plt.ylabel("Complexity (count of nonzero coefficients)")
     plt.title("Pareto front")

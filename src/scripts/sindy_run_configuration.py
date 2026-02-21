@@ -60,10 +60,10 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
         x_sim, rmse, r2, aic = sindy_helpers.evaluate_model(model, data, start_index, current_steps, {"rtol": 1e-6,"atol": 1e-6})
 
         if isinstance(x_sim, str):
-            return f"Model simulation failed with error: {x_sim}"
+            return {"configuration": config, "error": f"Model simulation failed with error: {x_sim}"}
         
         if np.max(np.abs(x_sim)) > constraints.get("max_state") or not np.all(np.isfinite(x_sim)):
-            return "Model diverg too much (exceed max state) or is not stable. Stopped after long simulation."
+            return {"configuration": config, "error": "Model diverg too much (exceed max state) or is not stable. Stopped after long simulation."}
    
         if r2 < constraints.get("min_r2"):
             return {"configuration": config, "error": f"Model have low R2 score. Stopped after long simulation with R2 score: {r2:.3f}."}

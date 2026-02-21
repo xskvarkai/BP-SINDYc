@@ -6,6 +6,8 @@ from typing import Dict, Any, Optional, Union, Tuple, List
 import warnings
 
 from utils.custom_libraries import FixedWeakPDELibrary
+from utils.helpers import compute_time_vector
+from utils.plots import plot_trajectory
 
 def sanitize_WeakPDELibrary(config: Dict[str, Any]):
     """
@@ -108,12 +110,12 @@ def model_simulate(
     t = np.arange(current_steps) * data.get("dt")
     u = data.get("u_ref")[start_index : start_index + current_steps] if data.get("u_ref") is not None else None
 
-    # try:
-    x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws=integrator_kwargs)
-    return x_sim
+    try:
+        x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws=integrator_kwargs)
+        return x_sim
     
-    # except Exception as e:
-    #     return str(e)
+    except Exception as e:
+        return str(e)
 
 def filter_model(
         model: ps.SINDy,
@@ -173,6 +175,7 @@ def evaluate_model(
     if aic_denominator <= 0:
         aic = np.inf  # Ak je vzorka prilis mala, AIC je nekonecno (model je nevhodny)
     else:
+        # aic = 
         aic = min_len * np.log(rmse ** 2) + 2 * model_complexity + 2 * model_complexity * (model_complexity + 1) /  aic_denominator # Korigovane AIC
             
     return (x_sim, rmse, r2, aic)
@@ -181,7 +184,8 @@ def model_costruction(
         config: Dict[str, Any],
         data: Dict[str, Union[np.ndarray, List[np.ndarray]]],
         random_seed: Optional[int] = 42,
-        coeff_precision: Optional[int] = None
+        coeff_precision: Optional[int] = None,
+        fixed_coeffs: Optional[List[float]] = None,
     ) -> ps.SINDy:
     
     np.random.seed(random_seed)
@@ -200,5 +204,41 @@ def model_costruction(
             model.optimizer.coef_ = np.round(model.optimizer.coef_, decimals=coeff_precision)
 
     model = make_model_callable(model, data)
+
+    return model
+
+def model_reconstruction(config: Dict[str, Any], random_seed: int, data: Dict[str, Any], metrics: bool = True) -> ps.SINDy:
+    """
+    """
+
+    model = model_costruction(
+        config=config,
+        random_seed=random_seed,
+        data=data,
+    )
+
+    print()
+    model.print()
+
+    if metrics == True:
+        x_sim, rmse, r2, _ = evaluate_model(
+            model,
+            data,
+            start_index=0,
+            current_steps=data.get("x_ref").shape[0],
+            integrator_kwargs={"rtol": 1e-6,"atol": 1e-6}
+        )
+
+        min_len = min(len(data.get("x_ref")), len(x_sim))
+
+        print(f"Recostructed model derivative R2 score: {model.score(data.get("x_ref"), data.get("dt"), u=data.get("u_ref")):.3%}")
+        print(f"Recostructed model state R2 score: {r2:.3%}")
+        print(f"Recostructed model state RMSE: {rmse}")
+
+        t_test = compute_time_vector(min_len, data.get("dt"))
+        x_ref_cut = data.get("x_ref")[:min_len]
+        u_ref_cut = data.get("u_ref")[:min_len]
+        x_sim_cut = x_sim[:min_len]
+        plot_trajectory(t_test, x_ref_cut, x_sim_cut, u_ref_cut, title="Validation on test data")
 
     return model
