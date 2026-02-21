@@ -1,5 +1,6 @@
 import pysindy as ps
 import numpy as np
+import pandas as pd
 
 import utils.sindy_helpers as sindy_helpers
 from utils.config_manager import ConfigManager
@@ -26,7 +27,7 @@ if __name__ == "__main__":
             time_column_index=None,
             time=0.01,
             control_input_column_indices=[2],
-            apply_savgol_filter=True,
+            apply_savgol_filter=False,
             savgol_window_length=31,
             savgol_polyorder=2
         )
@@ -36,11 +37,14 @@ if __name__ == "__main__":
             train_ratio=0.5,
             val_ratio=0.25,
             perturb_input_signal_ratio=0.1,
-            rng=random_number_generator
+            rng=random_number_generator,
+            apply_savgol_filter=True,
+            savgol_window_length=31,
+            savgol_polyorder=2
         )
     X_train, U_train = generate_trajectories(X_train, U_train, num_samples_per_trajectory=2500, num_trajectories=5, rng=random_number_generator)
     
-    library = FixedCustomLibrary(function_names=[name_x, name_sin_x , name_squared_x], library_functions=[x, sin_x, squared_x])
+    library = FixedCustomLibrary(function_names=[name_x, name_sin_x, name_squared_x], library_functions=[x, sin_x, squared_x])
     data = {
         "x_train": X_train,
         "x_ref": X_test,
@@ -51,11 +55,11 @@ if __name__ == "__main__":
 
     model = sindy_helpers.model_costruction(
         config={
-            "feature_library": FixedWeakPDELibrary(H_xt=[0.0515], K=20, derivative_order=3, p=4, differentiation_method=ps.FiniteDifference(), function_library=library, spatiotemporal_grid=compute_time_vector(X_train, dt)),
+            "feature_library": FixedWeakPDELibrary(H_xt=[0.0505], K=4, derivative_order=3, differentiation_method=ps.FiniteDifference(), function_library=library, spatiotemporal_grid=compute_time_vector(X_train, dt)),
             "differentiation_method": None,
-            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=2500, opt=ps.STLSQ(alpha=0.0001, max_iter=100000, normalize_columns=True, threshold=0.79, unbias=False))
+            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=2500, opt=ps.STLSQ(alpha=5e-05, max_iter=100000, normalize_columns=True, threshold=1.2, unbias=False, initial_guess=np.array([[  0. ,   1. ,   0. ,   0. ,   0. ,   0. ,   0. ,   0. ,   0. ], [  0. ,  -1.,   0. , -60. ,   0. ,   0. ,   0. ,   0. ,   16. ]])))
         },
-        random_seed=872382840,
+        random_seed=518114833,
         data=data
     )
 
@@ -78,4 +82,14 @@ if __name__ == "__main__":
     t_test = np.arange(min_len) * dt
     x_ref_cut = X_test[:min_len]
     x_sim_cut = x_sim[:min_len]
-    plot_trajectory(t_test, x_ref_cut, x_sim_cut, title="Validation on test data")
+    u_cut = U_test[:min_len]
+    plot_trajectory(t_test, x_ref_cut, x_sim_cut, U_test, title="Validation on test data")
+
+    payload = {
+        "x": x_sim_cut[0, :].reshape(-1, 1).flatten(),
+        "x_dot": x_sim_cut[0, :].reshape(-1, 1).flatten(),
+        "u": u_cut.reshape(-1, 1).flatten()
+    }
+
+    df = pd.DataFrame(payload)  
+    df.to_csv("Koopman_Aeroshield/Simulation.csv", index=False)

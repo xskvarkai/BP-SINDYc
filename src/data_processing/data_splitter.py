@@ -69,10 +69,10 @@ class TimeSeriesSplitter:
         Splits the data into training, validation, and test sets.
         """
 
-        if not (0 < train_ratio < 1 and 0 <= val_ratio < 1 and train_ratio + val_ratio < 1):
+        if not (0 < train_ratio < 1 and 0 <= val_ratio < 1 and train_ratio + val_ratio <= 1):
             raise ValueError("Invalid train_ratio or val_ratio. Ratios must be between 0 and 1, and their sum must be less than 1.")
 
-        test_ratio = 1.0 - train_ratio - val_ratio
+        test_ratio = np.round(1.0 - train_ratio - val_ratio, decimals=10)
         if test_ratio < 0: # Ak by sa nieco pokazilo pri prvej validacii
             raise ValueError("Calculated test_ratio is negative. Check train_ratio and val_ratio.")
         
@@ -109,17 +109,19 @@ class TimeSeriesSplitter:
                 print(f"Applying Savitzky-Golay filter with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
 
             # Aplikacia Savitzky-Golay filtera
-            if "train" in filtered_set_names:
-                X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0) 
-            if "val" in filtered_set_names:
-                X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
-            if "test" in filtered_set_names:
-                X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
-            
             if filtered_set_names is None:
                 X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0)
                 X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
                 X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
+
+            else:
+                if "train" in filtered_set_names:
+                    X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0) 
+                if "val" in filtered_set_names:
+                    X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
+                if "test" in filtered_set_names:
+                    X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
+                
 
         if self.U_raw is not None:
             U_train = self.U_raw[:train_end_index]
@@ -132,9 +134,9 @@ class TimeSeriesSplitter:
 
         if plot_data:
             time_vector = compute_time_vector(self.X_raw, self.dt)
-            plot_trajectory(time_vector[:train_end_index], X_train, input_signal=U_train, title="Train Data")
-            plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=U_val, title="Validation Data")
-            plot_trajectory(time_vector[val_end_index:], X_test, input_signal=U_test, title="Test Data")
+            plot_trajectory(time_vector[:train_end_index], X_train, input_signal=U_train, title="Train Data") if X_train is not None else None
+            plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=U_val, title="Validation Data") if X_val is not None else None
+            plot_trajectory(time_vector[val_end_index:], X_test, input_signal=U_test, title="Test Data") if X_test is not None else None
 
         return X_train, X_val, X_test, U_train, U_val, U_test
 
