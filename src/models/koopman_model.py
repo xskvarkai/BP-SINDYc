@@ -67,5 +67,5 @@ class KoopmanModel():
     def plot_koopman_spectrum(self, print_K: bool = True):
         K = self.model.lamda_array
         if print_K:
-            print(f"\n{K}")
+            print(f"\nKoopman operator lambda matrix: \n{K}")
         plot_koopman_spectrum(K)

@@ -57,7 +57,7 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
         current_steps = min(total_val_samples, constraints.get("sim_steps"))
         start_index = max(0, total_val_samples - current_steps)
 
-        x_sim, rmse, r2, aic = sindy_helpers.evaluate_model(model, data, start_index, current_steps, {"rtol": 1e-6,"atol": 1e-6})
+        x_sim, rmse, r2, aic = sindy_helpers.evaluate_model(model, data, start_index, current_steps, {"rtol": 1e-4,"atol": 1e-4})
 
         if isinstance(x_sim, str):
             return {"configuration": config, "error": f"Model simulation failed with error: {x_sim}"}

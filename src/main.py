@@ -9,8 +9,8 @@ from data_processing.sindy_preprocessor import find_periodicity, find_noise, est
 from models.sindy_estimator import SindyEstimator
 from utils.helpers import compute_time_vector
 from utils.custom_libraries import FixedCustomLibrary
-from utils.custom_libraries import x, sin_x, squared_x, \
-                                   name_x, name_sin_x, name_squared_x
+from utils.custom_libraries import x, sin_x, squared_x, cubed_x, quartered_x, \
+                                   name_x, name_sin_x, name_squared_x, name_cubed_x, name_quartered_x
 
 if __name__ == "__main__":
 
@@ -48,8 +48,8 @@ if __name__ == "__main__":
         # Minimum required parameters for method are provided (None takes defaults), but you can add more parameters as needed.
         
         library = FixedCustomLibrary(
-                [x, sin_x, squared_x],
-                [name_x, name_sin_x, name_squared_x],
+                [x, sin_x, squared_x, cubed_x],
+                [name_x, name_sin_x, name_squared_x, name_cubed_x],
                 include_bias=False
             )
         
@@ -57,10 +57,10 @@ if __name__ == "__main__":
             "WeakPDELibrary": {
                 "function_library": library,
                 "spatiotemporal_grid": compute_time_vector(X_train, dt),
-                "derivative_order": [2, 3, 4],
-                "K": [10, 20, 30, 40, 50],
-                "H_xt": [[5 * dt]],
-                "p": [3, 4, 5]
+                "derivative_order": [0],
+                "K": [4, 10, 30, 50, 70, 100, 200, 500],
+                "H_xt": [[0.45 * np.sqrt(dt)], [0.5 * np.sqrt(dt)], [0.55 * np.sqrt(dt)]],
+                "p": [3, 4, 5, 6]
             }
         }
 
@@ -68,13 +68,13 @@ if __name__ == "__main__":
 
         optimizer_kwargs = {
             "STLSQ": {
-                "threshold": 1.0,
+                "threshold": [0.8, 1.0, 1.2, 1.4],
                 "ensemble": True,
                 "ensemble_kwargs": {"n_subset": X_train[0].shape[0]},
-                "alpha": 1e-4,
+                "alpha": [5e-5, 1e-4],
                 "unbias": False,
-                "initial_guess": np.array([[0., 1., 0., 0., 0., 0., 0., 0., 0.],
-                                           [0., -1.3, 0., -60., 0., 0., 0., 0., 0.]])
+                "initial_guess": np.array([[0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+                                           [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])
             }
         }
 

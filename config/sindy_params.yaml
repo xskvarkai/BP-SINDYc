@@ -16,7 +16,7 @@ data_loading:
 data_splitting:
   train_ratio: 0.5
   val_ratio: 0.25
-  perturb_input_signal_ratio: 6.0e-2
+  perturb_input_signal_ratio: 1.0e-1
   apply_savgol_filter: True
   filtered_set_names: [val, test]
   savgol_window_length: 31
@@ -34,9 +34,9 @@ params_search:
   export_file_name: Aeroshield/Aeroshield
 
 constraints:
-  sim_steps: 1250
+  sim_steps: 2500
   coeff_precision: null
-  max_complexity: 6
-  max_coeff: 150
-  min_r2: 0.5
-  max_state: 3.0
+  max_complexity: 12
+  max_coeff: 100
+  min_r2: 0.1
+  max_state: 4.0
