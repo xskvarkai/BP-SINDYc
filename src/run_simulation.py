@@ -18,7 +18,7 @@ if __name__ == "__main__":
         return np.array([dx, dy, dz])
 
     # Inicializacia systemu
-    dynamic_system = DynamicSystem(ode, config_manager)
+    dynamic_system = DynamicSystem(config_manager, ode)
 
     # Simulovanie trajektorie
     trajectory, noisy_trajectory, input, time_vector = dynamic_system.simulate()

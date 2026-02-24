@@ -16,7 +16,8 @@ def plot_trajectory(
 
     total_plots = num_state_vars
     if input_signal is not None:
-        total_plots += 1
+        num_input_vars = input_signal.shape[1]
+        total_plots += num_input_vars
 
     fig = plt.figure(figsize=(12, 3 * total_plots))
 
@@ -40,11 +41,10 @@ def plot_trajectory(
         plt.grid(True)
 
     if input_signal is not None:
-        num_input_vars = input_signal.shape[1]
         for i in range(num_input_vars):
             current_plot_idx += 1
             ax = plt.subplot(total_plots, 1, current_plot_idx)
-            plt.plot(time_vector, input_signal, "b-", label=f"Input signal ($u_{i}$)")
+            plt.plot(time_vector, input_signal[:, i], "b-", label=f"Input signal ($u_{i}$)")
             plt.ylabel(f"$u_{i}$")
             plt.legend()
             if num_state_vars == 0 and total_plots == 1:
@@ -82,10 +82,17 @@ def plot_pareto(rmses: List[float], complexities: List[int]):
     return None
 
 def plot_koopman_spectrum(eigenvalues: np.ndarray):
+    """ """
     plt.figure(figsize=(6,6))
     plt.scatter(eigenvalues.real, eigenvalues.imag, marker="o")
     circle = plt.Circle((0,0), 1, color="blue", fill=False, linestyle="--", label="Unit Circle")
     plt.gca().add_artist(circle)
+
+    for i, lambda_val in enumerate(eigenvalues):  
+        offset_x = 5 if lambda_val.real >= 0 else -30  
+        offset_y = 5 if lambda_val.imag >= 0 else -20  
+        plt.annotate(f"$\\lambda_{i+1}$", (lambda_val.real, lambda_val.imag), textcoords="offset points", xytext=(offset_x, offset_y), ha='center', fontsize=9)  
+
     plt.xlabel("Real part $Re$")
     plt.ylabel("Imaginarny part $Im$")
     plt.title("Koopman spectrum")
@@ -93,3 +100,69 @@ def plot_koopman_spectrum(eigenvalues: np.ndarray):
     plt.axis("equal")
     plt.legend()
     plt.show()
+
+def plot_compared_trajectories(
+        time_vector: np.ndarray,
+        real_trajectory: Union[np.ndarray, List[np.ndarray]],
+        sindy_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+        sindy_r2: Optional[float] = None,
+        koopman_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+        koopman_r2: Optional[float] = None,
+        input_signal: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+    ):
+    """
+    Plots the trajectory of the system states and optionally the input signal and comparison trajectory.
+    """
+
+    title: str = "Comparison with real data"
+    num_state_vars = real_trajectory.shape[1]
+
+    total_plots = num_state_vars
+    if input_signal is not None:
+        num_input_vars = input_signal.shape[1]
+        total_plots += num_input_vars
+
+    fig = plt.figure(figsize=(12, 3 * total_plots))
+
+    current_plot_idx = 0
+
+    for i in range(num_state_vars):
+        current_plot_idx += 1
+        ax = plt.subplot(total_plots, 1, current_plot_idx)
+        plt.plot(time_vector, real_trajectory[:, i], "k-", label=f"Real data")
+        if sindy_trajectory is not None:
+            plt.plot(time_vector, sindy_trajectory[:, i], "r--", label=f"SINDyC simulated data ({sindy_r2:.3%})")
+        if koopman_trajectory is not None:
+            plt.plot(time_vector, koopman_trajectory[:, i], "g--", label=f"Koopman simulated data ({koopman_r2:.3%})")
+        plt.ylabel(f"$x_{i}$")
+        plt.legend()
+        if i == 0:
+            plt.title(title)
+
+        if current_plot_idx != total_plots:
+            plt.setp(ax.get_xticklabels(), visible=False)
+        else:
+            plt.xlabel("Time (s)")
+        plt.grid(True)
+
+    if input_signal is not None:
+        for i in range(num_input_vars):
+            current_plot_idx += 1
+            ax = plt.subplot(total_plots, 1, current_plot_idx)
+            plt.plot(time_vector, input_signal[:, i], "b-", label=f"Input signal ($u_{i}$)")
+            plt.ylabel(f"$u_{i}$")
+            plt.legend()
+            if num_state_vars == 0 and total_plots == 1:
+                plt.title("Input signal")
+
+            if current_plot_idx != total_plots:
+                plt.setp(ax.get_xticklabels(), visible=False)
+            else:
+                plt.xlabel("Time (s)")
+            plt.grid(True)
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95]) 
+    plt.show()
+    plt.close(fig)
+
+    return None

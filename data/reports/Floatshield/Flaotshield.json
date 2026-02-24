@@ -1,0 +1,81 @@
+{
+     "best_result": {
+          "configuration": {
+               "differentiation_method": null,
+               "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=1320,\n                  opt=STLSQ(alpha=0.0001,\n                            initial_guess=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0.]]),\n                            max_iter=100000, normalize_columns=True,\n                            threshold=0.5, unbias=False))",
+               "feature_library": "FixedWeakPDELibrary(H_xt=array([0.15811388]), K=10, derivative_order=1,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_x at 0x000001EA62EF2C40>,\n                                                                        <function name_xy at 0x000001EA62EF2CF0>,\n                                                                        <function name_squared_x at 0x000001EA62EF2DA0>,\n                                                                        <function name_drag_term at 0x000001EA62EF38A0>],\n                                                        include_bias=True,\n                                                        library_functions=[<function x at 0x000001EA62EF1E80>,\n                                                                           <function xy at 0x000001EA62EF1F30>,\n                                                                           <function squared_x at 0x000001EA62EF1FE0>,\n                                                                           <function drag_term at 0x000001EA62EF2AE0>]),\n                    multiindices=[], p=6,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.5000e-02],\n           [5.0000e-02],\n           ...,\n           [3.2925e+01],\n           [3.2950e+01],\n           [3.2975e+01]], shape=(1320, 1)))"
+          },
+          "random_seed": 2142333089,
+          "equations": [
+               " 1.503 1 + -0.009 x0 +  0.842 x1 +  15.368 x2 + -0.438 u0 + -0.028 x0 x2 +  0.008 x0 u0 +  1.216 x1 x2 + -0.005 x1 u0 +  132.729 x2^2 + -0.744 u0^2 +  1.026 (x2 - u0) |x2 - u0|",
+               " 9.060 1 + -1.010 x0 +  3.405 x1 +  755.184 x2 +  30.658 u0 + -0.021 x0 x1 +  6.687 x0 x2 + -0.285 x0 u0 + -36.634 x1 x2 +  0.385 x1 u0 +  7.136 x2 u0 +  0.004 x0^2 +  0.011 x1^2 +  3001.025 x2^2 + -21.916 u0^2 + -0.010 (x0 - x1) |x0 - x1| +  0.004 (x0 - x2) |x0 - x2| +  0.004 (x0 - u0) |x0 - u0| + -0.021 (x1 - x2) |x1 - x2| +  0.025 (x1 - u0) |x1 - u0| +  30.673 (x2 - u0) |x2 - u0|",
+               "-21.738 x2^2 +  0.058 u0^2 + -0.086 (x2 - u0) |x2 - u0|"
+          ],
+          "r2_score": 0.35883,
+          "rmse": 68.71489,
+          "complexity": "43",
+          "aic": 7526.81193589672,
+          "index": 565,
+          "test_metrics": {
+               "rmse": 56.31673,
+               "r2": 0.32815,
+               "simulation_length": 880
+          }
+     },
+     "pareto_front": [
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "EnsembleOptimizer(bagging=True, n_models=50, n_subset=1320,\n                  opt=STLSQ(alpha=0.0001,\n                            initial_guess=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0.]]),\n                            max_iter=100000, normalize_columns=True,\n                            threshold=0.5, unbias=False))",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([0.15811388]), K=10, derivative_order=1,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_x at 0x000001EA62EF2C40>,\n                                                                        <function name_xy at 0x000001EA62EF2CF0>,\n                                                                        <function name_squared_x at 0x000001EA62EF2DA0>,\n                                                                        <function name_drag_term at 0x000001EA62EF38A0>],\n                                                        include_bias=True,\n                                                        library_functions=[<function x at 0x000001EA62EF1E80>,\n                                                                           <function xy at 0x000001EA62EF1F30>,\n                                                                           <function squared_x at 0x000001EA62EF1FE0>,\n                                                                           <function drag_term at 0x000001EA62EF2AE0>]),\n                    multiindices=[], p=6,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.5000e-02],\n           [5.0000e-02],\n           ...,\n           [3.2925e+01],\n           [3.2950e+01],\n           [3.2975e+01]], shape=(1320, 1)))"
+               },
+               "random_seed": 2142333089,
+               "equations": [
+                    " 1.503 1 + -0.009 x0 +  0.842 x1 +  15.368 x2 + -0.438 u0 + -0.028 x0 x2 +  0.008 x0 u0 +  1.216 x1 x2 + -0.005 x1 u0 +  132.729 x2^2 + -0.744 u0^2 +  1.026 (x2 - u0) |x2 - u0|",
+                    " 9.060 1 + -1.010 x0 +  3.405 x1 +  755.184 x2 +  30.658 u0 + -0.021 x0 x1 +  6.687 x0 x2 + -0.285 x0 u0 + -36.634 x1 x2 +  0.385 x1 u0 +  7.136 x2 u0 +  0.004 x0^2 +  0.011 x1^2 +  3001.025 x2^2 + -21.916 u0^2 + -0.010 (x0 - x1) |x0 - x1| +  0.004 (x0 - x2) |x0 - x2| +  0.004 (x0 - u0) |x0 - u0| + -0.021 (x1 - x2) |x1 - x2| +  0.025 (x1 - u0) |x1 - u0| +  30.673 (x2 - u0) |x2 - u0|",
+                    "-21.738 x2^2 +  0.058 u0^2 + -0.086 (x2 - u0) |x2 - u0|"
+               ],
+               "r2_score": 0.35883,
+               "rmse": 68.71489,
+               "complexity": "43",
+               "aic": 7526.81193589672,
+               "index": 565,
+               "test_metrics": {
+                    "rmse": 56.31673,
+                    "r2": 0.32815,
+                    "simulation_length": 880
+               }
+          }
+     ],
+     "user_data": {
+          "global_random_seed": 100,
+          "dt": 0.025,
+          "dataset_size_ratio": {
+               "train": 0.6,
+               "test": 0.2,
+               "val": 0.2
+          },
+          "perturb_input_signal_ratio": null,
+          "multiple_trajectories": {
+               "num_samples_per_trajectory": 1320,
+               "num_trajectories": 5
+          },
+          "signal_loading_prefiltering": "non-filtered",
+          "signal_splitting_prefiltering": {
+               "savgol_window_length": 31,
+               "savgol_polyorder": 2,
+               "filtered_set_names": [
+                    "val",
+                    "test"
+               ]
+          },
+          "constraints": {
+               "sim_steps": 880,
+               "coeff_precision": null,
+               "max_complexity": 50,
+               "max_coeff": 4597,
+               "min_r2": 0.1,
+               "max_state": 400.0
+          }
+     }
+}

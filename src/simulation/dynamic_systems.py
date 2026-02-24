@@ -12,7 +12,7 @@ class DynamicSystem:
     The system is defined by a dynamics function that takes the current state and input and returns
     the time derivative of the state. The class also includes a method for simulating the system's trajectory over
     """
-    def __init__(self, dynamics_func: Callable[[np.ndarray, Union[float, np.ndarray]], np.ndarray], config_manager: ConfigManager):
+    def __init__(self, config_manager: ConfigManager, dynamics_func: Callable[[np.ndarray, Union[float, np.ndarray]], np.ndarray]):
         """
         Initializes the DynamicSystem with a given dynamics function and configuration manager.
         """
@@ -30,7 +30,7 @@ class DynamicSystem:
         """ Returns the time derivative of the state vector given the current state and input signal. """
         return self._dynamics_func(state_vector, input_signal)
 
-    def simulate(self, verbose: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def simulate(self, input_signal: np.ndarray = None, verbose: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Simulates the trajectory of the dynamic system over a specified time span 
         with given initial conditions and input signal parameters.
@@ -46,7 +46,9 @@ class DynamicSystem:
         noise_ratio = self._simulation.get("noise_ratio", 1e-3)
         initial_conditions = self._simulation.get("initial_conditions")
 
-        input_signal = generate_input_signal(num_samples, is_free_body, dt, self._input_signal_params)
+        if input_signal is None:
+            input_signal = generate_input_signal(num_samples, is_free_body, dt, self._input_signal_params)
+
         state_trajectory = np.zeros((num_samples, len(initial_conditions)))
 
         current_state = initial_conditions.copy()

@@ -27,6 +27,7 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> ps.SINDy:
             state_column_indices=[0, 1],
             time=0.01,
             control_input_column_indices=[2],
+            verbose=False
         )
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
@@ -37,7 +38,8 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> ps.SINDy:
             rng=random_number_generator,
             apply_savgol_filter=True,
             savgol_window_length=31,
-            savgol_polyorder=2
+            savgol_polyorder=2,
+            verbose=False
         )
     X_train, U_train = generate_trajectories(X_train, U_train, num_samples_per_trajectory=2500, num_trajectories=5, rng=random_number_generator)
     
@@ -59,16 +61,13 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> ps.SINDy:
         "dt": dt
     }
 
-    model = sindy_helpers.model_reconstruction(config, random_seed, data, False)
+    model = sindy_helpers.model_reconstruction(config, random_seed, data, True)
 
     return model
 
 
 if __name__ == "__main__":
-
-    config_manager = ConfigManager("config")
-
-    sindy_model = sindy_model_reconstruction(config_manager)
+    sindy_model = sindy_model_reconstruction(config_manager = ConfigManager("config"))
     dt = 0.01
 
     input_signal_params = {
@@ -79,9 +78,9 @@ if __name__ == "__main__":
         "target_max_change_interval_sec": 8,
         "target_min_change_interval_sec": 3,
         "target_clip_min": 0.0,
-        "target_clip_max": 1.1,
+        "target_clip_max": 1.0,
     }
-    input_signal = generate_input_signal(200000, False, dt, input_signal_params)
+    input_signal = generate_input_signal(500000, False, dt, input_signal_params)
 
     x_sim = sindy_model.simulate(x0=[0, 0], t=compute_time_vector(input_signal, dt), u=input_signal, integrator_kws={"rtol": 1e-6, "atol": 1e-6})
     t_sim = compute_time_vector(x_sim, dt)

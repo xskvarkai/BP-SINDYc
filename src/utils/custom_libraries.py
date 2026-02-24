@@ -62,10 +62,13 @@ class FixedCustomLibrary(CustomLibrary):
 
 # ========== Callable functions ========== 
 # Funkcie
+# Konstanta
+def bias(): return 1
 # Polynomicke
 def x(x): return x
 def xy(x, y): return x * y
 def squared_x(x): return x ** 2
+def rooted_x(x): return np.sqrt(x)
 def cubed_x(x): return x ** 3
 def quartered_x(x): return x ** 4
 def abs_x(x): return np.abs(x)
@@ -82,12 +85,17 @@ def sin_x_cos_x(x): return np.sin(x) * np.cos(x)
 def sin_x_cos_y(x, y): return np.sin(x) * np.cos(y)
 def x_sin_x_cos_y(x, y): return x * np.sin(x) * np.cos(y)
 def x_sin_y_cos_z(x, y, z): return x * np.sin(y) * np.cos(z)
+# Ostatne specialne
+def drag_term(x, y): return (x - y) * np.abs(x - y)
 
 # Mena
+# Konstanta
+def name_bias(): return "1"
 # Polynomicke
 def name_x(x): return x
 def name_xy(x, y): return x + " " + y
 def name_squared_x(x): return x + "^2"
+def name_rooted_x(x): return "x^1/2"
 def name_cubed_x(x): return x + "^3"
 def name_quartered_x(x): return x + "^4"
 def name_abs_x(x): return "|" + x + "|"
@@ -104,3 +112,5 @@ def name_sin_x_cos_x(x): return "sin(" + x + ") cos(" + x + ")"
 def name_sin_x_cos_y(x, y): return "sin(" + x + ") cos(" + y + ")"
 def name_x_sin_x_cos_y(x, y): return x + " sin(" + x + ") cos(" + y + ")"
 def name_x_sin_y_cos_z(x, y, z): return x + " sin(" + y + ") cos(" + z + ")"
+# Ostatne specialne
+def name_drag_term(x, y): return "(" + x + " - " + y + ")" + " " + "|" + x + " - "  + y + "|"

@@ -1,4 +1,4 @@
-from scripts.hardcoded_stuff import Aeroshield_plotting_pareto_from_results, Aeroshield_load_and_deriv
+from scripts.hardcoded_stuff import Floatshield_load_and_deriv
 
 if __name__ == "__main__":
-    Aeroshield_load_and_deriv()
+    Floatshield_load_and_deriv()

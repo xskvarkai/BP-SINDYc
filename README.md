@@ -5,56 +5,66 @@ Tento projekt implementuje komplexný pracovný tok pre odhad modelov Sparse Ide
 ## Štruktúra Projektu
 
 <pre>
+.
 ├── README.md
 ├── config
+│   ├── koopman_params.yaml
 │   ├── settings.yaml
 │   ├── simulation_params.yaml
 │   └── sindy_params.yaml
 ├── data
 │   ├── processed
-│   │   └── Aeroshield_with_deriv.csv
+│   │   ├── Aeroshield_with_deriv.csv
+│   │   ├── Floatshield_with_deriv.csv
+│   │   ├── Koopman_Aeroshield
+│   │   │   └── Simulation.csv
+│   │   └── Koopman_Lorenz
 │   ├── raw
 │   │   ├── Aeroshield.csv
 │   │   ├── Aeroshield_val.csv
-│   │   └── Simulacia.csv
+│   │   └── Floatshield.csv
 │   └── reports
 │       ├── Aeroshield
-│       │   ├── Aeroshield_models.json
-│       │   └── Validation_on_test_dataset.png
+│       │   ├── Koopman_Aeroshield.json
+│       │   ├── Koopman_Aeroshield.png
+│       │   ├── Koopman_spectrum.png
+│       │   ├── SINDyC_Aeroshield.json
+│       │   ├── SINDyC_Aeroshield.png
+│       │   └── SINDyC_Koopman_Real.png
+│       ├── Floatshield
+│       │   ├── Flaotshield.json
+│       │   └── worker_results.log
 │       └── Lorenz System
 │           ├── data.json
-│           ├── pareto_front.png
-│           ├── real_vs_sim.png
-│           └── worker_results.log
+│           └── real_vs_sim.png
 ├── requirements.txt
 └── src
-    ├── __init__.py
     ├── data_ingestion
-    │   ├── __init__.py
     │   └── data_loader.py
     ├── data_processing
-    │   ├── __init__.py
     │   ├── data_splitter.py
     │   └── sindy_preprocessor.py
     ├── main.py
+    ├── main_koopman.py
+    ├── main_sindy.py
+    ├── model_recostruction.py
     ├── models
-    │   ├── __init__.py
     │   ├── base.py
+    │   ├── koopman_model.py
     │   └── sindy_estimator.py
+    ├── run_scripts.py
+    ├── run_simulation.py
     ├── scripts
-    │   ├── __init__.py
-    │   ├── hardcoded_derivate.py
+    │   ├── hardcoded_stuff.py
     │   └── sindy_run_configuration.py
     ├── simulation
-    │   ├── __init__.py
     │   ├── dynamic_systems.py
     │   └── simulator.py
-    ├── run_simulation.py
     └── utils
-        ├── __init__.py
         ├── config_manager.py
         ├── custom_libraries.py
         ├── helpers.py
+        ├── koopman_helpers.py
         ├── plots.py
         └── sindy_helpers.py
 </pre>

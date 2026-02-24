@@ -34,7 +34,7 @@ def model_simulate(
     """
     """
 
-    x0 = data.get("x_ref")[0, :]
+    x0 = data.get("x_ref")[start_index, :]
     u = data.get("u_ref")[start_index : start_index + current_steps] if data.get("u_ref") is not None else None
 
     try:

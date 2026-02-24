@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 
 from scipy.signal import savgol_filter
+from scipy.integrate import solve_ivp
+from scipy.interpolate import interp1d
 
 from data_ingestion.data_loader import DataLoader
 from utils.config_manager import ConfigManager
@@ -18,6 +20,7 @@ def Aeroshield_load_and_deriv():
             None,
             0.01,
             [1],
+            plot_data=True,
             verbose=False
         )
 
@@ -52,3 +55,49 @@ def Aeroshield_plotting_pareto_from_results():
     spars = [5, 8, 5, 6, 5, 7, 8, 5]
 
     plot_pareto(errs, spars)
+
+def Floatshield_load_and_deriv():
+    config_manager = ConfigManager("config")
+
+    with DataLoader(config_manager, "data_raw_dir") as loader:
+        X, U, dt = loader.load_csv_data(
+            "Floatshield",
+            [0],
+            None,
+            0.025,
+            [1],
+            apply_savgol_filter=True,
+            savgol_polyorder=2,
+            savgol_window_length=51,
+            plot_data=True,
+            verbose=False
+        )
+
+    K = 0.0778  
+    tau = 0.14  
+
+    u_segments = U.flatten()
+    x3_estimated = [0.0]
+    for k in range(len(u_segments) - 1):
+        current_x3 = x3_estimated[-1]
+        current_u = u_segments[k]
+
+        # Vypočítaj deriváciu ẋ3
+        x3_dot = (K * current_u - current_x3) / tau
+
+        # Aktualizuj x3 pre ďalší krok
+        next_x3 = current_x3 + x3_dot * dt
+        x3_estimated.append(next_x3)
+
+    X_dot = np.gradient(X, dt, axis=0)
+
+    data = {
+        "x": X.flatten(),
+        "x_dot": X_dot.flatten(),
+        "x3_sim": np.array(x3_estimated).flatten(),
+        "u": U.flatten()
+    }
+
+    file_path = "data/processed/Floatshield_with_deriv.csv"
+    df = pd.DataFrame(data)  
+    df.to_csv(file_path, index=False)
