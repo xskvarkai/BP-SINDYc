@@ -11,6 +11,9 @@ if __name__ == "__main__":
     def ode(state_vector: np.ndarray, input_signal: Union[float, np.ndarray]) -> np.ndarray:  
         x, y, z = state_vector  
 
+        if isinstance(input_signal, np.ndarray) and input_signal.size == 1:  
+            input_signal = input_signal.item()
+
         dx = -10 * x + 10 * y + 1 * input_signal ** 2
         dy = 28 * x - 1 * y - 1 * x * z
         dz = -1 * z + 1 * x * y
@@ -29,6 +32,6 @@ if __name__ == "__main__":
             "x": noisy_trajectory[:, 0],
             "y": noisy_trajectory[:, 1],
             "z": noisy_trajectory[:, 2],
-            "u": input}
+            "u": input.flatten()}
 
-    dynamic_system.export_data(data, "Simulacia")
+    dynamic_system.export_data(data)

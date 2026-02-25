@@ -1,0 +1,24 @@
+[2026-02-24 20:50:21] Result 1: {'configuration': {'differentiation_method': None, 'optimizer': EnsembleOptimizer(bagging=True, n_models=50, n_subset=1320,
+                  opt=STLSQ(alpha=5e-05, max_iter=100000,
+                            normalize_columns=True, threshold=1.0)), 'feature_library': FixedWeakPDELibrary(H_xt=array([8.8]), K=5,
+                    differentiation_method=FiniteDifference(),
+                    function_library=ConcatLibrary(libraries=[ConcatLibrary(libraries=[PolynomialLibrary(degree=3),
+                                                                                       FourierLibrary()]),
+                                                              FixedCustomLibrary(function_names=[<function name_abs_x at 0x00000248E2E8B270>,
+                                                                                                 <function name_x_abs_x at 0x00000248E2E8B320>,
+                                                                                                 <function name_y_abs_x at 0x00000248...
+                                                                                                 <function name_exp_x at 0x00000248E2E8B5E0>],
+                                                                                 library_functions=[<function abs_x at 0x00000248E2E8A350>,
+                                                                                                    <function x_abs_x at 0x00000248E2E8A400>,
+                                                                                                    <function y_abs_x at 0x00000248E2E8A4B0>,
+                                                                                                    <function exp_x at 0x00000248E2E8A6C0>])]),
+                    multiindices=[], p=1,
+                    spatiotemporal_grid=AxesArray([[0.0000e+00],
+           [2.5000e-02],
+           [5.0000e-02],
+           ...,
+           [3.2925e+01],
+           [3.2950e+01],
+           [3.2975e+01]], shape=(1320, 1)))}, 'error': 'Model coeff exceed max coeff or is Inf/Nan. Early stopped due this message.'}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+

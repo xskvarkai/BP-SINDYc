@@ -2,13 +2,33 @@ import numpy as np
 import pandas as pd
 
 from scipy.signal import savgol_filter
-from scipy.integrate import solve_ivp
-from scipy.interpolate import interp1d
 
 from data_ingestion.data_loader import DataLoader
 from utils.config_manager import ConfigManager
-from utils.plots import plot_pareto, plot_trajectory
+from utils.plots import plot_pareto, plot_noisy_filtered_trajectory
 from utils.helpers import compute_time_vector
+
+def ilustate_noise():
+    config_manager = ConfigManager("config")
+
+    with DataLoader(config_manager, "data_raw_dir") as loader:
+        X, U, time_step = loader.load_csv_data(
+            "Aeroshield",
+            [0],
+            None,
+            0.01,
+            [1],
+            plot_data=True,
+            verbose=False
+        )
+    X = X[0: int(10 / time_step)]
+
+    X_dot = np.gradient(X, time_step, axis=0)
+    X_noisy = np.hstack([X, X_dot])
+
+    X_filtered = savgol_filter(X_noisy, 31, 2, axis=0)
+
+    plot_noisy_filtered_trajectory(compute_time_vector(X_noisy, time_step), X_noisy, X_filtered, exportable=True)
 
 def Aeroshield_load_and_deriv():
     config_manager = ConfigManager("config")
@@ -82,10 +102,8 @@ def Floatshield_load_and_deriv():
         current_x3 = x3_estimated[-1]
         current_u = u_segments[k]
 
-        # Vypočítaj deriváciu ẋ3
         x3_dot = (K * current_u - current_x3) / tau
 
-        # Aktualizuj x3 pre ďalší krok
         next_x3 = current_x3 + x3_dot * dt
         x3_estimated.append(next_x3)
 
@@ -94,7 +112,7 @@ def Floatshield_load_and_deriv():
     data = {
         "x": X.flatten(),
         "x_dot": X_dot.flatten(),
-        "x3_sim": np.array(x3_estimated).flatten(),
+        #"x3_sim": np.array(x3_estimated).flatten(),
         "u": U.flatten()
     }
 

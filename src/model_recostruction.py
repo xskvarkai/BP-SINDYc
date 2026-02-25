@@ -23,35 +23,38 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> ps.SINDy:
 
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
-            file_name="Aeroshield_with_deriv",
-            state_column_indices=[0, 1],
-            time=0.01,
-            control_input_column_indices=[2],
-            verbose=False
+            file_name="Simulation",
+            state_column_indices=[1, 2, 3],
+            time=0.002,
+            control_input_column_indices=[4],
+            verbose=True,
+            plot_data=True
         )
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
         X_train, _, X_test, U_train, _, U_test = splitter.split_data(
-            train_ratio=0.5,
-            val_ratio=0.25,
-            perturb_input_signal_ratio=0.1,
+            train_ratio=0.6,
+            val_ratio=0.2,
+            perturb_input_signal_ratio=None,
             rng=random_number_generator,
             apply_savgol_filter=True,
-            savgol_window_length=31,
+            filtered_set_names = ["val"],
+            savgol_window_length=71,
             savgol_polyorder=2,
             verbose=False
         )
-    X_train, U_train = generate_trajectories(X_train, U_train, num_samples_per_trajectory=2500, num_trajectories=5, rng=random_number_generator)
+
+    X_train, U_train = generate_trajectories(X_train, U_train, num_samples_per_trajectory=10000, num_trajectories=5, rng=random_number_generator)
     
-    library = FixedCustomLibrary(function_names=[name_x, name_sin_x, name_squared_x], library_functions=[x, sin_x, squared_x])
+    #library = FixedCustomLibrary(function_names=[name_x, name_sin_x, name_squared_x], library_functions=[x, sin_x, squared_x])
 
     config={
             "differentiation_method": None,
-            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=2500, opt=ps.STLSQ(alpha=5e-05, initial_guess=np.array([[  0. ,   1. ,   0. ,   0. ,   0. ,   0. ,   0. ,   0. ,   0. ], [  0. ,  -1.,   0. , -60. ,   0. ,   0. ,   0. ,   0. ,   16. ]]), max_iter=100000, normalize_columns=True, threshold=1.2, unbias=False)),
-            "feature_library": FixedWeakPDELibrary(H_xt=[0.0505], K=4, derivative_order=3, differentiation_method=ps.FiniteDifference(), function_library=library, p=5, spatiotemporal_grid=compute_time_vector(X_train, dt))
+            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=10000, opt=ps.STLSQ(alpha=1, max_iter=100000, threshold=0.4)),
+            "feature_library": FixedWeakPDELibrary(H_xt=[0.9999], K=190, differentiation_method=ps.FiniteDifference(), function_library=ps.PolynomialLibrary(include_bias=False), p=5, spatiotemporal_grid=compute_time_vector(X_train, dt))
           }
 
-    random_seed=518114833
+    random_seed=2116986363
 
     data = {
         "x_train": X_train,
@@ -64,7 +67,6 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> ps.SINDy:
     model = sindy_helpers.model_reconstruction(config, random_seed, data, True)
 
     return model
-
 
 if __name__ == "__main__":
     sindy_model = sindy_model_reconstruction(config_manager = ConfigManager("config"))

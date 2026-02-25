@@ -69,11 +69,11 @@ class DynamicSystem:
             noisy_state_trajectory = state_trajectory + noise
             
             if verbose:
-                print(f"Added noise in level of the standard deviation of the state trajectory (noise level: {noise_level:.1%}).")
+                print(f"Added noise in level of the standard deviation of the state trajectory (noise level: {noise_ratio:.1%}).")
 
         return state_trajectory, noisy_state_trajectory, input_signal, compute_time_vector(state_trajectory, dt)
     
-    def export_data(self, data: Dict[str, Any] = {}, file_path="raw/simulation.csv"):
+    def export_data(self, data: Dict[str, Any] = {}, file_path="data/raw/simulation.csv"):
         """ Exports the user defined data to a CSV file. """
         df = pd.DataFrame(data)  
         df.to_csv(file_path, index=False)

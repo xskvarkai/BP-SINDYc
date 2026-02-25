@@ -73,9 +73,11 @@ def cubed_x(x): return x ** 3
 def quartered_x(x): return x ** 4
 def abs_x(x): return np.abs(x)
 def x_abs_x(x): return x * np.abs(x)
+def y_abs_x(x, y): return y * np.abs(x)
 # Goniometricke a ine
 def sin_x(x): return np.sin(x)
 def cos_x(x): return np.cos(x)
+def exp_x(x): return np.exp(x)
 def tanh_x(x): return np.tanh(x)
 def signum_x(x): return np.sign(x)
 # Kombinacie
@@ -100,9 +102,11 @@ def name_cubed_x(x): return x + "^3"
 def name_quartered_x(x): return x + "^4"
 def name_abs_x(x): return "|" + x + "|"
 def name_x_abs_x(x): return x + " |" + x + "|"
+def name_y_abs_x(x, y): return y + " |" + x + "|"
 # Goniometricke a ine
 def name_sin_x(x): return "sin(" + x + ")"
 def name_cos_x(x): return "cos(" + x + ")"
+def name_exp_x(x): return "e^" + x
 def name_tanh_x(x): return "tanh(" + x + ")"
 def name_signum_x(x): return "sign(" + x + ")"
 # Kombinacie

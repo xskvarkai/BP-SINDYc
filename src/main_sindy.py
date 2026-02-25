@@ -9,8 +9,8 @@ from data_processing.sindy_preprocessor import find_periodicity, find_noise, gen
 from models.sindy_estimator import SindyEstimator
 from utils.helpers import compute_time_vector
 from utils.custom_libraries import FixedCustomLibrary
-from utils.custom_libraries import x, xy, squared_x, drag_term, \
-                                   name_x, name_xy, name_squared_x, name_drag_term 
+from utils.custom_libraries import abs_x, x_abs_x, y_abs_x, exp_x, \
+                                   name_abs_x, name_x_abs_x, name_y_abs_x, name_exp_x
 
 def sindy_main(config_manager: ConfigManager):
     
@@ -29,11 +29,9 @@ def sindy_main(config_manager: ConfigManager):
             **config_manager.get_param("sindy_params.data_splitting"), rng=random_number_generator
         )
 
-
-
     with SindyEstimator(config_manager) as estimator:
         noise_level = find_noise(X)
-        find_periodicity(X, 1, sigma_noise=noise_level)
+        find_periodicity(X, dt, 1, sigma_noise=noise_level)
 
         config_manager.get_param(
             "sindy_params.data_preprocessing"
@@ -48,20 +46,23 @@ def sindy_main(config_manager: ConfigManager):
         # The keys of the dictionaries correspond to the names of the methods, and the values are dictionaries of parameters for those methods.
         # Minimum required parameters for method are provided (None takes defaults), but you can add more parameters as needed.
         
-        library = FixedCustomLibrary(
-                [x, xy, squared_x, drag_term],
-                [name_x, name_xy, name_squared_x, name_drag_term],
-                include_bias=True
-            )
+        # library = FixedCustomLibrary(
+        #         [x, xy, squared_x, drag_term],
+        #         [name_x, name_xy, name_squared_x, name_drag_term],
+        #         include_bias=True
+        #     )
         
+        library = ps.PolynomialLibrary(degree=3) + ps.FourierLibrary() + FixedCustomLibrary([abs_x, x_abs_x, y_abs_x, exp_x], [name_abs_x, name_x_abs_x, name_y_abs_x, name_exp_x])
+
+
         feature_library_kwargs = {
             "WeakPDELibrary": {
                 "function_library": library,
                 "spatiotemporal_grid": compute_time_vector(X_train, dt),
-                "derivative_order": [0, 1, 2],
-                "K": [5, 10, 30, 50, 70],
-                "H_xt": [[1.5 * np.sqrt(dt)], [1.25 * np.sqrt(dt)], [1 * np.sqrt(dt)], [0.75 * np.sqrt(dt)], [0.5 * np.sqrt(dt)]],
-                "p": [3, 4, 5, 6]
+                "derivative_order": [0, 1],
+                "K": [5, 50, 100, 200],
+                "H_xt": [[8.8], [4.4]],
+                "p": [1, 2, 3, 4, 5, 6, 7]
             }
         }
 
@@ -69,14 +70,11 @@ def sindy_main(config_manager: ConfigManager):
 
         optimizer_kwargs = {
             "STLSQ": {
-                "threshold": [0.8, 1.0, 1.2],
+                "threshold": [1.0],
                 "ensemble": True,
                 "ensemble_kwargs": {"n_subset": X_train[0].shape[0]},
-                "alpha": [5e-5, 1e-4, 1e-3],
-                "unbias": [True, False],
-                "initial_guess": np.array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                                           [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                                           [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])
+                "alpha": [5e-5],
+                "unbias": [True, False]
             }
         }
 

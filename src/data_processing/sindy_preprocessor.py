@@ -1,7 +1,7 @@
 import numpy as np
 import pysindy as ps
 import warnings
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 from scipy.stats import median_abs_deviation
 import pywt
 
@@ -27,6 +27,7 @@ def find_noise(x: np.ndarray, detail_level: int = 1, verbose: bool = True) -> fl
 
 def find_periodicity(
         x:np.ndarray,
+        dt: Union[int, float],
         x_dim: Optional[int] = None,
         sigma_noise: float = 0.0,
         verbose: bool = True
@@ -83,9 +84,22 @@ def find_periodicity(
     is_periodic = concentration > 0.45
 
     status = "Periodic" if is_periodic else "Aperiodic"
+
     if verbose:
         print(f"\nPeriodicity Check -> Status: {status} (Concentration: {concentration:.3f}).")
-    
+        dominant_omega = None  
+
+    if is_periodic:  
+        max_peak_idx = np.argmax(power_spectrum, axis=0)   
+        freqs = np.fft.rfftfreq(N, d=dt)  
+        if x_dim and power_spectrum.shape[1] > 1:  
+            dominant_freq_hz = freqs[max_peak_idx[x_dim - 1]]  
+        else:  
+            dominant_freq_hz = freqs[max_peak_idx[0]] if power_spectrum.ndim > 1 else freqs[max_peak_idx]  
+        dominant_omega = 2 * np.pi * dominant_freq_hz 
+        if verbose:  
+            print(f"Dominant frequency (omega): {dominant_omega:.4f} rad/s")  
+
     return is_periodic
 
 def estimate_threshold(

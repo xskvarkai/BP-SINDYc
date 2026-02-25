@@ -239,6 +239,6 @@ def model_reconstruction(config: Dict[str, Any], random_seed: int, data: Dict[st
         x_ref_cut = data.get("x_ref")[:min_len]
         u_ref_cut = data.get("u_ref")[:min_len]
         x_sim_cut = x_sim[:min_len]
-        plot_trajectory(t_test, x_ref_cut, x_sim_cut, u_ref_cut, title="Validation on test data")
+        plot_trajectory(t_test, x_ref_cut, x_sim_cut, u_ref_cut, exportable=True)
 
     return model
