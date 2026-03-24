@@ -184,7 +184,7 @@ def generate_trajectories(
     u_multi = [] # Zoznam pre riadece signaly
 
     if num_trajectories == 1:
-        return x_train, u_train
+        return [x_train], [u_train]
 
     for trajectory in range(0, num_trajectories):
         # Kontrola poctu dat na vytvorenie trajektorie pozadovanej dlzky

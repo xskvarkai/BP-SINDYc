@@ -83,7 +83,7 @@ class ConfigManager:
             for part in parts:
                 current_config = current_config.get(part)
             return current_config
-        except (KeyError, TypeError, AttributeError):
+        except Exception:
             if default is not None:
                 return default
             raise KeyError(f"Configuration parameter '{key}' not found and no default provided.")

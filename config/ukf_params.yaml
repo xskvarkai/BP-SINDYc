@@ -1,0 +1,8 @@
+measure_x2: True
+measure_x3: False
+csv_output_filename: "Floatshield_3states.csv"
+P0: [[0.04, 0, 0], [0, 0.25, 0], [0, 0, 1]]
+Q: [[0.0000001, 0, 0], [0, 0.000005, 0], [0, 0, 0.000005]]
+R_explicit: null # Set to e.g., [[0.0004]] for fixed R, or None to estimate from data
+initial_x2_guess: -0.005240399556049047
+initial_x3_guess: 0.0

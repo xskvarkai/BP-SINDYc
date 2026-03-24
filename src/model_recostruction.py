@@ -7,54 +7,127 @@ from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
 from data_processing.data_splitter import TimeSeriesSplitter
 from utils.custom_libraries import FixedCustomLibrary, FixedWeakPDELibrary
-from utils.custom_libraries import x, sin_x, squared_x, quartered_x, \
-                                   name_x, name_sin_x, name_squared_x, name_quartered_x
+from utils.custom_libraries import (
+    abs_x, x_abs_x, x_y_abs_z, x_squared_abs_y, tanh_x, constant,
+    x_fun, x_squared, x_cubed, x_quartered, x_frac, x_squared_frac, x_cubed_frac, x_quartered_frac,
+    yx, y_squared_x, y_cubed_x, y_quartered_x,
+    yx_frac, y_squared_x_frac, y_cubed_x_frac, y_quartered_x_frac,
+    yx_squared_frac, y_squared_x_squared_frac, y_cubed_x_squared_frac, y_quartered_x_squared_frac,
+    yx_cubed_frac, y_squared_x_cubed_frac, y_cubed_x_cubed_frac, y_quartered_x_cubed_frac,
+    yx_quatered_frac, y_squared_x_quatered_frac, y_cubed_x_quatered_frac, y_quartered_x_quatered_frac,
+    yxz, y_squared_xz, y_cubed_xz, y_quartered_xz,
+    yx_frac_z, y_squared_x_frac_z, y_cubed_x_frac_z, y_quartered_x_frac_z,
+    yx_squared_frac_z, y_squared_x_squared_frac_z, y_cubed_x_squared_frac_z, y_quartered_x_squared_frac_z,
+    yx_cubed_frac_z, y_squared_x_cubed_frac_z, y_cubed_x_cubed_frac_z, y_quartered_x_cubed_frac_z,
+    yx_quartered_frac_z, y_squared_x_quartered_frac_z, y_cubed_x_quartered_frac_z, y_quartered_x_quartered_frac_z,
+    x_sin_2y, x_cos_2y,
+    name_abs_x, name_x_abs_x, name_x_y_abs_z, name_x_squared_abs_y, name_tanh_x, name_constant,
+    name_x_fun, name_x_squared, name_x_cubed, name_x_quartered, name_x_frac, name_x_squared_frac, name_x_cubed_frac, name_x_quartered_frac,
+    name_yx_frac, name_y_squared_x_frac, name_y_cubed_x_frac, name_y_quartered_x_frac,
+    name_yx, name_y_squared_x, name_y_cubed_x, name_y_quartered_x,
+    name_yx_squared_frac, name_y_squared_x_squared_frac, name_y_cubed_x_squared_frac, name_y_quartered_x_squared_frac,
+    name_yx_cubed_frac, name_y_squared_x_cubed_frac, name_y_cubed_x_cubed_frac, name_y_quartered_x_cubed_frac,
+    name_yx_quartered_frac, name_y_squared_x_quartered_frac, name_y_cubed_x_quartered_frac, name_y_quartered_x_quartered_frac,
+    name_yxz, name_y_squared_xz, name_y_cubed_xz, name_y_quartered_xz,
+    name_yx_frac_z, name_y_squared_x_frac_z, name_y_cubed_x_frac_z, name_y_quartered_x_frac_z,
+    name_yx_squared_frac_z, name_y_squared_x_squared_frac_z, name_y_cubed_x_squared_frac_z, name_y_quartered_x_squared_frac_z,
+    name_yx_cubed_frac_z, name_y_squared_x_cubed_frac_z, name_y_cubed_x_cubed_frac_z, name_y_quartered_x_cubed_frac_z,
+    name_yx_quartered_frac_z, name_y_squared_x_quartered_frac_z, name_y_cubed_x_quartered_frac_z, name_y_quartered_x_quartered_frac_z,
+    name_x_sin_2y, name_x_cos_2y
+)
+
 from utils.helpers import compute_time_vector
 from utils.plots import plot_trajectory
 from data_processing.sindy_preprocessor import generate_trajectories
 from simulation.simulator import generate_input_signal
 
+
 def sindy_model_reconstruction(config_manager: ConfigManager) -> ps.SINDy:
 
     config_manager.load_config("sindy_params")
 
-    np.random.seed(100)
-    random_number_generator = np.random.RandomState(100)
+    np.random.seed(42)
+    random_number_generator = np.random.RandomState(42)
 
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
-            file_name="Simulation",
-            state_column_indices=[1, 2, 3],
-            time=0.002,
-            control_input_column_indices=[4],
-            verbose=True,
-            plot_data=True
+            file_name="Floatshield_with_deriv_close-loop",
+            state_column_indices=[0, 1],
+            time=0.025,
+            control_input_column_indices=[3],
+            verbose=False,
+            plot_data=False
         )
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
-        X_train, _, X_test, U_train, _, U_test = splitter.split_data(
-            train_ratio=0.6,
-            val_ratio=0.2,
+        X_train, X_test, _,  U_train, U_test, _ = splitter.split_data(
+            train_ratio=0.5,
+            val_ratio=0.5,
             perturb_input_signal_ratio=None,
             rng=random_number_generator,
             apply_savgol_filter=True,
-            filtered_set_names = ["val"],
-            savgol_window_length=71,
+            filtered_set_names = ["val", "test"],
+            savgol_window_length=51,
             savgol_polyorder=2,
             verbose=False
         )
 
-    X_train, U_train = generate_trajectories(X_train, U_train, num_samples_per_trajectory=10000, num_trajectories=5, rng=random_number_generator)
+    X_train, U_train = generate_trajectories(X_train, U_train, num_samples_per_trajectory=3520, num_trajectories=5, rng=random_number_generator)
     
-    #library = FixedCustomLibrary(function_names=[name_x, name_sin_x, name_squared_x], library_functions=[x, sin_x, squared_x])
+    library = FixedCustomLibrary(
+        [constant, x_fun, x_squared, x_cubed,
+            yx, y_cubed_x,
+            yx_frac, y_squared_x_frac,
+            yx_squared_frac, y_squared_x_squared_frac, y_cubed_x_cubed_frac,
+            yx_cubed_frac, y_squared_x_cubed_frac,
+            yx_quatered_frac, y_squared_x_quatered_frac,
+            yxz, y_squared_xz,
+            yx_frac_z, y_squared_x_frac_z,
+            yx_squared_frac_z, y_squared_x_squared_frac_z,
+            yx_cubed_frac_z, y_squared_x_cubed_frac_z,
+            yx_quartered_frac_z, y_squared_x_quartered_frac_z,
+            x_sin_2y],
+        [name_constant, name_x_fun, name_x_squared, name_x_cubed,
+            name_yx, name_y_cubed_x,
+            name_yx_frac, name_y_squared_x_frac,
+            name_yx_squared_frac, name_y_squared_x_squared_frac, name_y_cubed_x_cubed_frac,
+            name_yx_cubed_frac, name_y_squared_x_cubed_frac,
+            name_yx_quartered_frac, name_y_squared_x_quartered_frac,
+            name_yxz, name_y_squared_xz,
+            name_yx_frac_z, name_y_squared_x_frac_z,
+            name_yx_squared_frac_z, name_y_squared_x_squared_frac_z,
+            name_yx_cubed_frac_z, name_y_squared_x_cubed_frac_z,
+            name_yx_quartered_frac_z, name_y_squared_x_quartered_frac_z,
+            name_x_sin_2y]
+    )
+
+
+    library.fit(np.hstack((X, U)))
+    feature_names = library.get_feature_names()
+
+    n_features = len(feature_names)
+    n_targets = X.shape[1]
+
+    idx_x1 = 2
+
+    C = np.zeros((n_features, n_features * n_targets))
+    d = np.zeros(n_features)
+
+    for i in range(n_features):
+        # C nastavuje koeficienty len pre PRVÚ rovnicu (stĺpce 0 až n_features-1)
+        C[i, i] = 1 
+        if i == idx_x1:
+            d[i] = 1.0  # Chceme koeficient 1 pri x1
+        else:
+            d[i] = 0.0  # Všetko ostatné v prvej rovnici bude 0
 
     config={
             "differentiation_method": None,
-            "optimizer": ps.EnsembleOptimizer(bagging=True, n_models=50, n_subset=10000, opt=ps.STLSQ(alpha=1, max_iter=100000, threshold=0.4)),
-            "feature_library": FixedWeakPDELibrary(H_xt=[0.9999], K=190, differentiation_method=ps.FiniteDifference(), function_library=ps.PolynomialLibrary(include_bias=False), p=5, spatiotemporal_grid=compute_time_vector(X_train, dt))
+            "optimizer": ps.MIOSR(alpha=0.005, constraint_lhs=C, constraint_rhs=d, group_sparsity=(1, 50), regression_timeout=30, target_sparsity=7),
+            "feature_library": FixedWeakPDELibrary(H_xt=[2.5], K=50, differentiation_method=ps.FiniteDifference(), function_library=library, spatiotemporal_grid=compute_time_vector(X_train[0].shape[0], dt))
           }
 
-    random_seed=2116986363
+    random_seed=337831792
 
     data = {
         "x_train": X_train,
@@ -69,30 +142,30 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> ps.SINDy:
     return model
 
 if __name__ == "__main__":
-    sindy_model = sindy_model_reconstruction(config_manager = ConfigManager("config"))
-    dt = 0.01
+    config_manager = ConfigManager("config")
+    sindy_model = sindy_model_reconstruction(config_manager)
 
-    input_signal_params = {
-        "pid_kp": 1.0,
-        "pid_ki": 0.0,
-        "pid_kd": 0.0,
-        "tau": 0.5,
-        "target_max_change_interval_sec": 8,
-        "target_min_change_interval_sec": 3,
-        "target_clip_min": 0.0,
-        "target_clip_max": 1.0,
-    }
-    input_signal = generate_input_signal(500000, False, dt, input_signal_params)
+    with DataLoader(config_manager) as loader:
+        X, U, dt = loader.load_csv_data(
+            file_name="Floatshield_3states_iter1",
+            state_column_indices=[0, 1, 2],
+            time=0.025,
+            control_input_column_indices=[3],
+            verbose=True,
+            plot_data=True
+        )
 
-    x_sim = sindy_model.simulate(x0=[0, 0], t=compute_time_vector(input_signal, dt), u=input_signal, integrator_kws={"rtol": 1e-6, "atol": 1e-6})
+    U = U + U[-1]
+    x_sim = sindy_model.simulate(x0=X[0], t=compute_time_vector(U, dt), u=U, integrator_kws={"rtol": 1e-6, "atol": 1e-6})
     t_sim = compute_time_vector(x_sim, dt)
 
-    plot_trajectory(t_sim, x_sim, input_signal=input_signal[:len(x_sim)], title="Simulation forward in time")
+    plot_trajectory(t_sim, x_sim, input_signal=U[:len(x_sim)], title="Simulation forward in time")
 
     data = {
-        "x": x_sim[:, 0].reshape(-1, 1).flatten(),
-        "x_dot": x_sim[:, 1].reshape(-1, 1).flatten(),
-        "u": input_signal[:len(x_sim)].reshape(-1, 1).flatten(),
+        "x0": X[:, 0].flatten(),
+        "x1": X[:, 1].flatten(),
+        "x2": x_sim[:, 2].reshape(-1, 1).flatten(),
+        "u": U[:].reshape(-1, 1).flatten(),
     }
     df = pd.DataFrame(data)  
     df.to_csv("data/processed/Koopman_Aeroshield/Simulation.csv", index=False)

@@ -23,17 +23,42 @@ valid_methods:
       max_iter: 100000
       initial_guess: null
       normalize_columns: True
-      unbias: True
+      unbias: False
+    MIOSR:
+      target_sparsity: 5
+      group_sparsity: null
+      alpha: 0.05
+      regression_timeout: 45
+      constraint_lhs: null
+      constraint_rhs: null
+      constraint_order: target
+      normalize_columns: False
+      verbose: False
+      initial_guess: null
+      unbias: False
     SR3:
       regularizer: L0
       reg_weight_lam: 0.1
       relax_coeff_nu: 1.0
-      trimming_fraction: 0.0
-      trimming_step_size: 1.0
       max_iter: 100000
       tol: 1.0e-5
       normalize_columns: True
-      unbias: True
+      unbias: False
+    ConstrainedSR3:
+      regularizer: L0
+      reg_weight_lam: 0.1
+      relax_coeff_nu: 1.0
+      max_iter: 100000
+      tol: 1.0e-5
+      normalize_columns: True
+      unbias: False
+      constraint_lhs: null
+      constraint_rhs: null
+      constraint_order: target
+      equality_constraints: True
+      inequality_constraints: False
+      constraint_separation_index: null
+    
 
   # Default parameters for SINDy feature libraries
   feature_libraries:

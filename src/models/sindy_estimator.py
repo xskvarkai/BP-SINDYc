@@ -2,7 +2,11 @@ import pysindy as ps
 import numpy as np
 from datetime import datetime
 from pathlib import Path
+import traceback
 from typing import List, Dict, Any, Optional, Union
+import concurrent.futures
+from pebble import ProcessPool
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 
 import json
 import pickle
@@ -18,14 +22,14 @@ from utils.plots import plot_trajectory, plot_pareto
 import utils.sindy_helpers as sindy_helpers
 from scripts.sindy_run_configuration import run_config
 
-PysindyConfigObject = Union[ps.optimizers.BaseOptimizer, ps.feature_library.base.BaseFeatureLibrary, ps.differentiation.BaseDifferentiation]
+#PysindyConfigObject = Union[ps.optimizers.BaseOptimizer, ps.feature_library.base.BaseFeatureLibrary, ps.differentiation.BaseDifferentiation]
 
 class SindyEstimator(BaseSindyEstimator):
     """
     A comprehensive class for estimating SINDy models, managing configurations,
     performing parallel searches for optimal models, and evaluating results.
 
-    Emphasizes modularity, configuration management, and memory efficiency.
+   Emphasizes modularity, configuration management, and memory efficiency.
     """
 
     def __init__(self, config_manager: ConfigManager):
@@ -66,6 +70,7 @@ class SindyEstimator(BaseSindyEstimator):
         n_processes: int = 4,
         log_file_name: str = "worker_results",
         verbose: bool = True,
+        timeout_per_config: Optional[int] = 300, # v sekundach 
         **constraints: Any
     ):
 
@@ -87,57 +92,82 @@ class SindyEstimator(BaseSindyEstimator):
         if total_val_samples < self._default_constraints.get("sim_steps"):
             raise ValueError(f"Not enough validation samples. Decrease validation steps to {total_val_samples} or increase validation size.")
 
-        # Pouzitie multiprocessing Manager-a pre zdielanu pamat
-        with multiprocessing.Manager() as manager:
-            # Cache pre vypocitane derivacie (x_dot).
-            cache_dict = manager.dict()
-            lock = manager.Lock()
+        # Zbalenie dat a konfiguracie, kvoli multiprocessingu (argument pre map funkciu)
+        configurations_and_data = [
+                (index, config, x_train, x_val, u_train, u_val, dt, self._default_constraints)
+                for index, config in enumerate(self.configurations)
+            ]
+        total_configurations = len(configurations_and_data)
 
-            # Zbalenie dat a konfiguracie, kvoli multiprocessingu (argument pre map funkciu)
-            configurations_and_data = [
-                    (index, config, x_train, x_val, u_train, u_val, dt, self._default_constraints, cache_dict, lock)
-                    for index, config in enumerate(self.configurations)
-                ]
-            total_configurations = len(configurations_and_data)
+        self.configurations.clear()
 
-            self.configurations.clear()
+        if verbose:
+            start_time = datetime.now()
+            print(f"\nParameter search started...")
+            print(f"Total configurations to explore: {total_configurations}")
+            print(f"Using {n_processes} parallel processes")
+            print(f"Start time: {start_time.strftime("%H:%M:%S")}")
 
-            if verbose:
-                start_time = datetime.now()
-                print(f"\nParameter search started...")
-                print(f"Total configurations to explore: {total_configurations}")
-                print(f"Using {n_processes} parallel processes")
-                print(f"Start time: {start_time.strftime("%H:%M:%S")}")
+        # Otvorenie docasnych suborov na zapis konfiguracii
+        # Subor namiesto drzania v pamati, pretoze vysledky mozu byt velke
+        log_filepath = self.data_export_path / f"{log_file_name}.log"
+        if os.path.exists(log_filepath):
+            os.remove(log_filepath)
 
-            # Otvorenie docasnych suborov na zapis konfiguracii
-            # Subor namiesto drzania v pamati, pretoze vysledky mozu byt velke
-            log_filepath = self.data_export_path / f"{log_file_name}.log"
-            if os.path.exists(log_filepath):
-                os.remove(log_filepath)
+        with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file, \
+                open(log_filepath, "a", encoding="utf-8") as f_log:
+            
+            self.results_file_name = results_file.name
 
-            with tempfile.NamedTemporaryFile(delete=False, mode="wb", prefix="sindyR", suffix=".pkl") as results_file, \
-                 open(log_filepath, "a", encoding="utf-8") as f_log:
+            # Nahradený multiprocessing.Pool za pebble.ProcessPool
+            with ProcessPool(max_workers=n_processes) as pool:
                 
-                self.results_file_name = results_file.name
+                # Naplánovanie úloh. Pebble priradí timeout priamo na úroveň procesu!
+                future_to_index = {
+                    pool.schedule(run_config, args=(config_data,), timeout=timeout_per_config): index
+                    for index, config_data in enumerate(configurations_and_data, 1)
+                }
 
-                # Multiprocessing
-                with multiprocessing.Pool(processes=n_processes) as pool:
-                    for index, result in enumerate(pool.imap(run_config, configurations_and_data), 1):
-                        try:
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            f_log.write(f"[{timestamp}] Result {index}: {str(result)}\n{"-"*180}\n\n")
-                            f_log.flush()
-                            if not result.get("error"):
-                                result["index"] = index
-                                pickle.dump(result, results_file)
-                            gc.collect()
-                        except Exception as e:
-                            warnings.warn(str(e))
-                        # UI/UX - progress bar
-                        if verbose:
-                            print(f"Processing configuration {index}/{total_configurations}" 
-                                f"({(index/total_configurations)*100:.2f}%)", end="\r", flush=True)
-                    print()
+                # Spracovanie výsledkov tak, ako prichádzajú (as_completed)
+                completed_count = 0
+                for future in concurrent.futures.as_completed(future_to_index):
+                    index = future_to_index[future]
+                    completed_count += 1
+                    
+                    try:
+                        # future.result() vyvolá TimeoutError, ak bol proces zabitý kvôli timeoutu
+                        current_config_result = future.result()
+
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        log_output = current_config_result.copy()
+                        log_output = self._prepare_log_output(log_output)
+                        f_log.write(f"[{timestamp}] Result {index}: {str(log_output)}\n{'-'*180}\n\n")
+                        f_log.flush()
+                        
+                        if not current_config_result.get("error"):
+                            current_config_result["index"] = index
+                            pickle.dump(current_config_result, results_file)
+                        
+                    except FuturesTimeoutError:
+                        # PROCES BOL ZABITÝ. Pebble už naštartoval nový worker na pozadí.
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        f_log.write(f"[{timestamp}] Result {index}: KILLED (Reach timeout limit {timeout_per_config}s)\n{'-'*180}\n\n")
+                        f_log.flush()
+                        
+                    except Exception as e:
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        f_log.write(f"[{timestamp}] Error (Index {index}): {str(e)}\n{'-'*180}\n\n")
+                        f_log.flush()
+                        warnings.warn(f"Chyba v konfigurácii {index}: {str(e)}")
+                        
+                    # Uvolnenie pamäte
+                    gc.collect()
+
+                    # UI/UX - progress bar
+                    if verbose:
+                        print(f"Processing configuration {completed_count}/{total_configurations} " 
+                                f"({(completed_count/total_configurations)*100:.2f}%)", end="\r", flush=True)
+                print()
 
         # Znovuzapnutie warningov a vycistenie nepotrebnych dat
         warnings.filterwarnings("default", category=UserWarning)
@@ -201,7 +231,10 @@ class SindyEstimator(BaseSindyEstimator):
         # Ignorovanie warningov pocas testovania
         warnings.filterwarnings("ignore", module="pysindy")
 
-        model = sindy_helpers.model_costruction(config, data, self.best_config.get("random_seed", 42), constraints.get("coeff_precision"))
+        if self.best_config.get("coefficients").any():
+            model = sindy_helpers.copy_coeffs(config, data, self.best_config["coefficients"])
+        else:
+            model = sindy_helpers.model_costruction(config, data, self.best_config.get("random_seed", 42), constraints.get("coeff_precision"))
 
         print("\nStarting validation on test data...")
         x_sim, rmse, r2, _ = sindy_helpers.evaluate_model(
@@ -236,6 +269,10 @@ class SindyEstimator(BaseSindyEstimator):
             warnings.warn("Pareto front is None")
         if self.best_config is None:
             warnings.warn("Best configuration is None")
+
+        for result in self.pareto_front:
+            if result.get("coefficients") is not None:
+                del result["coefficients"]
 
         payload = {
             "best_result": self.best_config,
@@ -301,8 +338,15 @@ class SindyEstimator(BaseSindyEstimator):
         # Vyber na zaklade AIC (Akaike Information Criterion)
         sorted_results = sorted(results, key=lambda x: x["aic"])
         best_model = sorted_results[0]
-        
+                
         return best_model
+
+    def _prepare_log_output(self, log: Dict[str, Any]):
+        
+        if log.get("coefficients") is not None:
+            del log["coefficients"]
+
+        return log
 
     def _delete_tempfiles(self):
         if self.results_file_name and os.path.exists(self.results_file_name):

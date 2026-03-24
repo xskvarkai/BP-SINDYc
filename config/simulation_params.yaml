@@ -1,9 +1,9 @@
 simulation:
-  time_step: 0.002
+  time_step: 0.025
   time_span_start: 0
   time_span_end: 100
   initial_conditions: [-8.0, 8.0, 27.0]
-  noise_ratio: 0.1
+  noise_ratio: null
   random_seed: 100
   is_free_body: False
 

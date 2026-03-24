@@ -46,6 +46,8 @@ def plot_trajectory(
 
     total_plots = num_state_vars
     if input_signal is not None:
+        if input_signal.ndim == 1:
+            input_signal = input_signal.reshape(-1, 1)
         num_input_vars = input_signal.shape[1]
         total_plots += num_input_vars
 
@@ -104,7 +106,7 @@ def plot_pareto(rmses: List[float], complexities: List[int], print_title: bool =
     Plots the Pareto front of model configurations based on RMSE and complexity.
     """
 
-    fig_width_in, fig_height_in = 8, 8
+    fig_width_in, fig_height_in = 6, 6
     if exportable:
         fig_width_in, fig_height_in = _prepare_export()
 
@@ -132,7 +134,7 @@ def plot_koopman_spectrum(eigenvalues: np.ndarray, print_title: bool = False, ex
     if exportable:
         fig_width_in, fig_height_in = _prepare_export()
     
-    plt.figure(figsize=(fig_width_in, fig_height_in))
+    fig = plt.figure(figsize=(fig_width_in, fig_height_in))
     plt.scatter(eigenvalues.real, eigenvalues.imag, marker="o")
     circle = plt.Circle((0,0), 1, color="blue", fill=False, linestyle="--", label="Unit Circle")
     plt.gca().add_artist(circle)
@@ -149,6 +151,7 @@ def plot_koopman_spectrum(eigenvalues: np.ndarray, print_title: bool = False, ex
     plt.axis("equal")
     plt.legend()
     plt.show()
+    plt.close(fig)
 
     if exportable:
         plt.rcParams.update(plt.rcParamsDefault)

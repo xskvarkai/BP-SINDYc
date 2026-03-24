@@ -54,14 +54,17 @@ class BaseSindyEstimator():
 
         valid_methods = {
             "STLSQ": ps.STLSQ,
-            "SR3": ps.SR3
+            "MIOSR": ps.MIOSR,
+            "SR3": ps.SR3,
+            "ConstrainedSR3": ps.ConstrainedSR3
         }
 
         if method not in valid_methods:
             raise ValueError(f"Invalid method {method}. Choose from {list(valid_methods.keys())}")
 
         method_kwargs = self._validate_and_merge_kwargs(method, "optimizer", kwargs, self._default_opt_params)
-        method_kwargs["max_iter"] = int(method_kwargs.get("max_iter", 1e5))
+        if method != "MIOSR":
+            method_kwargs["max_iter"] = int(method_kwargs.get("max_iter", 1e5))
 
         base_optimizer = valid_methods[method](**method_kwargs)
 
@@ -97,6 +100,7 @@ class BaseSindyEstimator():
             raise ValueError(f"Invalid method. Choose from {list(valid_methods.keys())}")
 
         method_kwargs = self._validate_and_merge_kwargs(method, "feature library", kwargs, self._default_feat_lib_params)
+        
         self.feature_libraries.append(valid_methods[method](**method_kwargs))
 
         return None

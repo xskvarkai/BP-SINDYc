@@ -4,6 +4,8 @@ from sklearn.metrics import r2_score, root_mean_squared_error
 from typing import Dict, Any, Optional, Union, Tuple, List
 
 import warnings
+import random
+import copy
 
 from utils.custom_libraries import FixedWeakPDELibrary
 from utils.helpers import compute_time_vector
@@ -32,6 +34,30 @@ def sanitize_WeakPDELibrary(config: Dict[str, Any]):
         config["differentiation_method"] = None
         
     return config
+
+def copy_coeffs(config: Dict[str, Any], data: Dict[str, Any], coeffs: List[Any]) -> ps.SINDy:
+
+    x_train = data.get("x_train")
+    u_train = data.get("u_train")
+    dt = data.get("dt")
+
+
+    if isinstance(config.get("feature_library"), FixedWeakPDELibrary):
+        model_sim = ps.SINDy(
+                feature_library=config["feature_library"].get_params().get("function_library"),
+            )
+    else:
+        model_sim = ps.SINDy(
+                feature_library=config.get("feature_library"),
+            )
+
+    dummy_x = x_train[0] if isinstance(x_train, list) else x_train
+    dummy_u = u_train[0] if isinstance(u_train, list) else u_train
+    dummy_u = dummy_u[:10] if dummy_u is not None else None
+    model_sim.fit(dummy_x[:10], t=dt, u=dummy_u)
+    model_sim.optimizer.coef_ = coeffs
+
+    return model_sim
 
 def make_model_callable(model: ps.SINDy, data: Dict[str, Any]) -> ps.SINDy:
     """
@@ -112,6 +138,8 @@ def model_simulate(
 
     try:
         x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws=integrator_kwargs)
+        if len(x_sim) < 2:
+            raise ValueError("R^2 score is not well-defined with less than two samples.")
         return x_sim
     
     except Exception as e:
@@ -157,7 +185,6 @@ def evaluate_model(
     model_complexity = np.count_nonzero(model_coeffs)
 
     warnings.filterwarnings("ignore", module="pysindy")
-
     x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
     if isinstance(x_sim, str):
         return x_sim, np.inf, -np.inf, np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
@@ -177,7 +204,7 @@ def evaluate_model(
     else:
         # aic = 
         aic = min_len * np.log(rmse ** 2) + 2 * model_complexity + 2 * model_complexity * (model_complexity + 1) /  aic_denominator # Korigovane AIC
-            
+
     return (x_sim, rmse, r2, aic)
 
 def model_costruction(
@@ -185,16 +212,18 @@ def model_costruction(
         data: Dict[str, Union[np.ndarray, List[np.ndarray]]],
         random_seed: Optional[int] = 42,
         coeff_precision: Optional[int] = None,
-        fixed_coeffs: Optional[List[float]] = None,
     ) -> ps.SINDy:
-    
+
     np.random.seed(random_seed)
+    random.seed(random_seed)
 
     if config.get("differentiation_method") is None:
         config["differentiation_method"] = config["feature_library"].get_params().get("differentiation_method")
 
     warnings.filterwarnings("ignore", module="pysindy")
+
     config = sanitize_WeakPDELibrary(config)
+
     model = make_model(config, data)
 
     if coeff_precision is not None: # Ak je definovana poziadavka na presnost koeficientov, aplikujeme ju na koeficienty modelu.
@@ -226,7 +255,7 @@ def model_reconstruction(config: Dict[str, Any], random_seed: int, data: Dict[st
             data,
             start_index=0,
             current_steps=data.get("x_ref").shape[0],
-            integrator_kwargs={"rtol": 1e-6,"atol": 1e-6}
+            integrator_kwargs={"rtol": 1e-4,"atol": 1e-4}
         )
 
         min_len = min(len(data.get("x_ref")), len(x_sim))
@@ -239,6 +268,6 @@ def model_reconstruction(config: Dict[str, Any], random_seed: int, data: Dict[st
         x_ref_cut = data.get("x_ref")[:min_len]
         u_ref_cut = data.get("u_ref")[:min_len]
         x_sim_cut = x_sim[:min_len]
-        plot_trajectory(t_test, x_ref_cut, x_sim_cut, u_ref_cut, exportable=True)
+        plot_trajectory(t_test, x_ref_cut, x_sim_cut, u_ref_cut, exportable=False)
 
     return model

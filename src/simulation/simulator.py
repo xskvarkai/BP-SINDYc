@@ -17,7 +17,7 @@ def rk4_step(dynamic_system, x_k, u_k, dt) -> np.ndarray:
     return x_k + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
 # Generovanie vstupneho signalu 
-def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Dict[str, Any]) -> np.ndarray:
+def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Dict[str, Any], output_type: type) -> np.ndarray:
     """
     Generates an input signal for the dynamic system. If 'is_free_body' is True, the input signal will be zero (free body).
     Otherwise, it generates a signal based on a simple PID control strategy to create a more complex input.
@@ -73,4 +73,8 @@ def generate_input_signal(num_samples, is_free_body, dt, input_signal_params: Di
             system_val += (u - system_val) / tau * dt
             prev_error = error
 
-    return input_signal[:, None]
+    if output_type == np.ndarray:
+        result = input_signal[:, None]
+    else:
+        result = input_signal
+    return result

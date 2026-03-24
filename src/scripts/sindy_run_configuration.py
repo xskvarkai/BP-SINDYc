@@ -1,4 +1,6 @@
-import pysindy as ps
+import json
+import pickle
+import hashlib
 import numpy as np
 from typing import List, Dict, Any
 
@@ -9,13 +11,19 @@ import utils.sindy_helpers as sindy_helpers
 
 def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
     try:
-        _, config, x_train, x_val, u_train, u_val, dt, constraints, cache_dict, lock = configuration_and_data
+        
+        _, config, x_train, x_val, u_train, u_val, dt, constraints = configuration_and_data
 
-        random_seed = int(np.random.rand() * (2**32 - 1))
+        try:
+           config_bytes = json.dumps(config, sort_keys=True).encode("utf-8")
+        except:
+           config_bytes = pickle.dumps(config)
+        random_seed = int(hashlib.sha256(config_bytes).hexdigest(), 16) % (2**32 - 1)
 
         # Ignorovanie warningov pocas hladania
         warnings.filterwarnings("ignore", module="pysindy")
         warnings.filterwarnings("ignore", category=UserWarning)
+        numpy_old_settings = np.seterr(over="raise")
 
         data = {
             "x_train": x_train,
@@ -27,19 +35,8 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
 
         config = sindy_helpers.sanitize_WeakPDELibrary(config)
 
-        # Caching derivacii (x_dot), pre rovnake parametre, pouzijeme derivacie zo zdielanej pamate.
         if config.get("differentiation_method") is not None:
-            key = str(config["differentiation_method"])
-            if key in cache_dict.keys():
-                x_dot_train = cache_dict[key]
-            else:
-                with lock:
-                    # Double-check locking pattern
-                    if key not in cache_dict.keys():
-                        x_dot_train = sindy_helpers.compute_derivative(config, data)
-                        cache_dict[key] = x_dot_train
-                    else:
-                        x_dot_train = cache_dict[key]
+            x_dot_train = sindy_helpers.compute_derivative(config, data)
         else:
             x_dot_train = None
 
@@ -75,9 +72,12 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
             "r2_score": np.round(r2, 5),
             "rmse": np.round(rmse, 5),
             "complexity": np.count_nonzero(model.coefficients()),
-            "aic": aic
+            "aic": aic,
+            "coefficients": model.optimizer.coef_
         }
- 
+
+        np.seterr(**numpy_old_settings)
+
         return result
 
     # Zlyhanie este pre trenovanim modelu

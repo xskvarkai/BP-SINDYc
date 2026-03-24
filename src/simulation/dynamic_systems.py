@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import Callable, Union, Dict, Any, Tuple
+from typing import Callable, Union, Dict, Any, Tuple, List
 
 from utils.config_manager import ConfigManager
 from simulation.simulator import generate_input_signal, rk4_step
@@ -30,7 +30,7 @@ class DynamicSystem:
         """ Returns the time derivative of the state vector given the current state and input signal. """
         return self._dynamics_func(state_vector, input_signal)
 
-    def simulate(self, input_signal: np.ndarray = None, verbose: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def simulate(self, dt, input_signal: np.ndarray = None, initial_conditions: List[float] = None, verbose: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Simulates the trajectory of the dynamic system over a specified time span 
         with given initial conditions and input signal parameters.
@@ -39,37 +39,48 @@ class DynamicSystem:
         np.random.seed(self._simulation.get("random_seed", 100))
         random_number_generator = np.random.RandomState(self._simulation.get("random_seed", 100))
 
-        dt = self._simulation.get("time_step")
-        num_samples = (self._simulation.get("time_span_end") - self._simulation.get("time_span_start")) // dt + 1
-        num_samples = int(num_samples)
+        dt = dt
         is_free_body = self._simulation.get("is_free_body")
         noise_ratio = self._simulation.get("noise_ratio", 1e-3)
-        initial_conditions = self._simulation.get("initial_conditions")
+        if initial_conditions is None:
+            initial_conditions = self._simulation.get("initial_conditions")
 
         if input_signal is None:
-            input_signal = generate_input_signal(num_samples, is_free_body, dt, self._input_signal_params)
+            num_samples = (self._simulation.get("time_span_end") - self._simulation.get("time_span_start")) // dt + 1
+            num_samples = int(num_samples)
+            input_signal = generate_input_signal(num_samples, is_free_body, dt, self._input_signal_params, output_type=float)
+            state_trajectory = np.zeros((num_samples, len(initial_conditions)))
 
-        state_trajectory = np.zeros((num_samples, len(initial_conditions)))
+        else:
+            state_trajectory = np.zeros((len(input_signal), len(initial_conditions)))
+
+        if input_signal.ndim > 1 and input_signal.shape[1] == 1:
+            input_signal = input_signal.flatten()
+        elif input_signal.ndim > 1:
+            raise ValueError(f"Input signal array must be 1D or 2D with shape (N, 1) for scalar control inputs, but got shape {input_signal.shape}.")
 
         current_state = initial_conditions.copy()
 
-        if noise_ratio is not None:
+        if noise_ratio is not None and input_signal is None:
             noise_level = max(noise_ratio * np.std(input_signal), 1e-3)
             noise = random_number_generator.normal(0, noise_level, input_signal.shape)
             input_signal += noise
 
-        for k in range(num_samples):
+        for k in range(len(input_signal)):
             current_input = input_signal[k]
             current_state = rk4_step(self, x_k=current_state, u_k=current_input, dt=dt)
             state_trajectory[k, :] = current_state
 
-        if noise_ratio is not None:
+        if noise_ratio is not None and input_signal is None:
             noise_level = max(noise_ratio * np.std(state_trajectory), 1e-3)
             noise = random_number_generator.normal(0, noise_level, state_trajectory.shape)
             noisy_state_trajectory = state_trajectory + noise
             
             if verbose:
                 print(f"Added noise in level of the standard deviation of the state trajectory (noise level: {noise_ratio:.1%}).")
+
+        if noise_ratio is None:
+            noisy_state_trajectory = state_trajectory
 
         return state_trajectory, noisy_state_trajectory, input_signal, compute_time_vector(state_trajectory, dt)
     
