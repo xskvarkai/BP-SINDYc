@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from scipy import signal
 from scipy.signal import savgol_filter
 from sklearn.preprocessing import Normalizer
 
@@ -14,7 +15,7 @@ def ilustate_noise():
     config_manager = ConfigManager("config")
 
     with DataLoader(config_manager, "data_raw_dir") as loader:
-        X, U, time_step = loader.load_csv_data(
+        X, U, dt = loader.load_csv_data(
             "Aeroshield",
             [0],
             None,
@@ -23,20 +24,20 @@ def ilustate_noise():
             plot_data=True,
             verbose=False
         )
-    X = X[0: int(10 / time_step)]
+    X = X[0: int(10 / dt)]
 
-    X_dot = np.gradient(X, time_step, axis=0)
+    X_dot = np.gradient(X, dt, axis=0)
     X_noisy = np.hstack([X, X_dot])
 
     X_filtered = savgol_filter(X_noisy, 31, 2, axis=0)
 
-    plot_noisy_filtered_trajectory(compute_time_vector(X_noisy, time_step), X_noisy, X_filtered, exportable=True)
+    plot_noisy_filtered_trajectory(compute_time_vector(X_noisy, dt), X_noisy, X_filtered, exportable=True)
 
 def Aeroshield_load_and_deriv():
     config_manager = ConfigManager("config")
 
     with DataLoader(config_manager, "data_raw_dir") as loader:
-        X, U, time_step = loader.load_csv_data(
+        X, U, dt = loader.load_csv_data(
             "Aeroshield",
             [0],
             None,
@@ -55,8 +56,8 @@ def Aeroshield_load_and_deriv():
             verbose=False
         )
 
-    X_dot = np.gradient(X, time_step, axis=0)
-    X_dot_val = np.gradient(X_val, time_step, axis=0)
+    X_dot = np.gradient(X, dt, axis=0)
+    X_dot_val = np.gradient(X_val, dt, axis=0)
 
     X_new = np.vstack([X, X_val])
     X_dot_new = np.vstack([X_dot, X_dot_val])
@@ -83,7 +84,7 @@ def Floatshield_load_and_deriv():
 
     with DataLoader(config_manager, "data_raw_dir") as loader:
         X, U, dt = loader.load_csv_data(
-            "Floatshield_close-loop2",
+            "Floatshield",
             [0, 1],
             None,
             0.025,
@@ -91,12 +92,12 @@ def Floatshield_load_and_deriv():
             apply_savgol_filter=True,
             savgol_polyorder=2,
             savgol_window_length=71,
-            plot_data=True,
+            plot_data=False,
             verbose=False
         )
 
         X_val, U_val, dt = loader.load_csv_data(
-            "Floatshield_close-loop2_val",
+            "Floatshield_val",
             [0, 1],
             None,
             0.025,
@@ -104,10 +105,21 @@ def Floatshield_load_and_deriv():
             apply_savgol_filter=True,
             savgol_polyorder=2,
             savgol_window_length=71,
-            plot_data=True,
+            plot_data=False,
             verbose=False
         )
     
+    delay_cross_correlation(U, X, 40, 0)
+    delay_cross_correlation(U_val, X_val, 40, 0)
+
+    #x_old = X
+    #x_old = x_old / 320
+    #X = X[24:]
+    #X_val = X_val[24:]
+
+    #U = U[:-24]
+    #U_val = U_val[:-24]
+
     X[:, 0] = X[:, 0] / (320) # Prevod na precenta
     X_dot = np.gradient(X[:, 0], dt, axis=0)
     
@@ -120,40 +132,11 @@ def Floatshield_load_and_deriv():
     X[:, 1] = X[:, 1] / 17000
     X_val[:, 1] = X_val[:, 1] / 17000
 
+    #plot_noisy_filtered_trajectory(compute_time_vector(X, dt), X, x_old[:-24], U)
+
     X_new = np.vstack([X, X_val])
     X_dot_new = np.vstack([X_dot.reshape(-1, 1), X_dot_val.reshape(-1, 1)])
     U_new = np.vstack([U, U_val])
-
-    # Ak má byť u stĺpcový vektor a porovnávame ho so stĺpcom z X_new
-    u_compare = U_new.flatten() # Prevedieme na 1D pole pre porovnanie s 1D stĺpcom
-    x_second_column_compare = X_dot_new.flatten() # Vezmeme druhý stĺpec z X_new
-
-    # Pre správnosť porovnania musia mať u_compare a x_second_column_compare rovnakú dĺžku.
-    # Upravím u_compare, aby zodpovedalo dĺžke x_second_column_compare, ak je to potrebné.
-    # V tomto kontexte predpokladám, že ich dĺžky sú už kompatibilné vďaka vstack operáciám.
-    # Ak by U_new a X_new nemali rovnaký počet riadkov, bolo by potrebné to prepočítať alebo inak prispôsobiť.
-    # Pre tento príklad predpokladám, že X_new.shape[0] == U_new.shape[0]
-
-    # Prevedenie u_compare a x_second_column_compare na kompatibilné tvary
-    # Tu je predpoklad, že chceme porovnať U_new s X_new[:, 1]
-    # a že oboje sú 1D polia rovnakej dĺžky.
-    # Ak U_new je stĺpcový vektor, tak ho pre porovnanie s druhým stĺpcom X_new najprv sploštíme.
-
-    result = u_compare**3 - x_second_column_compare < 0
-    true_indices = np.where(result)[0]
-    print("Indexy, kde je 'result' True:", true_indices)
-
-    true_pairs = np.column_stack((u_compare[result], x_second_column_compare[result]))
-    print("Páry (u_compare, x_second_column_compare), kde je 'result' True:\n", true_pairs)
-
-    print(f"Tvar výsledného booleovského poľa: {result.shape}")
-    print(f"Prvých 5 hodnôt výsledku: {result[:5]}") # Vypíše len prvých 5, pre prehľadnosť
-
-    # Kontrola, či je aspoň jeden výsledok True
-    if result.any():
-        print("Aspoň jeden výsledok podmienky (u - x_second_column >= 0) je True.")
-    else:
-        print("Žiaden výsledok podmienky (u - x_second_column >= 0) nie je True.")
 
     data = {
         "x": X_new[:, 0].flatten(),
@@ -162,10 +145,98 @@ def Floatshield_load_and_deriv():
         "u": U_new.flatten(),
     }
 
-    file_path = "data/processed/Floatshield_with_deriv_close-loop2.csv"
+    file_path = "data/processed/Floatshield_with_deriv.csv"
     df = pd.DataFrame(data)  
     df.to_csv(file_path, index=False)
 
+def delay_cross_correlation(input_signal, output_signal, sampling_rate, output_column_index=None):
+    """
+    Odhadne časové oneskorenie medzi dvoma signálmi pomocou vzájomnej korelácie.
+    Ak je 'output_signal' viacerodimenzionálny, musí byť špecifikovaný output_column_index.
+
+    Args:
+        input_signal (np.array): Prvý signál (napr. vstup u0). Predpokladá sa, že je 1D.
+        output_signal (np.array): Druhý signál (napr. výstup x0), ktorý je oneskorený vzhľadom na input_signal.
+                                  Môže byť 1D alebo 2D. Ak je 2D, je potrebný output_column_index.
+        sampling_rate (float): Vzorkovacia frekvencia signálov (počet vzoriek za jednotku času, napr. Hz).
+        output_column_index (int, optional): Index stĺpca, ktorý sa má použiť z output_signal,
+                                             ak je output_signal viacerodimenzionálny. Predvolené None.
+
+    Returns:
+        float: Odhadované oneskorenie v časových jednotkách (napr. sekundy).
+        int: Odhadované oneskorenie v počte vzoriek.
+        np.array: Pole s hodnotami vzájomnej korelácie.
+        np.array: Pole s posunmi (lags) v počte vzoriek.
+    """
+    print(f"--- STARTING delay_cross_correlation CALL ---")
+    print(f"Debug: Dĺžka pôvodného input_signal: {len(input_signal)}")
+    print(f"Debug: Tvar pôvodného input_signal: {input_signal.shape}")
+    print(f"Debug: Dĺžka pôvodného output_signal: {len(output_signal)}")
+    print(f"Debug: Tvar pôvodného output_signal: {output_signal.shape}")
+    print(f"Debug: Typ pôvodného input_signal: {type(input_signal)}")
+    print(f"Debug: Typ pôvodného output_signal: {type(output_signal)}")
+    print(f"Debug: output_column_index: {output_column_index}")
+
+    # Ensure input_signal is 1D
+    # input_signal (U) by mal byť už 1D, ak je shape (N,) alebo (N,1) a flatten() to správne upraví
+    signal1_processed = np.asarray(input_signal).flatten()
+    
+    # Process output_signal based on its dimensions and output_column_index
+    if output_signal.ndim > 1: # Ak je output_signal (N, M) kde M > 1
+        if output_column_index is None:
+            raise ValueError("Output signal is multi-dimensional (shape "
+                             f"{output_signal.shape}). Please specify 'output_column_index' "
+                             "to select which column to use for delay estimation (e.g., 0, 1, ...).")
+        # Vyberie špecifický stĺpec a sploští ho na 1D
+        signal2_processed = np.asarray(output_signal[:, output_column_index]).flatten()
+        print(f"Debug: Použitý stĺpec {output_column_index} z output_signal.")
+    else: # Ak je output_signal už 1D (shape (N,))
+        signal2_processed = np.asarray(output_signal).flatten()
+
+    # Zabezpečenie, že oba spracované signály majú rovnakú dĺžku pre koreláciu.
+    # To orezanie je tu dôležité, ak by signály mali naozaj rôzne dĺžky po predchádzajúcom spracovaní
+    # (čo by však nemali, ak DataLoader vráti konzistentné dáta).
+    min_len = min(len(signal1_processed), len(signal2_processed))
+    
+    signal1_processed = signal1_processed[:min_len]
+    signal2_processed = signal2_processed[:min_len]
+
+    print(f"Debug: Minimálna dĺžka po orezaní (min_len): {min_len}")
+    print(f"Debug: Dĺžka orezaného a splošteného input_signal (signal1_processed): {len(signal1_processed)}")
+    print(f"Debug: Tvar orezaného a splošteného input_signal (signal1_processed.shape): {signal1_processed.shape}")
+    print(f"Debug: Dĺžka orezaného a splošteného output_signal (signal2_processed): {len(signal2_processed)}")
+    print(f"Debug: Tvar orezaného a splošteného output_signal (signal2_processed.shape): {signal2_processed.shape}")
+    print(f"Debug: Typ signal1_processed: {type(signal1_processed)}")
+    print(f"Debug: Typ signal2_processed: {type(signal2_processed)}")
+
+    # Vypočítame vzájomnú koreláciu
+    correlation = signal.correlate(signal2_processed, signal1_processed, mode='full')
+
+    # Vygenerujeme pole posunov (lags)
+    lags = signal.correlation_lags(len(signal1_processed), len(signal2_processed), mode='full')
+
+    print(f"Debug: Dĺžka poľa korelácie (correlation): {len(correlation)}")
+    print(f"Debug: Tvar poľa korelácie (correlation.shape): {correlation.shape}")
+    print(f"Debug: Typ dát poľa korelácie (correlation.dtype): {correlation.dtype}")
+    print(f"Debug: Obsahuje pole korelácie NaN hodnoty? {np.any(np.isnan(correlation))}")
+    print(f"Debug: Obsahuje pole korelácie Inf hodnoty? {np.any(np.isinf(correlation))}")
+
+    # Nájdeme index, kde je vzájomná korelácia maximálna
+    delay_samples_idx = np.argmax(correlation)
+    
+    print(f"Debug: Vypočítaný index pre maximum (delay_samples_idx): {delay_samples_idx}")
+    print(f"Debug: Dĺžka poľa posunov (lags): {len(lags)}")
+    print(f"Debug: Tvar poľa posunov (lags.shape): {lags.shape}")
+
+    # Získame skutočný počet vzoriek oneskorenia
+    delay_samples = lags[delay_samples_idx]
+
+    # Prevedieme oneskorenie zo vzoriek na čas
+    delay_time = delay_samples / sampling_rate
+
+    print(f"Odhadované oneskorenie: {delay_time:.2f} sekúnd ({delay_samples} vzoriek)")
+    print(f"--- ENDING delay_cross_correlation CALL ---")
+    #return delay_time, delay_samples, correlation, lags
 
 def estimate_state():
     config_manager = ConfigManager("config")

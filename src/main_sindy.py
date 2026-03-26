@@ -15,9 +15,6 @@ from utils.custom_libraries import (
     # Základné funkcie a ich názvy
     abs_x, x_abs_x, x_y_abs_z, x_squared_abs_y, tanh_x, constant,
     name_abs_x, name_x_abs_x, name_x_y_abs_z, name_x_squared_abs_y, name_tanh_x, name_constant,
-    
-    x_cos_y, x_sin_y,
-    name_x_cos_y, name_x_sin_y,
 
     # Funkcie s 'x' a ich názvy
     x_fun, x_squared, x_cubed, x_quartered,
@@ -48,6 +45,26 @@ from utils.custom_libraries import (
     name_yx_squared_frac_z, name_yx_squared_frac_z_squared, name_yx_squared_frac_z_cubed, name_yx_squared_frac_z_quartered,
     name_yx_cubed_frac_z, name_yx_cubed_frac_z_squared, name_yx_cubed_frac_z_cubed, name_yx_cubed_frac_z_quartered,
     name_yx_quartered_frac_z, name_yx_quartered_frac_z_squared, name_yx_quartered_frac_z_cubed, name_yx_quartered_frac_z_quartered,
+
+    # Nové funkcie s 'y' a 'mx_drag_term' a ich názvy
+    y_mx_drag_term, y_squared_mx_drag_term, y_cubed_mx_drag_term, y_quartered_mx_drag_term,
+    name_y_mx_drag_term, name_y_squared_mx_drag_term, name_y_cubed_mx_drag_term, name_y_quartered_mx_drag_term,
+
+    # Nové funkcie s 'z', 'x_frac' a 'my_drag_term' a ich názvy
+    zx_frac_my_drag_term, zx_frac_squared_my_drag_term, zx_frac_cubed_my_drag_term, zx_frac_quartered_my_drag_term,
+    name_zx_frac_my_drag_term, name_zx_frac_squared_my_drag_term, name_zx_frac_cubed_my_drag_term, name_zx_frac_quartered_my_drag_term,
+
+    # Nové funkcie s 'z_squared', 'x_frac' a 'my_drag_term' a ich názvy
+    z_squared_x_frac_my_drag_term, z_squared_x_frac_squared_my_drag_term, z_squared_x_frac_cubed_my_drag_term, z_squared_x_frac_quartered_my_drag_term,
+    name_z_squared_x_frac_my_drag_term, name_z_squared_x_frac_squared_my_drag_term, name_z_squared_x_frac_cubed_my_drag_term, name_z_squared_x_frac_quartered_my_drag_term,
+
+    # Nové funkcie s 'z_cubed', 'x_frac' a 'my_drag_term' a ich názvy
+    z_cubed_x_frac_my_drag_term, z_cubed_x_frac_squared_my_drag_term, z_cubed_x_frac_cubed_my_drag_term, z_cubed_x_frac_quartered_my_drag_term,
+    name_z_cubed_x_frac_my_drag_term, name_z_cubed_x_frac_squared_my_drag_term, name_z_cubed_x_frac_cubed_my_drag_term, name_z_cubed_x_frac_quartered_my_drag_term,
+
+    # Nové funkcie s 'z_quartered', 'x_frac' a 'my_drag_term' a ich názvy
+    z_quartered_x_frac_my_drag_term, z_quartered_x_frac_squared_my_drag_term, z_quartered_x_frac_cubed_my_drag_term, z_quartered_x_frac_quartered_my_drag_term,
+    name_z_quartered_x_frac_my_drag_term, name_z_quartered_x_frac_squared_my_drag_term, name_z_quartered_x_frac_cubed_my_drag_term, name_z_quartered_x_frac_quartered_my_drag_term,
 )
 
 def sindy_main(config_manager: ConfigManager):
@@ -84,7 +101,7 @@ def sindy_main(config_manager: ConfigManager):
         # The keys of the dictionaries correspond to the names of the methods, and the values are dictionaries of parameters for those methods.
         # Minimum required parameters for method are provided (None takes defaults), but you can add more parameters.
 
-        library = ps.PolynomialLibrary(degree=4, include_bias=True) + FixedCustomLibrary(
+        library = ps.PolynomialLibrary(degree=1, include_bias=True) + FixedCustomLibrary(
             [
              yx_frac, y_squared_x_frac, y_cubed_x_frac, y_quartered_x_frac,
              yx_squared_frac, y_squared_x_squared_frac, y_cubed_x_squared_frac, y_quartered_x_squared_frac,
@@ -95,7 +112,6 @@ def sindy_main(config_manager: ConfigManager):
              yx_frac_z_squared, yx_squared_frac_z_squared, yx_cubed_frac_z_squared, yx_quartered_frac_z_squared,
              yx_frac_z_cubed, yx_squared_frac_z_cubed, yx_cubed_frac_z_cubed, yx_quartered_frac_z_cubed,
              yx_frac_z_quartered, yx_squared_frac_z_quartered, yx_cubed_frac_z_quartered, yx_quartered_frac_z_quartered,
-             x_cos_y, x_sin_y
             ],
             [             
              name_yx_frac, name_y_squared_x_frac, name_y_cubed_x_frac, name_y_quartered_x_frac,
@@ -107,7 +123,6 @@ def sindy_main(config_manager: ConfigManager):
              name_yx_frac_z_squared, name_yx_squared_frac_z_squared, name_yx_cubed_frac_z_squared, name_yx_quartered_frac_z_squared,
              name_yx_frac_z_cubed, name_yx_squared_frac_z_cubed, name_yx_cubed_frac_z_cubed, name_yx_quartered_frac_z_cubed,
              name_yx_frac_z_quartered, name_yx_squared_frac_z_quartered, name_yx_cubed_frac_z_quartered, name_yx_quartered_frac_z_quartered,
-             name_x_cos_y, name_x_sin_y
             ]
         )
 

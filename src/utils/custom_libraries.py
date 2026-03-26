@@ -84,16 +84,12 @@ def x_quartered_frac(x): return x**(-4)
 
 def sin_x(x): return np.sin(x)
 def cos_x(x): return np.cos(x)
-def x_sin_y(x, y): return x * sin_x(y)
-def x_cos_y(x, y): return x * cos_x(y)
-def x_sin_2y(x, y): return x * sin_x(2 * y)
-def x_cos_2y(x, y): return x * cos_x(2 * y)
-def x_sin_5y(x, y): return x * sin_x(5 * y)
-def x_cos_5y(x, y): return x * cos_x(5 * y)
-def x_sin_10y(x, y): return x * sin_x(10 * y)
-def x_cos_10y(x, y): return x * cos_x(10 * y)
-def x_sin_20y(x, y): return x * sin_x(20 * y)
-def x_cos_20y(x, y): return x * cos_x(20 * y)
+def x_sin_x(x): return x * sin_x(x)
+def x_cos_x(x): return x * cos_x(x)
+def x_sin_2x(x): return x * sin_x(2 * x)
+def x_cos_2x(x): return x * cos_x(2 * x)
+def x_sin_5x(x): return x * sin_x(5 * x)
+def x_cos_5x(x): return x * cos_x(5 * x)
 
 # Absolutna hodnota pre odpor vzduchu
 def abs_x(x): return np.abs(x)
@@ -126,16 +122,12 @@ def name_x_quartered_frac(x_str): return f"1/{x_str}^4"
 
 def name_sin_x(x_str): return f"sin({x_str})"
 def name_cos_x(x_str): return f"cos({x_str})"
-def name_x_sin_y(x_str, y_str): return f"{x_str} sin({y_str})"
-def name_x_cos_y(x_str, y_str): return f"{x_str} cos({y_str})"
-def name_x_sin_2y(x_str, y_str): return f"{x_str} sin(2 {y_str})"
-def name_x_cos_2y(x_str, y_str): return f"{x_str} cos(2 {y_str})"
-def name_x_sin_5y(x_str, y_str): return f"{x_str} sin(5 {y_str})"
-def name_x_cos_5y(x_str, y_str): return f"{x_str} cos(5 {y_str})"
-def name_x_sin_10y(x_str, y_str): return f"{x_str} sin(10 {y_str})"
-def name_x_cos_10y(x_str, y_str): return f"{x_str} cos(10 {y_str})"
-def name_x_sin_20y(x_str, y_str): return f"{x_str} sin(20 {y_str})"
-def name_x_cos_20y(x_str, y_str): return f"{x_str} cos(20 {y_str})"
+def name_x_sin_x(x_str): return f"{x_str} sin({x_str})"
+def name_x_cos_x(x_str): return f"{x_str} cos({x_str})"
+def name_x_sin_2x(x_str): return f"{x_str} sin(2 {x_str})"
+def name_x_cos_2x(x_str): return f"{x_str} cos(2 {x_str})"
+def name_x_sin_5x(x_str): return f"{x_str} sin(5 {x_str})"
+def name_x_cos_5x(x_str): return f"{x_str} cos(5 {x_str})"
 
 # Absolutna hodnota
 def name_abs_x(x_str): return f"|{x_str}|"
@@ -242,3 +234,83 @@ def name_yx_quartered_frac_z(x_str, y_str, z_str): return f"{y_str} 1/{x_str}^4 
 def name_yx_quartered_frac_z_squared(x_str, y_str, z_str): return f"{y_str} 1/{x_str}^4 {z_str}^2"
 def name_yx_quartered_frac_z_cubed(x_str, y_str, z_str): return f"{y_str} 1/{x_str}^4 {z_str}^3"
 def name_yx_quartered_frac_z_quartered(x_str, y_str, z_str): return f"{y_str} 1/{x_str}^4 {z_str}^4"
+
+# ============ Specialne terminy ============
+
+def y_mx_drag_term(x, y): return (y - x) * np.abs(y - x)
+def y_squared_mx_drag_term(x, y): return (y**2 - x) * np.abs(y**2 - x)
+def y_cubed_mx_drag_term(x, y): return (y**3 - x) * np.abs(y**3 - x)
+def y_quartered_mx_drag_term(x, y): return (y**4 - x) * np.abs(y**4 - x)
+
+def zx_frac_my_drag_term(x, y, z): return (z * x_frac(x) - y) * np.abs(z * x_frac(x) - y)
+def zx_frac_squared_my_drag_term(x, y, z): return (z * x_squared_frac(x) - y) * np.abs(z * x_squared_frac(x) - y)
+def zx_frac_cubed_my_drag_term(x, y, z): return (z * x_cubed_frac(x) - y) * np.abs(z * x_cubed_frac(x) - y)
+def zx_frac_quartered_my_drag_term(x, y, z): return (z * x_quartered_frac(x) - y) * np.abs(z * x_quartered_frac(x) - y)
+
+def z_squared_x_frac_my_drag_term(x, y, z): return (z**2 * x_frac(x) - y) * np.abs(z**2 * x_frac(x) - y)
+def z_squared_x_frac_squared_my_drag_term(x, y, z): return (z**2 * x_squared_frac(x) - y) * np.abs(z**2 * x_squared_frac(x) - y)
+def z_squared_x_frac_cubed_my_drag_term(x, y, z): return (z**2 * x_cubed_frac(x) - y) * np.abs(z**2 * x_cubed_frac(x) - y)
+def z_squared_x_frac_quartered_my_drag_term(x, y, z): return (z**2 * x_quartered_frac(x) - y) * np.abs(z**2 * x_quartered_frac(x) - y)
+
+def z_cubed_x_frac_my_drag_term(x, y, z): return (z**3 * x_frac(x) - y) * np.abs(z**3 * x_frac(x) - y)
+def z_cubed_x_frac_squared_my_drag_term(x, y, z): return (z**3 * x_squared_frac(x) - y) * np.abs(z**3 * x_squared_frac(x) - y)
+def z_cubed_x_frac_cubed_my_drag_term(x, y, z): return (z**3 * x_cubed_frac(x) - y) * np.abs(z**3 * x_cubed_frac(x) - y)
+def z_cubed_x_frac_quartered_my_drag_term(x, y, z): return (z**3 * x_quartered_frac(x) - y) * np.abs(z**3 * x_quartered_frac(x) - y)
+
+def z_quartered_x_frac_my_drag_term(x, y, z): return (z**4 * x_frac(x) - y) * np.abs(z**4 * x_frac(x) - y)
+def z_quartered_x_frac_squared_my_drag_term(x, y, z): return (z**4 * x_squared_frac(x) - y) * np.abs(z**4 * x_squared_frac(x) - y)
+def z_quartered_x_frac_cubed_my_drag_term(x, y, z): return (z**4 * x_cubed_frac(x) - y) * np.abs(z**4 * x_cubed_frac(x) - y)
+def z_quartered_x_frac_quartered_my_drag_term(x, y, z): return (z**4 * x_quartered_frac(x) - y) * np.abs(z**4 * x_quartered_frac(x) - y)
+
+def name_y_mx_drag_term(x_str, y_str): return f"({y_str} - {x_str}) |{y_str} - {x_str}|"
+def name_y_squared_mx_drag_term(x_str, y_str): return f"({y_str}^2 - {x_str}) |{y_str}^2 - {x_str}|"
+def name_y_cubed_mx_drag_term(x_str, y_str): return f"({y_str}^3 - {x_str}) |{y_str}^3 - {x_str}|"
+def name_y_quartered_mx_drag_term(x_str, y_str): return f"({y_str}^4 - {x_str}) |{y_str}^4 - {x_str}|"
+
+def name_zx_frac_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str} (1/{x_str}) - {y_str}) |{z_str} (1/{x_str}) - {y_str}|"
+
+def name_zx_frac_squared_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str} (1/{x_str}^2) - {y_str}) |{z_str} (1/{x_str}^2) - {y_str}|"
+
+def name_zx_frac_cubed_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str} (1/{x_str}^3) - {y_str}) |{z_str} (1/{x_str}^3) - {y_str}|"
+
+def name_zx_frac_quartered_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str} (1/{x_str}^4) - {y_str}) |{z_str} (1/{x_str}^4) - {y_str}|"
+
+def name_z_squared_x_frac_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^2 (1/{x_str}) - {y_str}) |{z_str}^2 (1/{x_str}) - {y_str}|"
+
+def name_z_squared_x_frac_squared_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^2 (1/{x_str}^2) - {y_str}) |{z_str}^2 (1/{x_str}^2) - {y_str}|"
+
+def name_z_squared_x_frac_cubed_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^2 (1/{x_str}^3) - {y_str}) |{z_str}^2 (1/{x_str}^3) - {y_str}|"
+
+def name_z_squared_x_frac_quartered_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^2 (1/{x_str}^4) - {y_str}) |{z_str}^2 (1/{x_str}^4) - {y_str}|"
+
+def name_z_cubed_x_frac_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^3 (1/{x_str}) - {y_str}) |{z_str}^3 (1/{x_str}) - {y_str}|"
+
+def name_z_cubed_x_frac_squared_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^3 (1/{x_str}^2) - {y_str}) |{z_str}^3 (1/{x_str}^2) - {y_str}|"
+
+def name_z_cubed_x_frac_cubed_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^3 (1/{x_str}^3) - {y_str}) |{z_str}^3 (1/{x_str}^3) - {y_str}|"
+
+def name_z_cubed_x_frac_quartered_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^3 (1/{x_str}^4) - {y_str}) |{z_str}^3 (1/{x_str}^4) - {y_str}|"
+
+def name_z_quartered_x_frac_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^4 (1/{x_str}) - {y_str}) |{z_str}^4 (1/{x_str}) - {y_str}|"
+
+def name_z_quartered_x_frac_squared_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^4 (1/{x_str}^2) - {y_str}) |{z_str}^4 (1/{x_str}^2) - {y_str}|"
+
+def name_z_quartered_x_frac_cubed_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^4 (1/{x_str}^3) - {y_str}) |{z_str}^4 (1/{x_str}^3) - {y_str}|"
+
+def name_z_quartered_x_frac_quartered_my_drag_term(x_str, y_str, z_str):
+  return f"({z_str}^4 (1/{x_str}^4) - {y_str}) |{z_str}^4 (1/{x_str}^4) - {y_str}|"
