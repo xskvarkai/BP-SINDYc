@@ -40,7 +40,7 @@ def koopman_main(config_manager: ConfigManager) -> KoopmanModel:
 
     with KoopmanModel(config_manager, config, X_train, U_train, X_test, U_test, dt) as koopman_model:
         koopman_model.evaluateModel(print_metrics=False, plot=True, u_plot=np.sqrt(U_test))
-        koopman_model.plot_koopman_spectrum()
+        koopman_model.plot_koopman_spectrum(True)
         koopman_model.export_data("Aeroshield/Koopman_opherator")
 
         return koopman_model

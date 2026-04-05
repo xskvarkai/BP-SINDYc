@@ -125,19 +125,46 @@ def model_simulate(
         data: Dict[str, Any],
         start_index: int,
         current_steps: int,
+        ksteps: Optional[int] = None,
         integrator_kwargs: Dict[str, Any] = {"method": "LSODA","rtol": 1e-12,"atol": 1e-12}
     ) -> Union[np.ndarray, str]:
     """
     Simulate the SINDy model starting from the initial condition at start_index for current_steps time steps.
+    If ksteps is defined, the simulation is performed in segments of ksteps,
+    using the last state of the previous segment as the initial condition for the next.
     Returns the simulated trajectory or an error message if simulation fails.
     """
 
     x0 = data.get("x_ref")[start_index]
-    t = np.arange(current_steps) * data.get("dt")
-    u = data.get("u_ref")[start_index : start_index + current_steps] if data.get("u_ref") is not None else None
 
     try:
-        x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws=integrator_kwargs)
+        if ksteps is not None:
+            x_sim_list = []
+            current_index = start_index
+            while current_index < start_index + current_steps:
+                x0 = data.get("x_ref")[current_index]  # Update initial condition for the next segment
+                
+                segment_steps = min(ksteps, start_index + current_steps - current_index)
+                t_segment = np.arange(segment_steps) * data.get("dt")
+                u_segment = data.get("u_ref")[current_index : current_index + segment_steps] if data.get("u_ref") is not None else None
+
+                if len(t_segment) < 2:
+                    break
+
+                x_segment = model.simulate(x0=x0, t=t_segment, u=u_segment, integrator="solve_ivp", integrator_kws=integrator_kwargs)
+                x_sim_list.append(x_segment)
+
+                current_index += segment_steps
+
+            x_sim = np.concatenate(x_sim_list, axis=0)  # Combine segments into a single trajectory
+
+        else:
+            t = np.arange(current_steps) * data.get("dt")
+            u = data.get("u_ref")[start_index : start_index + current_steps] if data.get("u_ref") is not None else None
+
+            x_sim = model.simulate(x0=x0, t=t, u=u, integrator="solve_ivp", integrator_kws=integrator_kwargs)
+        
+
         if len(x_sim) < 2:
             raise ValueError("R^2 score is not well-defined with less than two samples.")
         return x_sim
@@ -174,6 +201,7 @@ def evaluate_model(
         data: Dict[str, Any],
         start_index: int,
         current_steps: int,
+        ksteps: Optional[int] = None,
         integrator_kwargs: Dict[str, Any] = {"method": "LSODA","rtol": 1e-12,"atol": 1e-12}
     ) -> Tuple[np.ndarray, float, float, float]:
     """
@@ -185,7 +213,7 @@ def evaluate_model(
     model_complexity = np.count_nonzero(model_coeffs)
 
     warnings.filterwarnings("ignore", module="pysindy")
-    x_sim = model_simulate(model, data, start_index, current_steps, integrator_kwargs)
+    x_sim = model_simulate(model, data, start_index, current_steps, ksteps, integrator_kwargs)
     if isinstance(x_sim, str):
         return x_sim, np.inf, -np.inf, np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
     
@@ -202,7 +230,6 @@ def evaluate_model(
     if aic_denominator <= 0:
         aic = np.inf  # Ak je vzorka prilis mala, AIC je nekonecno (model je nevhodny)
     else:
-        # aic = 
         aic = min_len * np.log(rmse ** 2) + 2 * model_complexity + 2 * model_complexity * (model_complexity + 1) /  aic_denominator # Korigovane AIC
 
     return (x_sim, rmse, r2, aic)

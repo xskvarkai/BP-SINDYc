@@ -41,3 +41,4 @@ constraints:
   max_coeff: 100000
   min_r2: -20000
   max_state: 100000
+  ksteps: 60

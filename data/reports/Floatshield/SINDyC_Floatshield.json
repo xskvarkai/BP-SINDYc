@@ -2,37 +2,54 @@
      "best_result": {
           "configuration": {
                "differentiation_method": null,
-               "optimizer": "MIOSR(constraint_lhs=array([[1., 0., 0., ..., 0., 0., 0.],\n       [0., 1., 0., ..., 0., 0., 0.],\n       [0., 0., 1., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(105, 210)),\n      constraint_rhs=array([0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0.]),\n      group_sparsity=(1, 50), regression_timeout=45, target_sparsity=7)",
-               "feature_library": "FixedWeakPDELibrary(H_xt=array([0.5]),\n                    differentiation_method=FiniteDifference(),\n                    function_library=ConcatLibrary(libraries=[PolynomialLibrary(degree=4),\n                                                              FixedCustomLibrary(function_names=[<function name_yx_frac at 0x00000192EB1394E0>,\n                                                                                                 <function name_y_squared_x_frac at 0x00000192EB139590>,\n                                                                                                 <function name_y_cubed_x_frac at 0x00000192EB139640>,\n                                                                                                 <function name_y_quar...\n                                                                                                    <function yx_cubed_frac_z_cubed at 0x00000192EB13B1C0>,\n                                                                                                    <function yx_quartered_frac_z_cubed at 0x00000192EB13B740>,\n                                                                                                    <function yx_frac_z_quartered at 0x00000192EB13A770>,\n                                                                                                    <function yx_squared_frac_z_quartered at 0x00000192EB13ACF0>, ...])]),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.5000e-02],\n           [5.0000e-02],\n           ...,\n           [8.7925e+01],\n           [8.7950e+01],\n           [8.7975e+01]], shape=(3520, 1)))"
+               "optimizer": "MIOSR(constraint_lhs=array([[1., 0., 0., ..., 0., 0., 0.],\n       [0., 1., 0., ..., 0., 0., 0.],\n       [0., 0., 1., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(68, 136)),\n      constraint_rhs=array([0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]),\n      group_sparsity=(1, 50), regression_timeout=45, target_sparsity=8)",
+               "feature_library": "FixedWeakPDELibrary(H_xt=array([0.5]),\n                    differentiation_method=FiniteDifference(),\n                    function_library=ConcatLibrary(libraries=[PolynomialLibrary(degree=1),\n                                                              FixedCustomLibrary(function_names=[<function name_yx_frac at 0x000001ECEAF8D170>,\n                                                                                                 <function name_y_squared_x_frac at 0x000001ECEAF8D220>,\n                                                                                                 <function name_y_cubed_x_frac at 0x000001ECEAF8D2D0>,\n                                                                                                 <function name_y_quar...\n                                                                                                    <function yx_cubed_frac_z_cubed at 0x000001ECEAF8F690>,\n                                                                                                    <function yx_quartered_frac_z_cubed at 0x000001ECEAF8FC10>,\n                                                                                                    <function yx_frac_z_quartered at 0x000001ECEAF8EC40>,\n                                                                                                    <function yx_squared_frac_z_quartered at 0x000001ECEAF8F1C0>, ...])]),\n                    multiindices=[],\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.5000e-02],\n           [5.0000e-02],\n           ...,\n           [8.7925e+01],\n           [8.7950e+01],\n           [8.7975e+01]], shape=(3520, 1)))"
           },
-          "random_seed": 2005676610,
+          "random_seed": 2472302600,
           "equations": [
                " 1.000 x1",
-               "-0.435 x0^4 + -0.638 x1^2 1/x0 + -0.079 u0^3 1/x0^3 +  0.200 x1^2 1/x0^4 +  0.037 u0^4 1/x0^4 +  0.214 x0 cos(x1)"
+               "-0.296 x0 +  0.529 x1 +  0.568 u0 1/x0 + -0.226 u0 1/x0^2 + -0.314 x1 1/x0^3 +  0.038 u0^4 1/x0^4 +  0.298 x1 1/x0^4 u0^2"
           ],
-          "r2_score": -8.97807,
-          "rmse": 0.14925,
-          "complexity": "7",
-          "aic": -8351.533837891486,
-          "index": 3
+          "r2_score": -6.9796,
+          "rmse": 0.19043,
+          "complexity": "8",
+          "aic": -7158.433202650767,
+          "index": 2
      },
      "pareto_front": [
           {
                "configuration": {
                     "differentiation_method": null,
-                    "optimizer": "MIOSR(constraint_lhs=array([[1., 0., 0., ..., 0., 0., 0.],\n       [0., 1., 0., ..., 0., 0., 0.],\n       [0., 0., 1., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(105, 210)),\n      constraint_rhs=array([0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0.]),\n      group_sparsity=(1, 50), regression_timeout=45, target_sparsity=7)",
-                    "feature_library": "FixedWeakPDELibrary(H_xt=array([0.5]),\n                    differentiation_method=FiniteDifference(),\n                    function_library=ConcatLibrary(libraries=[PolynomialLibrary(degree=4),\n                                                              FixedCustomLibrary(function_names=[<function name_yx_frac at 0x00000192EB1394E0>,\n                                                                                                 <function name_y_squared_x_frac at 0x00000192EB139590>,\n                                                                                                 <function name_y_cubed_x_frac at 0x00000192EB139640>,\n                                                                                                 <function name_y_quar...\n                                                                                                    <function yx_cubed_frac_z_cubed at 0x00000192EB13B1C0>,\n                                                                                                    <function yx_quartered_frac_z_cubed at 0x00000192EB13B740>,\n                                                                                                    <function yx_frac_z_quartered at 0x00000192EB13A770>,\n                                                                                                    <function yx_squared_frac_z_quartered at 0x00000192EB13ACF0>, ...])]),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.5000e-02],\n           [5.0000e-02],\n           ...,\n           [8.7925e+01],\n           [8.7950e+01],\n           [8.7975e+01]], shape=(3520, 1)))"
+                    "optimizer": "MIOSR(constraint_lhs=array([[1., 0., 0., ..., 0., 0., 0.],\n       [0., 1., 0., ..., 0., 0., 0.],\n       [0., 0., 1., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(68, 136)),\n      constraint_rhs=array([0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]),\n      group_sparsity=(1, 50), regression_timeout=45, target_sparsity=8)",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([0.5]),\n                    differentiation_method=FiniteDifference(),\n                    function_library=ConcatLibrary(libraries=[PolynomialLibrary(degree=1),\n                                                              FixedCustomLibrary(function_names=[<function name_yx_frac at 0x000001ECEAF8D170>,\n                                                                                                 <function name_y_squared_x_frac at 0x000001ECEAF8D220>,\n                                                                                                 <function name_y_cubed_x_frac at 0x000001ECEAF8D2D0>,\n                                                                                                 <function name_y_quar...\n                                                                                                    <function yx_cubed_frac_z_cubed at 0x000001ECEAF8F690>,\n                                                                                                    <function yx_quartered_frac_z_cubed at 0x000001ECEAF8FC10>,\n                                                                                                    <function yx_frac_z_quartered at 0x000001ECEAF8EC40>,\n                                                                                                    <function yx_squared_frac_z_quartered at 0x000001ECEAF8F1C0>, ...])]),\n                    multiindices=[],\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.5000e-02],\n           [5.0000e-02],\n           ...,\n           [8.7925e+01],\n           [8.7950e+01],\n           [8.7975e+01]], shape=(3520, 1)))"
                },
-               "random_seed": 2005676610,
+               "random_seed": 2472302600,
                "equations": [
                     " 1.000 x1",
-                    "-0.435 x0^4 + -0.638 x1^2 1/x0 + -0.079 u0^3 1/x0^3 +  0.200 x1^2 1/x0^4 +  0.037 u0^4 1/x0^4 +  0.214 x0 cos(x1)"
+                    "-0.296 x0 +  0.529 x1 +  0.568 u0 1/x0 + -0.226 u0 1/x0^2 + -0.314 x1 1/x0^3 +  0.038 u0^4 1/x0^4 +  0.298 x1 1/x0^4 u0^2"
                ],
-               "r2_score": -8.97807,
-               "rmse": 0.14925,
+               "r2_score": -6.9796,
+               "rmse": 0.19043,
+               "complexity": "8",
+               "aic": -7158.433202650767,
+               "index": 2
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "MIOSR(constraint_lhs=array([[1., 0., 0., ..., 0., 0., 0.],\n       [0., 1., 0., ..., 0., 0., 0.],\n       [0., 0., 1., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(68, 136)),\n      constraint_rhs=array([0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]),\n      group_sparsity=(1, 50), regression_timeout=45, target_sparsity=7)",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([0.5]),\n                    differentiation_method=FiniteDifference(),\n                    function_library=ConcatLibrary(libraries=[PolynomialLibrary(degree=1),\n                                                              FixedCustomLibrary(function_names=[<function name_yx_frac at 0x000001ECEAF8D170>,\n                                                                                                 <function name_y_squared_x_frac at 0x000001ECEAF8D220>,\n                                                                                                 <function name_y_cubed_x_frac at 0x000001ECEAF8D2D0>,\n                                                                                                 <function name_y_quar...\n                                                                                                    <function yx_cubed_frac_z_cubed at 0x000001ECEAF8F690>,\n                                                                                                    <function yx_quartered_frac_z_cubed at 0x000001ECEAF8FC10>,\n                                                                                                    <function yx_frac_z_quartered at 0x000001ECEAF8EC40>,\n                                                                                                    <function yx_squared_frac_z_quartered at 0x000001ECEAF8F1C0>, ...])]),\n                    multiindices=[],\n                    spatiotemporal_grid=AxesArray([[0.0000e+00],\n           [2.5000e-02],\n           [5.0000e-02],\n           ...,\n           [8.7925e+01],\n           [8.7950e+01],\n           [8.7975e+01]], shape=(3520, 1)))"
+               },
+               "random_seed": 1728993401,
+               "equations": [
+                    " 1.000 x1",
+                    " 0.728 1 + -0.757 x0 +  0.284 x1 + -0.236 u0 1/x0^2 +  0.084 u0^2 1/x0^3 + -0.073 x1 1/x0^4 u0^4"
+               ],
+               "r2_score": -44.20738,
+               "rmse": 0.28821,
                "complexity": "7",
-               "aic": -8351.533837891486,
-               "index": 3
+               "aic": -5367.77035616545,
+               "index": 1
           }
      ],
      "user_data": {
@@ -63,22 +80,12 @@
                "max_complexity": 1000,
                "max_coeff": 100000,
                "min_r2": -20000,
-               "max_state": 100000
+               "max_state": 100000,
+               "ksteps": 60
           },
           "library": [
-               "name_yx_frac",
-               "name_y_squared_x_frac",
-               "name_y_cubed_x_frac",
-               "name_y_quartered_x_frac",
-               "name_yx_squared_frac",
-               "name_y_squared_x_squared_frac",
-               "yx_quartered_frac_z_squared",
-               "yx_frac_z_cubed",
-               "yx_squared_frac_z_cubed",
-               "yx_cubed_frac_z_cubed",
-               "yx_quartered_frac_z_cubed",
-               "yx_frac_z_quartered",
-               "yx_squared_frac_z_quartered"
+               "PolynomialLibrary(degree=1)",
+               "FixedCustomLibrary(function_names=[<function name_yx_frac at 0x000001ECEAF8D170>,\n                                   <function name_y_squared_x_frac at 0x000001ECEAF8D220>,\n                                   <function name_y_cubed_x_frac at 0x000001ECEAF8D2D0>,\n                                   <function name_y_quartered_x_frac at 0x000001ECEAF8D380>,\n                                   <function name_yx_squared_frac at 0x000001ECEAF8D6F0>,\n                                   <function name_y_squared_x_squared_frac at 0x000001ECEAF8D7A0>,\n                                   <func...\n                                      <function yx_quartered_frac_z_squared at 0x000001ECEAF8FB60>,\n                                      <function yx_frac_z_cubed at 0x000001ECEAF8EB90>,\n                                      <function yx_squared_frac_z_cubed at 0x000001ECEAF8F110>,\n                                      <function yx_cubed_frac_z_cubed at 0x000001ECEAF8F690>,\n                                      <function yx_quartered_frac_z_cubed at 0x000001ECEAF8FC10>,\n                                      <function yx_frac_z_quartered at 0x000001ECEAF8EC40>,\n                                      <function yx_squared_frac_z_quartered at 0x000001ECEAF8F1C0>, ...])"
           ]
      }
 }

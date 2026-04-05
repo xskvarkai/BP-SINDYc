@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Dict, Union, Optional, List
+import warnings
+from typing import Union, Optional, List
 
 def _set_size(width_pt=390.0, fraction=1, subplots=(1, 1)):
     fig_width_in = width_pt * fraction / 72.27
@@ -11,7 +12,7 @@ def _set_size(width_pt=390.0, fraction=1, subplots=(1, 1)):
     
     return (fig_width_in, fig_height_in)
 
-def _prepare_export():
+def _prepare_export(subplots=(1, 1)):
     plt.rcParams.update({
         "pgf.preamble": "\n".join([
             r"\usepackage{mathptmx}",
@@ -27,7 +28,7 @@ def _prepare_export():
         "pgf.texsystem": "pdflatex",
     })
 
-    return _set_size()
+    return _set_size(subplots=subplots)
 
 def plot_trajectory(
         time_vector: np.ndarray,
@@ -114,7 +115,7 @@ def plot_pareto(rmses: List[float], complexities: List[int], print_title: bool =
     fig = plt.figure(figsize=(fig_width_in, fig_height_in))
     plt.scatter(rmses, complexities, color="tab:blue", label="Pareto points")
     plt.xlabel("RMSE")
-    plt.ylabel("Complexity (count of nonzero coefficients)")
+    plt.ylabel("Count of nonzero coefficients")
     plt.title("Pareto front") if print_title else None
     plt.grid(True, alpha=0.3)
     plt.legend()
@@ -133,23 +134,47 @@ def plot_koopman_spectrum(eigenvalues: np.ndarray, print_title: bool = False, ex
     fig_width_in, fig_height_in = 8, 8 
     if exportable:
         fig_width_in, fig_height_in = _prepare_export()
+
     
     fig = plt.figure(figsize=(fig_width_in, fig_height_in))
+    
     plt.scatter(eigenvalues.real, eigenvalues.imag, marker="o")
     circle = plt.Circle((0,0), 1, color="blue", fill=False, linestyle="--", label="Unit Circle")
     plt.gca().add_artist(circle)
 
-    for i, lambda_val in enumerate(eigenvalues):  
-        offset_x = 5 if lambda_val.real >= 0 else -30  
-        offset_y = 5 if lambda_val.imag >= 0 else -20  
-        plt.annotate(f"$\\lambda_{i+1}$", (lambda_val.real, lambda_val.imag), textcoords="offset points", xytext=(offset_x, offset_y), ha='center', fontsize=9)  
+    ax = plt.gca()
+    ymin, ymax = ax.get_ylim()
+    yrange = ymax - ymin
+    threshold = 0.05 * yrange
+
+    for i, lambda_val in enumerate(eigenvalues):
+        offset_x = 0
+        offset_y = 0
+        va_alignment = "center"
+
+        if lambda_val.imag >= 0:
+            offset_y = 3
+            va_alignment = "bottom"
+        else:
+            offset_y = -3
+            va_alignment = "top"
+
+        if lambda_val.imag > ymax - threshold:
+            offset_y = -10
+            va_alignment = "top"
+        elif lambda_val.imag < ymin + threshold:
+            offset_y = 10
+            va_alignment = "bottom"
+
+        plt.annotate(f"$\\lambda_{i+1}$", (lambda_val.real, lambda_val.imag), textcoords="offset points", xytext=(offset_x, offset_y), ha="center", va=va_alignment, fontsize=9)  
 
     plt.xlabel("Real part $Re$")
-    plt.ylabel("Imaginarny part $Im$")
+    plt.ylabel("Imaginary part $Im$")
     plt.title("Koopman spectrum") if print_title else None
     plt.grid(True)
     plt.axis("equal")
     plt.legend()
+    plt.tight_layout()
     plt.show()
     plt.close(fig)
 
@@ -163,6 +188,8 @@ def plot_compared_trajectories(
         sindy_r2: Optional[float] = None,
         koopman_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
         koopman_r2: Optional[float] = None,
+        linearized_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+        linearized_r2: Optional[float] = None,
         input_signal: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
         print_title: bool = False,
         exportable: bool = False
@@ -180,9 +207,9 @@ def plot_compared_trajectories(
 
     fig_width_in, fig_height_in = 12, 3 * total_plots
     if exportable:
-        fig_width_in, fig_height_in = _prepare_export()
+        fig_width_in, fig_height_in = _prepare_export((total_plots, 1))
 
-    fig = plt.figure(figsize=(fig_width_in, fig_height_in))
+    fig = plt.figure(figsize=(fig_width_in, 3 * fig_height_in))
 
     current_plot_idx = 0
 
@@ -191,9 +218,11 @@ def plot_compared_trajectories(
         ax = plt.subplot(total_plots, 1, current_plot_idx)
         plt.plot(time_vector, real_trajectory[:, i], "k-", label=f"Real data")
         if sindy_trajectory is not None:
-            plt.plot(time_vector, sindy_trajectory[:, i], "r--", label=f"SINDyC simulated data ({sindy_r2:.3%})")
+            plt.plot(time_vector, sindy_trajectory[:, i], "r--", label=f"SINDyC simulated data ({sindy_r2 * 100:0.3f}$\\%$)")
+        if linearized_trajectory is not None:
+            plt.plot(time_vector, linearized_trajectory[:, i], "r--", label=f"Linear simulated data ({linearized_r2 * 100:0.3f}$\\%$)")
         if koopman_trajectory is not None:
-            plt.plot(time_vector, koopman_trajectory[:, i], "g--", label=f"Koopman simulated data ({koopman_r2:.3%})")
+            plt.plot(time_vector, koopman_trajectory[:, i], "g--", label=f"Koopman simulated data ({koopman_r2 * 100:0.3f}$\\%$)")
         plt.ylabel(f"$x_{i}$")
         plt.legend()
         if i == 0:

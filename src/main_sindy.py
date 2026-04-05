@@ -1,8 +1,6 @@
 import gc
-import re
 import pysindy as ps
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 
 from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
@@ -10,62 +8,6 @@ from data_processing.data_splitter import TimeSeriesSplitter
 from data_processing.sindy_preprocessor import find_periodicity, find_noise, generate_trajectories
 from models.sindy_estimator import SindyEstimator
 from utils.helpers import compute_time_vector
-from utils.custom_libraries import FixedCustomLibrary
-from utils.custom_libraries import (
-    # Základné funkcie a ich názvy
-    abs_x, x_abs_x, x_y_abs_z, x_squared_abs_y, tanh_x, constant,
-    name_abs_x, name_x_abs_x, name_x_y_abs_z, name_x_squared_abs_y, name_tanh_x, name_constant,
-
-    # Funkcie s 'x' a ich názvy
-    x_fun, x_squared, x_cubed, x_quartered,
-    x_frac, x_squared_frac, x_cubed_frac, x_quartered_frac,
-    name_x_fun, name_x_squared, name_x_cubed, name_x_quartered,
-    name_x_frac, name_x_squared_frac, name_x_cubed_frac, name_x_quartered_frac,
-
-    # Funkcie s 'y' a 'x' a ich názvy
-    yx, y_squared_x, y_cubed_x, y_quartered_x,
-    yx_frac, y_squared_x_frac, y_cubed_x_frac, y_quartered_x_frac,
-    yx_squared_frac, y_squared_x_squared_frac, y_cubed_x_squared_frac, y_quartered_x_squared_frac,
-    yx_cubed_frac, y_squared_x_cubed_frac, y_cubed_x_cubed_frac, y_quartered_x_cubed_frac,
-    yx_quatered_frac, y_squared_x_quatered_frac, y_cubed_x_quatered_frac, y_quartered_x_quatered_frac,
-    name_yx, name_y_squared_x, name_y_cubed_x, name_y_quartered_x,
-    name_yx_frac, name_y_squared_x_frac, name_y_cubed_x_frac, name_y_quartered_x_frac,
-    name_yx_squared_frac, name_y_squared_x_squared_frac, name_y_cubed_x_squared_frac, name_y_quartered_x_squared_frac,
-    name_yx_cubed_frac, name_y_squared_x_cubed_frac, name_y_cubed_x_cubed_frac, name_y_quartered_x_cubed_frac,
-    name_yx_quartered_frac, name_y_squared_x_quartered_frac, name_y_cubed_x_quartered_frac, name_y_quartered_x_quartered_frac,
-
-    # Funkcie s 'x', 'y' a 'z' a ich názvy
-    yxz, yxz_z_squared, yxz_z_cubed, yxz_z_quartered,
-    yx_frac_z, yx_frac_z_squared, yx_frac_z_cubed, yx_frac_z_quartered,
-    yx_squared_frac_z, yx_squared_frac_z_squared, yx_squared_frac_z_cubed, yx_squared_frac_z_quartered,
-    yx_cubed_frac_z, yx_cubed_frac_z_squared, yx_cubed_frac_z_cubed, yx_cubed_frac_z_quartered,
-    yx_quartered_frac_z, yx_quartered_frac_z_squared, yx_quartered_frac_z_cubed, yx_quartered_frac_z_quartered,
-    name_yxz, name_yxz_z_squared, name_yxz_z_cubed, name_yxz_z_quartered,
-    name_yx_frac_z, name_yx_frac_z_squared, name_yx_frac_z_cubed, name_yx_frac_z_quartered,
-    name_yx_squared_frac_z, name_yx_squared_frac_z_squared, name_yx_squared_frac_z_cubed, name_yx_squared_frac_z_quartered,
-    name_yx_cubed_frac_z, name_yx_cubed_frac_z_squared, name_yx_cubed_frac_z_cubed, name_yx_cubed_frac_z_quartered,
-    name_yx_quartered_frac_z, name_yx_quartered_frac_z_squared, name_yx_quartered_frac_z_cubed, name_yx_quartered_frac_z_quartered,
-
-    # Nové funkcie s 'y' a 'mx_drag_term' a ich názvy
-    y_mx_drag_term, y_squared_mx_drag_term, y_cubed_mx_drag_term, y_quartered_mx_drag_term,
-    name_y_mx_drag_term, name_y_squared_mx_drag_term, name_y_cubed_mx_drag_term, name_y_quartered_mx_drag_term,
-
-    # Nové funkcie s 'z', 'x_frac' a 'my_drag_term' a ich názvy
-    zx_frac_my_drag_term, zx_frac_squared_my_drag_term, zx_frac_cubed_my_drag_term, zx_frac_quartered_my_drag_term,
-    name_zx_frac_my_drag_term, name_zx_frac_squared_my_drag_term, name_zx_frac_cubed_my_drag_term, name_zx_frac_quartered_my_drag_term,
-
-    # Nové funkcie s 'z_squared', 'x_frac' a 'my_drag_term' a ich názvy
-    z_squared_x_frac_my_drag_term, z_squared_x_frac_squared_my_drag_term, z_squared_x_frac_cubed_my_drag_term, z_squared_x_frac_quartered_my_drag_term,
-    name_z_squared_x_frac_my_drag_term, name_z_squared_x_frac_squared_my_drag_term, name_z_squared_x_frac_cubed_my_drag_term, name_z_squared_x_frac_quartered_my_drag_term,
-
-    # Nové funkcie s 'z_cubed', 'x_frac' a 'my_drag_term' a ich názvy
-    z_cubed_x_frac_my_drag_term, z_cubed_x_frac_squared_my_drag_term, z_cubed_x_frac_cubed_my_drag_term, z_cubed_x_frac_quartered_my_drag_term,
-    name_z_cubed_x_frac_my_drag_term, name_z_cubed_x_frac_squared_my_drag_term, name_z_cubed_x_frac_cubed_my_drag_term, name_z_cubed_x_frac_quartered_my_drag_term,
-
-    # Nové funkcie s 'z_quartered', 'x_frac' a 'my_drag_term' a ich názvy
-    z_quartered_x_frac_my_drag_term, z_quartered_x_frac_squared_my_drag_term, z_quartered_x_frac_cubed_my_drag_term, z_quartered_x_frac_quartered_my_drag_term,
-    name_z_quartered_x_frac_my_drag_term, name_z_quartered_x_frac_squared_my_drag_term, name_z_quartered_x_frac_cubed_my_drag_term, name_z_quartered_x_frac_quartered_my_drag_term,
-)
 
 def sindy_main(config_manager: ConfigManager):
 
@@ -101,30 +43,7 @@ def sindy_main(config_manager: ConfigManager):
         # The keys of the dictionaries correspond to the names of the methods, and the values are dictionaries of parameters for those methods.
         # Minimum required parameters for method are provided (None takes defaults), but you can add more parameters.
 
-        library = ps.PolynomialLibrary(degree=1, include_bias=True) + FixedCustomLibrary(
-            [
-             yx_frac, y_squared_x_frac, y_cubed_x_frac, y_quartered_x_frac,
-             yx_squared_frac, y_squared_x_squared_frac, y_cubed_x_squared_frac, y_quartered_x_squared_frac,
-             yx_cubed_frac, y_squared_x_cubed_frac, y_cubed_x_cubed_frac, y_quartered_x_cubed_frac,
-             yx_quatered_frac, y_squared_x_quatered_frac, y_cubed_x_quatered_frac, y_quartered_x_quatered_frac,
-             
-             yx_frac_z, yx_squared_frac_z, yx_cubed_frac_z, yx_quartered_frac_z,
-             yx_frac_z_squared, yx_squared_frac_z_squared, yx_cubed_frac_z_squared, yx_quartered_frac_z_squared,
-             yx_frac_z_cubed, yx_squared_frac_z_cubed, yx_cubed_frac_z_cubed, yx_quartered_frac_z_cubed,
-             yx_frac_z_quartered, yx_squared_frac_z_quartered, yx_cubed_frac_z_quartered, yx_quartered_frac_z_quartered,
-            ],
-            [             
-             name_yx_frac, name_y_squared_x_frac, name_y_cubed_x_frac, name_y_quartered_x_frac,
-             name_yx_squared_frac, name_y_squared_x_squared_frac, name_y_cubed_x_squared_frac, name_y_quartered_x_squared_frac,
-             name_yx_cubed_frac, name_y_squared_x_cubed_frac, name_y_cubed_x_cubed_frac, name_y_quartered_x_cubed_frac,
-             name_yx_quartered_frac, name_y_squared_x_quartered_frac, name_y_cubed_x_quartered_frac, name_y_quartered_x_quartered_frac,
-             
-             name_yx_frac_z, name_yx_squared_frac_z, name_yx_cubed_frac_z, name_yx_quartered_frac_z,
-             name_yx_frac_z_squared, name_yx_squared_frac_z_squared, name_yx_cubed_frac_z_squared, name_yx_quartered_frac_z_squared,
-             name_yx_frac_z_cubed, name_yx_squared_frac_z_cubed, name_yx_cubed_frac_z_cubed, name_yx_quartered_frac_z_cubed,
-             name_yx_frac_z_quartered, name_yx_squared_frac_z_quartered, name_yx_cubed_frac_z_quartered, name_yx_quartered_frac_z_quartered,
-            ]
-        )
+        library = ps.PolynomialLibrary(degree=2, include_bias=True)
 
         feature_library_kwargs = {
             "WeakPDELibrary": {
@@ -145,18 +64,18 @@ def sindy_main(config_manager: ConfigManager):
         n_features = len(feature_names)
         n_targets = X.shape[1]
 
+        # Add constraint
         idx_x1 = 2
 
         C = np.zeros((n_features, n_features * n_targets))
         d = np.zeros(n_features)
 
         for i in range(n_features):
-            # C nastavuje koeficienty len pre PRVÚ rovnicu (stĺpce 0 až n_features-1)
             C[i, i] = 1 
             if i == idx_x1:
-                d[i] = 1.0  # Chceme koeficient 1 pri x1
+                d[i] = 1.0
             else:
-                d[i] = 0.0  # Všetko ostatné v prvej rovnici bude 0
+                d[i] = 0.0
 
         optimizer_kwargs = {
             "MIOSR": {
@@ -185,8 +104,8 @@ def sindy_main(config_manager: ConfigManager):
             **config_manager.get_param("sindy_params.constraints")
         )
         
-        #estimator.plot_pareto()
-        #estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
+        estimator.plot_pareto()
+        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
 
         try:
             raw_libraries = library.libraries

@@ -1,5 +1,6 @@
 from main_koopman import koopman_main
 from model_recostruction import sindy_model_reconstruction
+from main_linear import linearized_model_main
 
 from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
@@ -8,11 +9,14 @@ from utils.helpers import compute_time_vector
 from utils.plots import plot_compared_trajectories
 from sklearn.metrics import r2_score
 
+import numpy as np
+
 if __name__ == "__main__":
     config_manager = ConfigManager("config")
     
     koopman_model = koopman_main(config_manager)
     sindy_model = sindy_model_reconstruction(config_manager)
+    linear_model = linearized_model_main(np.asarray([0.2, 0.0]), np.asarray([0.9566]))
 
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
@@ -34,24 +38,31 @@ if __name__ == "__main__":
         )
 
     print("\nStarting simulation...")
-    x_sim_sindy = sindy_model.simulate(x0=X_real[0], t=compute_time_vector(X_real, dt), u=U_real, integrator_kws={"rtol": 1e-8, "atol": 1e-8})
+    x_sim_sindy = sindy_model.simulate(dt, U_real, X_real[0])
     x_sim_koop = koopman_model.koopman_simulate(X_real, dt, U_real ** 2)
+    x_sim_linear = linear_model.simulate(X_real[0], U_real, dt, len(X_real))
+
 
     min_len = min(len(x_sim_koop), len(x_sim_sindy), len(X_real))
-    x_sim_koop = x_sim_koop[:min_len]
+    x_sim_koop = x_sim_koop[:-1]
     x_sim_sindy = x_sim_sindy[:min_len]
-    X_real = X_real[:min_len]
-    U_real = U_real[:min_len]
+    x_sim_linear = x_sim_linear[:-1]
+    X_real = X_real[:-1]
+    U_real = U_real[:-1]
 
     r2_score_sindy = r2_score(X_real, x_sim_sindy)
     r2_score_koop = r2_score(X_real, x_sim_koop)
+    r2_score_linear = r2_score(X_real, x_sim_linear)
 
     plot_compared_trajectories(
         compute_time_vector(X_real, dt),
         X_real,
         x_sim_sindy,
         r2_score_sindy,
-        x_sim_koop,
-        r2_score_koop,
-        U_real,
+        koopman_trajectory=x_sim_koop,
+        koopman_r2=r2_score_koop,
+        linearized_trajectory=x_sim_linear,
+        linearized_r2=r2_score_linear,
+        input_signal=U_real,
+        exportable=True
     )

@@ -56,13 +56,9 @@ def evaluate_model(
     Returns the simulated trajectory, RMSE, R2 score.
     """
     
-    #warnings.filterwarnings("ignore", module="pykoopman")
-
     x_sim = model_simulate(model, data, start_index, current_steps)
     if isinstance(x_sim, str):
         return x_sim, np.inf, -np.inf  # Ak simulacia zlyha, vratime extremne hodnoty metrik
-    
-    #warnings.filterwarnings("default", category=UserWarning)
 
     x_ref = data.get("x_ref")[start_index : start_index + current_steps]
 

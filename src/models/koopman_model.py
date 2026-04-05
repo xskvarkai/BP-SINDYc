@@ -113,8 +113,8 @@ class KoopmanModel():
 
         return (x_sim, rmse, r2)
 
-    def plot_koopman_spectrum(self):
-        plot_koopman_spectrum(self.model.lamda_array)
+    def plot_koopman_spectrum(self, exportable: bool=False):
+        plot_koopman_spectrum(self.model.lamda_array, exportable=exportable)
 
     def koopman_simulate(self, x_ref: np.ndarray, dt: float, u_ref: np.ndarray = None) -> np.ndarray:
 

@@ -279,6 +279,7 @@ class SindyEstimator(BaseSindyEstimator):
             data,
             start_index=0,
             current_steps=x_test.shape[0],
+            ksteps=constraints.get("ksteps"),
             integrator_kwargs={"rtol": 1e-6,"atol": 1e-6}
         )
         warnings.filterwarnings("default", category=UserWarning)

@@ -39,7 +39,6 @@ class DynamicSystem:
         np.random.seed(self._simulation.get("random_seed", 100))
         random_number_generator = np.random.RandomState(self._simulation.get("random_seed", 100))
 
-        dt = dt
         is_free_body = self._simulation.get("is_free_body")
         noise_ratio = self._simulation.get("noise_ratio", 1e-3)
         if initial_conditions is None:

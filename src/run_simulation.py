@@ -3,7 +3,6 @@ import numpy as np
 from simulation.dynamic_systems import DynamicSystem
 from utils.plots import plot_trajectory
 from utils.config_manager import ConfigManager
-from utils.helpers import evaluate_simulation
 
 from data_ingestion.data_loader import DataLoader
 from data_processing.data_splitter import TimeSeriesSplitter
@@ -26,9 +25,9 @@ if __name__ == "__main__":
         )
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
-        X_train, _, X_test,  U_train, _, U_test = splitter.split_data(
+        X_train, _, X_test, U_train, _, U_test = splitter.split_data(
             train_ratio=0.5,
-            val_ratio=0.0,
+            val_ratio=0.25,
             perturb_input_signal_ratio=None,
             rng=random_number_generator,
             apply_savgol_filter=True,
@@ -44,21 +43,14 @@ if __name__ == "__main__":
         epsilon = 1e-9
 
         dx0 = 1 * x1
-        dx1 = 1.17446 * x0**3 * x1 +  0.61063 * (u0 - x0) * np.abs(u0 - x0) +  0.49656 * (u0 - x1) * np.abs(u0 - x1) + -0.29857 * np.cos(u0) +  0.25157 * x0 * np.cos(x0)
+        dx1 = -0.82949 * 1 +  1.35484 * u0**2 +  1.90725 * x0**3 * x1 +  0.66581 * (u0 - x0) * np.abs(u0 - x0) +  1.04144 * (u0 - x1) * np.abs(u0 - x1) + -0.73794 * (x1**2 - x0) * np.abs(x1**2 - x0) +  1.34561 * (u0**2 - x0) * np.abs(u0**2 - x0)
 
-        return np.array([dx0, dx1])
-
-    # Inicializacia systemu
+        return np.array([dx0, dx1]) 
     dynamic_system = DynamicSystem(config_manager, ode)
 
-    # Simulovanie trajektorie
     trajectory, _, input, time_vector = dynamic_system.simulate(dt, U_test, X_test[0])
 
-    rmse, r2, _ = evaluate_simulation(X_test, trajectory, dt)
-    print(f"Recostructed model state R2 score: {r2:.3%}")
-    print(f"Recostructed model state RMSE: {rmse}")
-
-    plot_trajectory(time_vector=time_vector, input_signal=input, trajectory=X_test, comparison_trajectory=trajectory)
+    plot_trajectory(time_vector=time_vector, input_signal=U_test, trajectory=X_test, comparison_trajectory=trajectory)
     
     data = {"time": time_vector,
             "x": trajectory[:, 0],
@@ -66,4 +58,4 @@ if __name__ == "__main__":
             "z": trajectory[:, 2],
             "u": input.flatten()}
 
-    #dynamic_system.export_data(data)
+    dynamic_system.export_data(data)
