@@ -131,6 +131,36 @@ def find_periodicity(
 
     return is_periodic
 
+
+def find_optimal_delay(x: np.ndarray, dt: float, u: np.ndarray=None) -> None:
+    def evaluate_delay(tau_candidate, x, dt, u=None):
+        delay_steps = int(tau_candidate / dt)
+        x_delayed = np.roll(x, delay_steps)[delay_steps:]
+        x_current = x[delay_steps:]
+        u_current = u[delay_steps:] if u is not None else None
+        
+        X = np.hstack([x_current, x_delayed])
+        model = ps.SINDy(
+            optimizer=ps.STLSQ(threshold=0.0, normalize_columns=True), 
+            differentiation_method=ps.SmoothedFiniteDifference(smoother_kws={"window_length": 31, "polyorder": 3}),
+            feature_library=ps.PolynomialLibrary(degree=4, include_bias=True) + ps.FourierLibrary(n_frequencies=2)
+        )
+        model.fit(X, t=dt, u=u_current)
+        
+        return model.score(X, t=dt, u=u_current)
+    
+    best_tau = 0
+    best_score = -np.inf
+    for tau in np.linspace(0.1, 2.0, 20):
+        score = evaluate_delay(tau, x, dt, u)
+        if score > best_score:
+            best_score = score
+            best_tau = tau
+
+    print(f"Optimálne oneskorenie: {best_tau}")
+    print(f"Skóre modelu s optimálnym oneskorením: {best_score}")
+
+
 def estimate_threshold(
         x: np.ndarray,
         dt: float,

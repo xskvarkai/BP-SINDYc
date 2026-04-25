@@ -36,7 +36,7 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
     """
 
     try:
-        _, config, x_train, x_val, u_train, u_val, dt, constraints = configuration_and_data # Unpack the input arguments
+        _, config, x_train, x_val, u_train, u_val, dt, constraints, discrete = configuration_and_data # Unpack the input arguments
         try: # Generate a consistent random seed based on the configuration for reproducibility
            config_bytes = json.dumps(config, sort_keys=True).encode("utf-8")
         except:
@@ -63,7 +63,7 @@ def run_config(configuration_and_data: List[Any]) -> Dict[str, Any]:
             x_dot_train = None
 
         data["x_dot_train"] = x_dot_train
-        model = sindy_helpers.model_costruction(config, data, random_seed, constraints.get("coeff_precision")) # Construct the SINDy model
+        model = sindy_helpers.model_costruction(config, data, random_seed, constraints.get("coeff_precision"), discrete) # Construct the SINDy model
 
         total_val_samples = x_val.shape[0]
 

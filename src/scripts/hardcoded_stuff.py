@@ -8,7 +8,7 @@ from sklearn.preprocessing import Normalizer
 from data_ingestion.data_loader import DataLoader
 from utils.config_manager import ConfigManager
 from utils.plots import plot_pareto, plot_noisy_filtered_trajectory
-from utils.helpers import compute_time_vector
+from utils.helpers import compute_time_vector, rk4_integrator
 from data_processing.state_estimator import SindyUKFEstimator
 
 def ilustate_noise():
@@ -92,7 +92,7 @@ def Floatshield_load_and_deriv():
             apply_savgol_filter=True,
             savgol_polyorder=2,
             savgol_window_length=71,
-            plot_data=False,
+            plot_data=True,
             verbose=False
         )
 
@@ -108,135 +108,107 @@ def Floatshield_load_and_deriv():
             plot_data=False,
             verbose=False
         )
+      
+    omega = X[:, 1]
+    omega_val = X_val[:, 1]
+    X = X[:, 0]
+    X_val = X_val[:, 0]
+
+    r = 0.02 * 2 * np.pi
+    omega = omega * r / 60
+    omega_val = omega_val * r / 60
+
+    X_max = np.max(X)
+    U_max = np.max(U)
+    omega_max = np.max(omega)
+
+    X = X / X_max # Prevod na precenta
+    X_dot = np.gradient(X, dt, axis=0)
+    X_val = X_val / X_max # Prevod na precenta
+    X_dot_val = np.gradient(X_val, dt, axis=0)
+
+    X = savgol_filter(X, 71, 2, axis=0)
+    X_dot = savgol_filter(X_dot, 71, 2, axis=0)
+    X_val = savgol_filter(X_val, 71, 2, axis=0)
+    X_dot_val = savgol_filter(X_dot_val, 71, 2, axis=0)
+
+    X_dot_dot = np.gradient(X_dot, dt, axis=0)
+    X_dot_dot_val = np.gradient(X_dot_val, dt, axis=0)
+
+    U = U / U_max # Prevod na precenta
+    U_val = U_val / U_max
     
-    delay_cross_correlation(U, X, 40, 0)
-    delay_cross_correlation(U_val, X_val, 40, 0)
-
-    #x_old = X
-    #x_old = x_old / 320
-    #X = X[24:]
-    #X_val = X_val[24:]
-
-    #U = U[:-24]
-    #U_val = U_val[:-24]
-
-    X[:, 0] = X[:, 0] / (320) # Prevod na precenta
-    X_dot = np.gradient(X[:, 0], dt, axis=0)
+    omega = omega / omega_max
+    omega_val = omega_val / omega_max
     
-    X_val[:, 0] = X_val[:, 0] / (320) # Prevod na precenta
-    X_dot_val = np.gradient(X_val[:, 0], dt, axis=0)
+    omega = savgol_filter(omega, 21, 2, axis=0)
+    omega_val = savgol_filter(omega_val, 21, 2, axis=0)
+    omega_dot = np.gradient(omega, dt, axis=0)
+    omega_dot_val = np.gradient(omega_val, dt, axis=0)
 
-    U = U / 100
-    U_val = U_val / 100
+    tau = 0.14
 
-    X[:, 1] = X[:, 1] / 17000
-    X_val[:, 1] = X_val[:, 1] / 17000
+    def PT1_filter(signal, tau):
+        alpha = np.exp(-dt/tau)
+        signal_real = np.zeros_like(signal)
+        signal_real[0] = signal[0]
+        for k in range(1, len(signal)):
+            signal_real[k] = alpha*signal_real[k-1] + (1-alpha)*signal[k]
 
-    #plot_noisy_filtered_trajectory(compute_time_vector(X, dt), X, x_old[:-24], U)
+        return signal_real
 
-    X_new = np.vstack([X, X_val])
-    X_dot_new = np.vstack([X_dot.reshape(-1, 1), X_dot_val.reshape(-1, 1)])
-    U_new = np.vstack([U, U_val])
+    U = PT1_filter(U, tau)
+    U_val = PT1_filter(U_val, tau)
 
-    data = {
-        "x": X_new[:, 0].flatten(),
-        "x_dot": X_dot_new.flatten(),
-        "omega": X_new[:, 1].flatten(),
-        "u": U_new.flatten(),
-    }
+    df_train = pd.DataFrame({
+        "x": X.flatten(),
+        "x_dot": X_dot.flatten(),
+        "x_dot_dot": X_dot_dot.flatten(),
+        "omega": omega.flatten(),
+        "omega_dot": omega_dot.flatten(),
+        "u": U.flatten(),
+        "X_max": X_max,
+        "u_max": U_max,
+        "omega_max": omega_max
+    })
+
+    df_val = pd.DataFrame({
+        "x": X_val.flatten(),
+        "x_dot": X_dot_val.flatten(),
+        "x_dot_dot": X_dot_dot_val.flatten(),
+        "omega": omega_val.flatten(),
+        "omega_dot": omega_dot_val.flatten(),
+        "u": U_val.flatten(),
+        "X_max": X_max,
+        "u_max": U_max,
+        "omega_max": omega_max
+    })
+
+
+    def add_delays(df: pd.DataFrame, delays: int=3, delay_indices: list=None):
+        # Pridáme posunuté hodnoty pre napätie (u)
+        for i in range(1, delays + 1):
+            if delay_indices is not None and i in delay_indices:
+                df[f'u_k-{i}'] = df['u'].shift(i)
+            elif delay_indices is None:
+                df[f'u_k-{i}'] = df['u'].shift(i)
+            
+            # Ak chceš robiť čistý NARX (bez derivácií), odkomentuj aj toto pre polohu:
+            # df[f'x_k-{i}'] = df['x'].shift(i)
+            
+        # Funkcia shift() vytvorí na prvých 'delays' riadkoch hodnoty NaN (chýbajúce dáta).
+        # dropna() tieto neúplné riadky bezpečne zahodí pre všetky stĺpce naraz.
+        return df.dropna()
+
+    df_train = add_delays(df_train, 8, [int(tau/dt)])
+    df_val = add_delays(df_val, 8, [int(tau/dt)])
+
+    df_final = pd.concat([df_train, df_val], ignore_index=True)
 
     file_path = "data/processed/Floatshield_with_deriv.csv"
-    df = pd.DataFrame(data)  
-    df.to_csv(file_path, index=False)
-
-def delay_cross_correlation(input_signal, output_signal, sampling_rate, output_column_index=None):
-    """
-    Odhadne časové oneskorenie medzi dvoma signálmi pomocou vzájomnej korelácie.
-    Ak je 'output_signal' viacerodimenzionálny, musí byť špecifikovaný output_column_index.
-
-    Args:
-        input_signal (np.array): Prvý signál (napr. vstup u0). Predpokladá sa, že je 1D.
-        output_signal (np.array): Druhý signál (napr. výstup x0), ktorý je oneskorený vzhľadom na input_signal.
-                                  Môže byť 1D alebo 2D. Ak je 2D, je potrebný output_column_index.
-        sampling_rate (float): Vzorkovacia frekvencia signálov (počet vzoriek za jednotku času, napr. Hz).
-        output_column_index (int, optional): Index stĺpca, ktorý sa má použiť z output_signal,
-                                             ak je output_signal viacerodimenzionálny. Predvolené None.
-
-    Returns:
-        float: Odhadované oneskorenie v časových jednotkách (napr. sekundy).
-        int: Odhadované oneskorenie v počte vzoriek.
-        np.array: Pole s hodnotami vzájomnej korelácie.
-        np.array: Pole s posunmi (lags) v počte vzoriek.
-    """
-    print(f"--- STARTING delay_cross_correlation CALL ---")
-    print(f"Debug: Dĺžka pôvodného input_signal: {len(input_signal)}")
-    print(f"Debug: Tvar pôvodného input_signal: {input_signal.shape}")
-    print(f"Debug: Dĺžka pôvodného output_signal: {len(output_signal)}")
-    print(f"Debug: Tvar pôvodného output_signal: {output_signal.shape}")
-    print(f"Debug: Typ pôvodného input_signal: {type(input_signal)}")
-    print(f"Debug: Typ pôvodného output_signal: {type(output_signal)}")
-    print(f"Debug: output_column_index: {output_column_index}")
-
-    # Ensure input_signal is 1D
-    # input_signal (U) by mal byť už 1D, ak je shape (N,) alebo (N,1) a flatten() to správne upraví
-    signal1_processed = np.asarray(input_signal).flatten()
+    df_final.to_csv(file_path, index=False)
     
-    # Process output_signal based on its dimensions and output_column_index
-    if output_signal.ndim > 1: # Ak je output_signal (N, M) kde M > 1
-        if output_column_index is None:
-            raise ValueError("Output signal is multi-dimensional (shape "
-                             f"{output_signal.shape}). Please specify 'output_column_index' "
-                             "to select which column to use for delay estimation (e.g., 0, 1, ...).")
-        # Vyberie špecifický stĺpec a sploští ho na 1D
-        signal2_processed = np.asarray(output_signal[:, output_column_index]).flatten()
-        print(f"Debug: Použitý stĺpec {output_column_index} z output_signal.")
-    else: # Ak je output_signal už 1D (shape (N,))
-        signal2_processed = np.asarray(output_signal).flatten()
-
-    # Zabezpečenie, že oba spracované signály majú rovnakú dĺžku pre koreláciu.
-    # To orezanie je tu dôležité, ak by signály mali naozaj rôzne dĺžky po predchádzajúcom spracovaní
-    # (čo by však nemali, ak DataLoader vráti konzistentné dáta).
-    min_len = min(len(signal1_processed), len(signal2_processed))
-    
-    signal1_processed = signal1_processed[:min_len]
-    signal2_processed = signal2_processed[:min_len]
-
-    print(f"Debug: Minimálna dĺžka po orezaní (min_len): {min_len}")
-    print(f"Debug: Dĺžka orezaného a splošteného input_signal (signal1_processed): {len(signal1_processed)}")
-    print(f"Debug: Tvar orezaného a splošteného input_signal (signal1_processed.shape): {signal1_processed.shape}")
-    print(f"Debug: Dĺžka orezaného a splošteného output_signal (signal2_processed): {len(signal2_processed)}")
-    print(f"Debug: Tvar orezaného a splošteného output_signal (signal2_processed.shape): {signal2_processed.shape}")
-    print(f"Debug: Typ signal1_processed: {type(signal1_processed)}")
-    print(f"Debug: Typ signal2_processed: {type(signal2_processed)}")
-
-    # Vypočítame vzájomnú koreláciu
-    correlation = signal.correlate(signal2_processed, signal1_processed, mode='full')
-
-    # Vygenerujeme pole posunov (lags)
-    lags = signal.correlation_lags(len(signal1_processed), len(signal2_processed), mode='full')
-
-    print(f"Debug: Dĺžka poľa korelácie (correlation): {len(correlation)}")
-    print(f"Debug: Tvar poľa korelácie (correlation.shape): {correlation.shape}")
-    print(f"Debug: Typ dát poľa korelácie (correlation.dtype): {correlation.dtype}")
-    print(f"Debug: Obsahuje pole korelácie NaN hodnoty? {np.any(np.isnan(correlation))}")
-    print(f"Debug: Obsahuje pole korelácie Inf hodnoty? {np.any(np.isinf(correlation))}")
-
-    # Nájdeme index, kde je vzájomná korelácia maximálna
-    delay_samples_idx = np.argmax(correlation)
-    
-    print(f"Debug: Vypočítaný index pre maximum (delay_samples_idx): {delay_samples_idx}")
-    print(f"Debug: Dĺžka poľa posunov (lags): {len(lags)}")
-    print(f"Debug: Tvar poľa posunov (lags.shape): {lags.shape}")
-
-    # Získame skutočný počet vzoriek oneskorenia
-    delay_samples = lags[delay_samples_idx]
-
-    # Prevedieme oneskorenie zo vzoriek na čas
-    delay_time = delay_samples / sampling_rate
-
-    print(f"Odhadované oneskorenie: {delay_time:.2f} sekúnd ({delay_samples} vzoriek)")
-    print(f"--- ENDING delay_cross_correlation CALL ---")
-    #return delay_time, delay_samples, correlation, lags
+    print(f"Dáta boli úspešne uložené. Tvar výsledného DataFrame: {df_final.shape}")
 
 def estimate_state():
     config_manager = ConfigManager("config")
@@ -249,23 +221,46 @@ def estimate_state():
         x0, x1, x2 = x
 
         dx0 = 1.0 * x1
-        dx1 = -9.81 - 0.010343833 * u0**4 * np.abs(u0**4 - x1) + 0.010343833 * x1 * np.abs(u0**4 - x1)
-        dx2 = 7.78 * u0 - 7.1428 * x2
+        dx1 = - 30.65625 + 0.2161725 * (53125 * x2 - x1) * np.abs(53125 * x2 - x1)
+        dx2 = 0.0032689 * u0 - 7.142857 * x2
         return np.array([dx0, dx1, dx2])
 
     config_manager = ConfigManager("config")
 
-    with DataLoader(config_manager) as loader:
+    with DataLoader(config_manager, "data_raw_dir") as loader:
         X, U, dt = loader.load_csv_data(
-            "Floatshield_with_deriv",
-            [0, 1],
+            "Floatshield",
+            [0],
             None,
             0.025,
             [2],
-            apply_savgol_filter=False,
+            apply_savgol_filter=True,
+            savgol_polyorder=2,
+            savgol_window_length=71,
             plot_data=False,
             verbose=False
         )
+
+        X_val, U_val, dt = loader.load_csv_data(
+            "Floatshield_val",
+            [0],
+            None,
+            0.025,
+            [2],
+            apply_savgol_filter=True,
+            savgol_polyorder=2,
+            savgol_window_length=71,
+            plot_data=False,
+            verbose=False
+        )
+
+    X = X / (320) # Prevod na precenta
+    X_dot = np.gradient(X, dt, axis=0)
+    X_val = X_val / (320) # Prevod na precenta
+    X_dot_val = np.gradient(X_val, dt, axis=0)
+
+    U = U / 100 # Prevod na precenta
+    U_val = U_val / 100
 
     time_vec = compute_time_vector(X, dt)
     # --- Instantiate and Run the SindyEKFEstimator Class ---
@@ -275,11 +270,28 @@ def estimate_state():
 
     df_results_class = ekf_estimator.estimate(
         time=time_vec,
-        measured_x1=X[:, 0].flatten(),
-        measured_x2=X[:, 1].flatten(), # Pass None if x is not measured
+        measured_x1=X.flatten(),
+        measured_x2=X_dot.flatten(), # Pass None if x is not measured
         measured_x3=None,
         control_u=U.flatten()
     )
+
+    df_results_class_val = ekf_estimator.estimate(
+        time=time_vec,
+        measured_x1=X_val.flatten(),
+        measured_x2=X_dot_val.flatten(), # Pass None if x is not measured
+        measured_x3=None,
+        control_u=U_val.flatten()
+    )
+
+    # 5. Spojenie dát do jedného finálneho celku
+    df_final = pd.concat([df_results_class, df_results_class_val], ignore_index=True)
+
+    # 6. Uloženie
+    file_path = "data/processed/Floatshield_with_deriv.csv"
+    df_final.to_csv(file_path, index=False)
+    
+    print(f"Dáta boli úspešne uložené s posunmi. Tvar výsledného DataFrame: {df_final.shape}")
 
     # --- Visualization of Results ---
     import matplotlib.pyplot as plt
@@ -287,7 +299,7 @@ def estimate_state():
     plt.figure(figsize=(14, 10))
 
     plt.subplot(4, 1, 1)
-    plt.plot(time_vec, X[:, 0], 'rx', markersize=3, alpha=0.5, label='Measured x1 (noisy)')
+    plt.plot(time_vec, X, 'rx', markersize=3, alpha=0.5, label='Measured x1 (noisy)')
     plt.plot(time_vec, df_results_class['x1_est'], 'b-', label='Estimated x1 (EKF)')
     plt.title('EKF State Estimation using SINDy Model')
     plt.ylabel('State x1')
@@ -295,7 +307,7 @@ def estimate_state():
     plt.grid(True)
 
     plt.subplot(4, 1, 2)
-    plt.plot(time_vec, X[:, 1], 'rx', markersize=3, alpha=0.5, label='Measured x2 (noisy)')
+    plt.plot(time_vec, X_dot, 'rx', markersize=3, alpha=0.5, label='Measured x2 (noisy)')
     plt.plot(time_vec, df_results_class['x2_est'], 'b-', label='Estimated x2 (EKF)')
     plt.ylabel('State x2')
     plt.legend()

@@ -55,8 +55,6 @@ class DynamicSystem:
 
         if input_signal.ndim > 1 and input_signal.shape[1] == 1:
             input_signal = input_signal.flatten()
-        elif input_signal.ndim > 1:
-            raise ValueError(f"Input signal array must be 1D or 2D with shape (N, 1) for scalar control inputs, but got shape {input_signal.shape}.")
 
         current_state = initial_conditions.copy()
 

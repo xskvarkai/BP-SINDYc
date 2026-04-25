@@ -1,6 +1,4 @@
-import pysindy as ps
 import numpy as np
-import pandas as pd
 
 from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
@@ -13,13 +11,16 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> DynamicSystem:
 
     config_manager.load_config("sindy_params")
 
-    def ode(state_vector: np.ndarray, u0: float) -> np.ndarray:  
-        x0, x1 = state_vector  
+
+    def ode(state_vector: np.ndarray, input_vector: np.ndarray) -> np.ndarray:  
+        x0, x1 = state_vector
+        u0 = input_vector
         epsilon = 1e-9
 
-        dx0 = 1 * x1
-        dx1 = -1.37824 +  3.09148 * u0**2 + -5.58112 * x0**2 * x1**2 + 3.46007 * x0**4 * x1 + -0.46588 * x0**6 + 0.88179 * x0**4 * u0**2 +  0.99880 * (1.25 * u0 - x1) * np.abs(1.25 * u0 - x1)
-        return np.array([dx0, dx1]) 
+        dx0 = 1.00000 * x1
+        dx1 = -2.96974 - 0.17972 * x0**2 + 7.13472 * x0 * x1 - 2.79006 * x1**2 - 9.11052 * x1 * u0 + 10.13152 * u0**2
+
+        return np.array([dx0, dx1])
 
     # Inicializacia systemu
     model = DynamicSystem(config_manager, ode)
@@ -38,7 +39,7 @@ if __name__ == "__main__":
             file_name="Floatshield_with_deriv",
             state_column_indices=[0, 1],
             time=0.025,
-            control_input_column_indices=[3],
+            control_input_column_indices=[5],
             verbose=False,
             plot_data=False
         )
@@ -57,7 +58,7 @@ if __name__ == "__main__":
             verbose=False
         )
 
-    ksteps = 1100
+    ksteps = 2201
 
     if ksteps != X_test.shape[0]:
         trajectory_list = []
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     else:
         x_sim, _, _, t_sim = sindy_model.simulate(dt=dt, input_signal=U_test, initial_conditions=X_test[0])
 
-    rmse, r2, _ = evaluate_simulation(X_test, x_sim, dt)
+    rmse, r2 = evaluate_simulation(X_test, x_sim, dt)
     print(f"Recostructed model state R2 score: {r2:.3%}")
     print(f"Recostructed model state RMSE: {rmse}")
 

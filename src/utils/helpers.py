@@ -31,6 +31,5 @@ def evaluate_simulation(x_ref, x_sim, dt):
     min_len = min(len(x_ref), len(x_sim))
     rmse = root_mean_squared_error(x_ref[:min_len], x_sim[:min_len])
     r2 = r2_score(x_ref[:min_len], x_sim[:min_len])
-    derivative_r2 = r2_score(savgol_filter(x_ref, 31, 2, 1, dt, axis=0), savgol_filter(x_sim, 31, 2, 1, dt, axis=0))
     
-    return (rmse, r2, derivative_r2)
+    return rmse, r2

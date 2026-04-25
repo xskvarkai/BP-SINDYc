@@ -22,8 +22,6 @@ from utils.plots import plot_trajectory, plot_pareto
 import utils.sindy_helpers as sindy_helpers
 from scripts.sindy_run_configuration import run_config
 
-#PysindyConfigObject = Union[ps.optimizers.BaseOptimizer, ps.feature_library.base.BaseFeatureLibrary, ps.differentiation.BaseDifferentiation]
-
 class SindyEstimator(BaseSindyEstimator):
     """
     A class for estimating SINDy models. It manages configurations, performs
@@ -83,6 +81,7 @@ class SindyEstimator(BaseSindyEstimator):
         u_train: Optional[np.ndarray|List[np.ndarray]] = None,
         u_val: Optional[np.ndarray|List[np.ndarray]] = None,
         dt: float = None,
+        discrete: Optional[bool] = None,
         n_processes: int = 4,
         log_file_name: str = "worker_results",
         verbose: bool = True,
@@ -100,6 +99,7 @@ class SindyEstimator(BaseSindyEstimator):
             u_train (Optional[np.ndarray]): Training control inputs.
             u_val (Optional[np.ndarray]): Validation control inputs.
             dt (float): The time step of the data.
+            discrete (Optional[bool]): Whether to use a discrete SINDy model.
             n_processes (int): Number of parallel processes to use.
             log_file_name (str): Name of the log file for worker results.
             timeout_per_config (int): Maximum time (in seconds) allowed for
@@ -129,7 +129,7 @@ class SindyEstimator(BaseSindyEstimator):
             raise ValueError(f"Not enough validation samples. Decrease validation steps to {total_val_samples} or increase validation size.")
 
         configurations_and_data = [ # Prepare arguments for parallel processing
-                (index, config, x_train, x_val, u_train, u_val, dt, self._default_constraints)
+                (index, config, x_train, x_val, u_train, u_val, dt, self._default_constraints, discrete)
                 for index, config in enumerate(self.configurations)
             ]
         total_configurations = len(configurations_and_data)
@@ -228,6 +228,7 @@ class SindyEstimator(BaseSindyEstimator):
         u_train: Optional[np.ndarray] = None,
         u_test: Optional[np.ndarray] = None,
         dt: float = 0.01,
+        discrete: Optional[bool] = None,
         plot: bool = True,
         **constraints
     ):
@@ -241,6 +242,7 @@ class SindyEstimator(BaseSindyEstimator):
             u_train (Optional[np.ndarray]): Training control inputs.
             u_test (Optional[np.ndarray]): Test control inputs.
             dt (float): The time step of the data.
+            discrete (Optional[bool]): Whether to use a discrete SINDy model.
             plot (bool): If True, plots the simulated vs. actual trajectories on test data.
             **constraints (Any): Additional constraints to pass to model evaluation.
 
@@ -271,7 +273,7 @@ class SindyEstimator(BaseSindyEstimator):
         if self.best_config.get("coefficients").any(): # Reconstruct the best model using their coeffs
             model = sindy_helpers.copy_coeffs(config, data, self.best_config["coefficients"])
         else: # Reconstruct the best model using the best configuration
-            model = sindy_helpers.model_costruction(config, data, self.best_config.get("random_seed", 42), constraints.get("coeff_precision"))
+            model = sindy_helpers.model_costruction(config, data, self.best_config.get("random_seed", 42), constraints.get("coeff_precision"), discrete)
 
         print("\nStarting validation on test data...")
         x_sim, rmse, r2, _ = sindy_helpers.evaluate_model( # Evaluate the reconstructed model on the test data
@@ -297,7 +299,8 @@ class SindyEstimator(BaseSindyEstimator):
             t_test = np.arange(min_len) * dt
             x_ref_cut = x_test[:min_len]
             x_sim_cut = x_sim[:min_len]
-            plot_trajectory(t_test, x_ref_cut, x_sim_cut, title="Validation on test data")
+            u_cut = u_test[:min_len] if u_test is not None else None
+            plot_trajectory(t_test, x_ref_cut, x_sim_cut, u_cut, title="Validation on test data")
 
         return None
 

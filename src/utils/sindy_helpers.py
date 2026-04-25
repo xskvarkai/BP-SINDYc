@@ -6,6 +6,7 @@ from typing import Dict, Any, Optional, Union, Tuple, List
 import warnings
 import random
 import copy
+import traceback
 
 from utils.custom_libraries import FixedWeakPDELibrary
 from utils.helpers import compute_time_vector
@@ -85,25 +86,46 @@ def make_model_callable(model: ps.SINDy, data: Dict[str, Any]) -> ps.SINDy:
         
     return model_sim
 
-def make_model(config: Dict[str, Any], data: Dict[str, Any]) -> ps.SINDy:
+def make_model(config: Dict[str, Any], data: Dict[str, Any], discrete: Optional[bool] = None) -> ps.SINDy:
     """
     Create and fit a SINDy model based on the provided configuration and data.
     The configuration should include the optimizer, feature library, and differentiation method to be used for fitting the model.
     Returns the fitted SINDy model.
     """
 
-    model = ps.SINDy(
-        optimizer=config.get("optimizer"),
-        feature_library=config.get("feature_library"),
-        differentiation_method=config.get("differentiation_method")
-    )
+    if discrete is None or discrete == False:
+        model = ps.SINDy(
+            optimizer=config.get("optimizer"),
+            feature_library=config.get("feature_library"),
+            differentiation_method=config.get("differentiation_method")
+        )
 
-    model.fit(
-        x=data.get("x_train"),
-        u=data.get("u_train"),
-        x_dot=data.get("x_dot_train"),
-        t=data.get("dt")
-    )
+        model.fit(
+            x=data.get("x_train"),
+            u=data.get("u_train"),
+            x_dot=data.get("x_dot_train"),
+            t=data.get("dt")
+        )
+
+    if discrete == True:
+        model = ps.DiscreteSINDy(
+            optimizer=config.get("optimizer"),
+            feature_library=config.get("feature_library"),
+        )
+
+        x_t=data.get("x_train"),
+        u_t=data.get("u_train"),
+        dt=data.get("dt")
+
+        try:
+            model.fit(
+                x=x_t,
+                u=u_t,
+                t=dt
+            )
+        except Exception as e:
+            traceback.print_exc()
+
 
     return model
 
@@ -239,6 +261,7 @@ def model_costruction(
         data: Dict[str, Union[np.ndarray, List[np.ndarray]]],
         random_seed: Optional[int] = 42,
         coeff_precision: Optional[int] = None,
+        discrete: Optional[bool] = None
     ) -> ps.SINDy:
 
     np.random.seed(random_seed)
@@ -251,7 +274,7 @@ def model_costruction(
 
     config = sanitize_WeakPDELibrary(config)
 
-    model = make_model(config, data)
+    model = make_model(config, data, discrete)
 
     if coeff_precision is not None: # Ak je definovana poziadavka na presnost koeficientov, aplikujeme ju na koeficienty modelu.
         if coeff_precision == 0:
