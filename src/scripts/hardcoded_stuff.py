@@ -243,14 +243,14 @@ def Floatshield_load_and_deriv():
         # dropna() tieto neúplné riadky bezpečne zahodí pre všetky stĺpce naraz.
         return df.dropna()
 
-    df_train = add_delays(df_train, 150)
-    df_val = add_delays(df_val, 150)
-    df_test = add_delays(df_test, 150)
+    #df_train = add_delays(df_train, 150)
+    #df_val = add_delays(df_val, 150)
+    #df_test = add_delays(df_test, 150)
 
     df_final = pd.concat([df_train, df_val, df_test], ignore_index=True)
 
     file_path = "data/processed/Floatshield_with_deriv.csv"
-    #df_final.to_csv(file_path, index=False)
+    df_final.to_csv(file_path, index=False)
     
     print(f"Dáta boli úspešne uložené. Tvar výsledného DataFrame: {df_final.shape}")
 
