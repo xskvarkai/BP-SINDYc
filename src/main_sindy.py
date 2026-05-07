@@ -8,6 +8,9 @@ from data_processing.data_splitter import TimeSeriesSplitter
 from data_processing.sindy_preprocessor import find_periodicity, find_noise, generate_trajectories, find_optimal_delay
 from models.sindy_estimator import SindyEstimator
 from utils.helpers import compute_time_vector
+from utils.plots import plot_trajectory
+
+ps.PolynomialLibrary()
 
 def sindy_main(config_manager: ConfigManager):
 
@@ -29,7 +32,7 @@ def sindy_main(config_manager: ConfigManager):
     with SindyEstimator(config_manager) as estimator:
         noise_level = find_noise(X)
         find_periodicity(X, dt, None, sigma_noise=noise_level)
-        find_optimal_delay(X_val, dt, U_val)
+        find_optimal_delay(X_train, dt, U_train)
 
         config_manager.get_param(
             "sindy_params.data_preprocessing"

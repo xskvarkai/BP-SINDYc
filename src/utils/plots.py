@@ -42,7 +42,6 @@ def plot_trajectory(
     Plots the trajectory of the system states and optionally the input signal and comparison trajectory.
     """
 
-
     num_state_vars = trajectory.shape[1]
 
     total_plots = num_state_vars
@@ -53,8 +52,9 @@ def plot_trajectory(
         total_plots += num_input_vars
 
     fig_width_in, fig_height_in = 12, 3 * total_plots
+    total_subplots = total_plots / 2 if total_plots > 3 else 1
     if exportable:
-        fig_width_in, fig_height_in = _prepare_export()
+        fig_width_in, fig_height_in = _prepare_export((total_subplots, 1))
 
     fig = plt.figure(figsize=(fig_width_in, fig_height_in))
 

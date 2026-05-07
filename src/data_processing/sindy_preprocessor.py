@@ -57,7 +57,7 @@ def find_periodicity(
         x (np.ndarray): The input signal (time series data) as a NumPy array.
         dt (Union[int, float]): The time step of the data.
         x_dim (Optional[int]): If x is multi-dimensional, specify the column index (1-based)
-                                to analyze for periodicity. If None, the first dimension is used.
+                                to analyze for periodicity. If None, the all dimensions are used.
         sigma_noise (float): Estimated noise level. Used for hard thresholding the Fourier amplitudes.
                              Defaults to 0.0 (no noise consideration).
         verbose (bool): If True, prints the periodicity status and dominant frequency.
@@ -70,7 +70,6 @@ def find_periodicity(
     if x.ndim > 1 and x_dim: # Adjust x_dim to be 0-based for NumPy indexing
         x_to_analyze = x[:, x_dim - 1]
     elif x.ndim > 1: # Default to the first column if x_dim is not specified for multi-dimensional array
-        # warnings.warn("x_dim not specified for multi-dimensional array, analyzing the first column.")
         x_to_analyze = x[:, 0]
     else:
         x_to_analyze = x
@@ -132,34 +131,35 @@ def find_periodicity(
     return is_periodic
 
 
-def find_optimal_delay(x: np.ndarray, dt: float, u: np.ndarray=None) -> None:
+def find_optimal_delay(x: np.ndarray, dt: float, u: np.ndarray=None, normalize_columns: bool=False, periodic: bool=False) -> None:
     def evaluate_delay(tau_candidate, x, dt, u=None):
         delay_steps = int(tau_candidate / dt)
         x_delayed = np.roll(x, delay_steps)[delay_steps:]
         x_current = x[delay_steps:]
         u_current = u[delay_steps:] if u is not None else None
         
-        X = np.hstack([x_current, x_delayed])
         model = ps.SINDy(
-            optimizer=ps.STLSQ(threshold=0.0, normalize_columns=True), 
+            optimizer=ps.STLSQ(threshold=0.0, normalize_columns=normalize_columns), 
             differentiation_method=ps.SmoothedFiniteDifference(smoother_kws={"window_length": 31, "polyorder": 3}),
-            feature_library=ps.PolynomialLibrary(degree=4, include_bias=True) + ps.FourierLibrary(n_frequencies=2)
+            feature_library=ps.PolynomialLibrary(degree=2, include_bias=True) + ps.FourierLibrary(n_frequencies=2) if periodic else ps.PolynomialLibrary(degree=2, include_bias=True)
         )
-        model.fit(X, t=dt, u=u_current)
+        model.fit(x_delayed, t=dt, u=u_current)
         
-        return model.score(X, t=dt, u=u_current)
+        return {"score": model.score(x_current, t=dt, u=u_current), "model": model}
     
     best_tau = 0
     best_score = -np.inf
+    best_model: ps.SINDy = None
     for tau in np.linspace(0.1, 2.0, 20):
-        score = evaluate_delay(tau, x, dt, u)
-        if score > best_score:
-            best_score = score
+        evaluated_model = evaluate_delay(tau, x, dt, u)
+        if evaluated_model.get("score") > best_score:
+            best_score = evaluated_model.get("score")
             best_tau = tau
+            best_model = evaluated_model.get("model")
 
-    print(f"Optimálne oneskorenie: {best_tau}")
-    print(f"Skóre modelu s optimálnym oneskorením: {best_score}")
-
+    print(f"Optimal time delay: {best_tau}")
+    print(f"Score of model with optimal time delay: {best_score}")
+    print(f"{best_model.print()}")
 
 def estimate_threshold(
         x: np.ndarray,

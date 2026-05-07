@@ -13,14 +13,16 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> DynamicSystem:
 
 
     def ode(state_vector: np.ndarray, input_vector: np.ndarray) -> np.ndarray:  
-        x0, x1 = state_vector
+        x0, x1, x2, x3 = state_vector
         u0 = input_vector
         epsilon = 1e-9
 
         dx0 = 1.00000 * x1
-        dx1 = -2.96974 - 0.17972 * x0**2 + 7.13472 * x0 * x1 - 2.79006 * x1**2 - 9.11052 * x1 * u0 + 10.13152 * u0**2
+        dx1 = -0.68416 * x1 +  0.20241 * x0**2 + -268.49706 * x3**2 + -3.75676 * x1 * np.abs(x1) +  442.69511 * x3 * np.abs(x3) + -0.34158 * x0**3 * np.abs(x0)
+        dx2 = 1.00000 * x3
+        dx3 = -0.49493 * x3 +  0.32221 * u0**2 + -0.33940 * x2**4
 
-        return np.array([dx0, dx1])
+        return np.array([dx0, dx1, dx2, dx3])
 
     # Inicializacia systemu
     model = DynamicSystem(config_manager, ode)
@@ -37,17 +39,17 @@ if __name__ == "__main__":
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
             file_name="Floatshield_with_deriv",
-            state_column_indices=[0, 1],
+            state_column_indices=[0, 1, 2, 3],
             time=0.025,
-            control_input_column_indices=[5],
+            control_input_column_indices=[4],
             verbose=False,
             plot_data=False
         )
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
-        X_train, _, X_test, U_train, _, U_test = splitter.split_data(
-            train_ratio=0.5,
-            val_ratio=0.25,
+        X_train, X_val, X_test, U_train, U_val, U_test = splitter.split_data(
+            train_ratio=8750,
+            val_ratio=4350,
             perturb_input_signal_ratio=None,
             rng=random_number_generator,
             apply_savgol_filter=True,
@@ -58,7 +60,10 @@ if __name__ == "__main__":
             verbose=False
         )
 
-    ksteps = 2201
+    X_test = X_val
+    U_test = U_val
+
+    ksteps = X_test.shape[0]
 
     if ksteps != X_test.shape[0]:
         trajectory_list = []
@@ -88,7 +93,7 @@ if __name__ == "__main__":
     else:
         x_sim, _, _, t_sim = sindy_model.simulate(dt=dt, input_signal=U_test, initial_conditions=X_test[0])
 
-    rmse, r2 = evaluate_simulation(X_test, x_sim, dt)
+    rmse, r2 = evaluate_simulation(X_test[:, 1], x_sim[:, 1], dt)
     print(f"Recostructed model state R2 score: {r2:.3%}")
     print(f"Recostructed model state RMSE: {rmse}")
 

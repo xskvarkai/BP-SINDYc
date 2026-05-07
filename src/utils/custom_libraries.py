@@ -142,11 +142,14 @@ def name_y_cos_xmy(x_str, y_str, z_str): return f"{y_str} * cos({z_str} - {y_str
 # ----- ----- ----- ----- Absolutna hodnota ----- ----- ----- -----
 def abs_x(x): return np.abs(x)
 def x_abs_x(x): return x * np.abs(x) # x1 * |x1|
+def y_abs_x(x, y): return y * np.abs(x) # u0 * |x1|
+def x_abs_y(x, y): return x * np.abs(y) # u0 * |x1|
 def x_y_abs_z(x, y, z): return x * y * np.abs(z) # u0 * x1 * |x1|
 def x_squared_abs_y(x, y): return (x ** 2) * np.abs(y) # x1^2 * |x1| alebo u0^2 * |x1|
 
 def name_abs_x(x_str): return f"|{x_str}|"
 def name_x_abs_x(x_str): return f"{x_str} |{x_str}|"
+def name_y_abs_x(x_str, y_str): return f"{y_str} |{x_str}|"
 def name_x_y_abs_z(x_str, y_str, z_str): return f"{x_str} {y_str} |{z_str}|"
 def name_x_squared_abs_y(x_str, y_str): return f"{x_str}^2 |{y_str}|"
 
@@ -412,3 +415,6 @@ def name_squared_u_sqrt_z_g(x_str, y_str, z_str, u_str): return f"{u_str}^2 " + 
 
 def signum(x): return np.sign(x)
 def name_signum(x_str): return f"sign({x_str})"
+
+def vanDerPol(x, y): return x**2 * y
+def name_vanDerPol(x_str, y_str): return f"{x_str}^2 {y_str}"

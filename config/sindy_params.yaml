@@ -3,10 +3,10 @@ global:
 
 data_loading:
   file_name: Floatshield_with_deriv
-  state_column_indices: [0, 1]
+  state_column_indices: [0, 1, 2, 3]
   time_column_index: null
   time: 2.5e-2
-  control_input_column_indices: [3]
+  control_input_column_indices: [4]
   apply_savgol_filter: False
   savgol_window_length: 31
   savgol_polyorder: 2
@@ -14,8 +14,8 @@ data_loading:
   verbose: True
 
 data_splitting:
-  train_ratio: 0.5
-  val_ratio: 0.25
+  train_ratio: 8800
+  val_ratio: 2200
   perturb_input_signal_ratio: null
   apply_savgol_filter: True
   filtered_set_names: [val, test]
@@ -25,8 +25,8 @@ data_splitting:
   verbose: True
 
 data_preprocessing:
-  num_samples_per_trajectory: 0.8 # Ratio of training data used for trajectories generation
-  num_trajectories: 5
+  num_samples_per_trajectory: 0.5 # Ratio of training data used for trajectories generation
+  num_trajectories: 12
 
 params_search:
   n_processes: 8

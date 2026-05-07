@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 import warnings
 from scipy.signal import savgol_filter
 
@@ -70,8 +70,8 @@ class TimeSeriesSplitter:
 
     def split_data(
             self,
-            train_ratio: float = 0.6,
-            val_ratio: float = 0.2,
+            train_ratio: Union[float, int] = 0.6,
+            val_ratio: Union[float, int] = 0.2,
             perturb_input_signal_ratio: Optional[float] = None,
             rng: Optional[np.random.RandomState] = np.random.RandomState(42),
             apply_savgol_filter: bool = False,
@@ -80,14 +80,16 @@ class TimeSeriesSplitter:
             savgol_polyorder: Optional[int] = None,
             plot_data: bool = False,
             verbose: bool = True
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
         """
         Splits the data into training, validation, and test sets.
         Optionally applies a Savitzky-Golay filter and perturbs the input signal.
 
         Args:
-            train_ratio (float): The proportion of the dataset to include in the train split.
-            val_ratio (float): The proportion of the dataset to include in the validation split.
+            train_ratio (Union[float, int]): The proportion (float) or absolute number of samples (int)
+                                              of the dataset to include in the train split.
+            val_ratio (Union[float, int]): The proportion (float) or absolute number of samples (int)
+                                           of the dataset to include in the validation split.
             perturb_input_signal_ratio (Optional[float]): The ratio by which to perturb the input signal (U).
                                                           If None, no perturbation is applied.
             rng (Optional[np.random.RandomState]): Random number generator for reproducibility, especially for perturbation.
@@ -101,40 +103,62 @@ class TimeSeriesSplitter:
 
         Returns:
             Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray],
-                  np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]: A tuple containing:
+                  Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]: A tuple containing:
                 - X_train (np.ndarray): State variables for the training set.
+                - X_val (Optional[np.ndarray]): State variables for the validation set (None if val_ratio results in 0 samples).
+                - X_test (Optional[np.ndarray]): State variables for the test set (None if test_ratio results in 0 samples).
                 - U_train (Optional[np.ndarray]): Control inputs for the training set.
-                - X_val (Optional[np.ndarray]): State variables for the validation set (None if val_ratio is 0).
-                - U_val (Optional[np.ndarray]): Control inputs for the validation set (None if val_ratio is 0).
-                - X_test (Optional[np.ndarray]): State variables for the test set (None if test_ratio is 0).
-                - U_test (Optional[np.ndarray]): Control inputs for the test set (None if test_ratio is 0).
+                - U_val (Optional[np.ndarray]): Control inputs for the validation set (None if val_ratio results in 0 samples).
+                - U_test (Optional[np.ndarray]): Control inputs for the test set (None if test_ratio results in 0 samples).
 
         Raises:
-            ValueError: If ratios are invalid, insufficient data, or Savitzky-Golay filter parameters are incorrect.
+            ValueError: If ratios/counts are invalid, insufficient data, or Savitzky-Golay filter parameters are incorrect.
         """
-
-        if not (0 < train_ratio < 1 and 0 <= val_ratio < 1 and train_ratio + val_ratio <= 1):
-            raise ValueError("Invalid train_ratio or val_ratio. Ratios must be between 0 and 1, and their sum must be less than or equal 1.")
-
-        test_ratio = float(np.round(1.0 - train_ratio - val_ratio, decimals=5))
-        if test_ratio < 0: # This should ideally be caught by the first validation, but as a safeguard.
-            raise ValueError("Calculated test_ratio is negative. Check train_ratio and val_ratio.")
 
         num_samples = self.X_raw.shape[0]
         if num_samples < 1:
             raise ValueError(f"Insufficient data samples ({num_samples}) for splitting.")
 
-        if verbose:
-            print(f"\nSplitting data into train ({train_ratio:.1%}), validation ({val_ratio:.1%}), test ({test_ratio:.1%}).")
+        train_samples: int
+        val_samples: int
+        test_samples: int
+        
+        # Determine if we are using ratios (float) or absolute counts (int)
+        if isinstance(train_ratio, float) and isinstance(val_ratio, float):
+            if not (0 < train_ratio < 1 and 0 <= val_ratio < 1 and train_ratio + val_ratio <= 1):
+                raise ValueError("Invalid train_ratio or val_ratio. Ratios must be between 0 and 1, and their sum must be less than or equal 1.")
+            
+            train_samples = int(num_samples * train_ratio)
+            val_samples = int(num_samples * val_ratio)
+            test_samples = num_samples - train_samples - val_samples
+
+            if verbose:
+                print(f"\nSplitting data into train ({train_ratio:.1%}), validation ({val_ratio:.1%}), test ({(test_samples/num_samples):.1%}).")
+        
+        elif isinstance(train_ratio, int) and isinstance(val_ratio, int):
+            if not (train_ratio >= 0 and val_ratio >= 0 and train_ratio + val_ratio <= num_samples):
+                raise ValueError(f"Invalid train_ratio ({train_ratio}) or val_ratio ({val_ratio}). Counts must be non-negative and their sum must not exceed total samples ({num_samples}).")
+            
+            train_samples = train_ratio
+            val_samples = val_ratio
+            test_samples = num_samples - train_samples - val_samples
+
+            if verbose:
+                print(f"\nSplitting data into train ({train_samples} samples), validation ({val_samples} samples), test ({test_samples} samples).")
+        else:
+            raise ValueError("train_ratio and val_ratio must both be floats (for ratios) or both be integers (for counts). Mixed types are not supported.")
+
+        if test_samples < 0: # This should ideally be caught by the first validation, but as a safeguard.
+            raise ValueError("Calculated test_samples is negative. This indicates an error in ratio/count validation.")
 
         # Determine indices for splitting
-        train_end_index = int(num_samples * train_ratio)
-        val_end_index = int(num_samples * (train_ratio + val_ratio))
+        train_end_index = train_samples
+        val_end_index = train_samples + val_samples
 
         # Split X (state variables)
         X_train = self.X_raw[:train_end_index]
-        X_val = self.X_raw[train_end_index:val_end_index] if val_ratio > 0 else None
-        X_test = self.X_raw[val_end_index:] if test_ratio > 0 else None
+        X_val = self.X_raw[train_end_index:val_end_index] if val_samples > 0 else None
+        X_test = self.X_raw[val_end_index:] if test_samples > 0 else None
 
         # Initialize U splits
         U_train: Optional[np.ndarray] = None
@@ -150,25 +174,27 @@ class TimeSeriesSplitter:
                 raise ValueError("Savitzky-Golay polyorder must be less than window_length.")
 
             if verbose:
-                print(f"Applying Savitzky-Golay filter to {', '.join(filtered_set_names)} sets with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
+                print(f"Applying Savitzky-Golay filter to {', '.join(filtered_set_names if filtered_set_names else ['all'])} sets with window_length={savgol_window_length}, polyorder={savgol_polyorder}.")
 
+            # Apply Savitzky-Golay filter to specified sets
             if filtered_set_names is not None:
-                if "train" in filtered_set_names: # Apply Savitzky-Golay filter to specified sets
+                if "train" in filtered_set_names:
                     X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0)
-                if "val" in filtered_set_names:
-                    X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
-                if "test" in filtered_set_names:
-                    X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
-
-            if filtered_set_names is None: # Default to filtering all sets
+                if "val" in filtered_set_names and X_val is not None:
+                    X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0)
+                if "test" in filtered_set_names and X_test is not None:
+                    X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0)
+            else: # Default to filtering all sets if filtered_set_names is None
                 X_train = savgol_filter(X_train, savgol_window_length, savgol_polyorder, axis=0)
-                X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0) if val_ratio > 0 else None
-                X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0) if test_ratio > 0 else None
+                if X_val is not None:
+                    X_val = savgol_filter(X_val, savgol_window_length, savgol_polyorder, axis=0)
+                if X_test is not None:
+                    X_test = savgol_filter(X_test, savgol_window_length, savgol_polyorder, axis=0)
 
         if self.U_raw is not None: # Split U (control inputs) if available
             U_train = self.U_raw[:train_end_index]
-            U_val = self.U_raw[train_end_index:val_end_index] if val_ratio > 0 else None
-            U_test = self.U_raw[val_end_index:] if test_ratio > 0 else None
+            U_val = self.U_raw[train_end_index:val_end_index] if val_samples > 0 else None
+            U_test = self.U_raw[val_end_index:] if test_samples > 0 else None
             if perturb_input_signal_ratio is not None and isinstance(perturb_input_signal_ratio, (float, int)) and perturb_input_signal_ratio > 0: # Perturb input signal if requested
                 U_train = self._perturb_input_signal(U_train, perturb_input_signal_ratio, rng, verbose)
 
