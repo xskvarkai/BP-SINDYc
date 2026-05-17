@@ -131,60 +131,57 @@ def Floatshield_load_and_deriv():
     X_test = X_test[:, 0]
 
     # Orezenie extremov a chyb snimaca
-    X[X < 0] = 0
-    X_val[X_val < 0] = 0
-    X_test[X_test < 0] = 0
+    X = np.clip(X, 0, 321.74) / 1000.0  # Meter
+    U = np.clip(U, 0, 100) * 0.033      # Volt (ak 100% = 3.3V)
+    omega = np.clip(omega, 0, None) * (2 * np.pi / 60) # Rad/s
 
-    U[U < 0] = 0
-    U_val[U_val < 0] = 0
-    U_test[U_test < 0] = 0
+    X_val = np.clip(X_val, 0, 321.74) / 1000.0  # Meter
+    U_val = np.clip(U_val, 0, 100) * 0.033      # Volt (ak 100% = 3.3V)
+    omega_val = np.clip(omega_val, 0, None) * (2 * np.pi / 60) # Rad/s
 
-    omega[omega < 0] = 0
-    omega_val[omega_val < 0] = 0
-    omega_test[omega_test < 0] = 0
+    X_test = np.clip(X_test, 0, 321.74) / 1000.0  # Meter
+    U_test = np.clip(U_test, 0, 100) * 0.033      # Volt (ak 100% = 3.3V)
+    omega_test = np.clip(omega_test, 0, None) * (2 * np.pi / 60) # Rad/s
 
-    X[X > 321.74] = 321.74
-    X_val[X_val > 321.74] = 321.74
-    X_test[X_test > 321.74] = 321.74
-
-    r = 0.02 * 2 * np.pi # prevod na rad/s
-    omega = omega * r / 60
-    omega_val = omega_val * r / 60
-    omega_test = omega_test * r / 60
-
-    X = X / 1000 # Prevod na meter
-    X_val = X_val / 1000
-    X_test = X_test / 1000
-
-    U = U * 0.033 # Prevod na volt
-    U_val = U_val * 0.033
-    U_test = U_test * 0.033
-
-    X_max = np.max(X)
-    U_max = np.max(U)
-    omega_max = np.max(omega)
+    X_max = np.max(np.abs(X))
+    U_max = np.max(np.abs(U))
+    omega_max = np.max(np.abs(omega))
 
     X = X / X_max # Prevod na precenta
-    X_dot = np.gradient(X, dt, axis=0)
-    X_val = X_val / X_max # Prevod na precenta
-    X_dot_val = np.gradient(X_val, dt, axis=0)
-    X_test = X_test / X_max # Prevod na precenta
-    X_dot_test = np.gradient(X_test, dt, axis=0)
+    X_val = X_val / X_max
+    X_test = X_test / X_max
 
     U = U / U_max # Prevod na precenta
-    U_val = U_val / U_max # Prevod na precenta
-    U_test = U_test / U_max # Prevod na precenta
-    
-    omega = omega / omega_max # Prevod na precenta
-    omega = savgol_filter(omega, 71, 2, axis=0)
-    omega_dot = np.gradient(omega, dt, axis=0)
-                            
-    omega_val = omega_val / omega_max # Prevod na precenta
-    omega_val = savgol_filter(omega_val, 71, 2, axis=0)
-    omega_dot_val = np.gradient(omega_val, dt, axis=0)
+    U_val = U_val / U_max
+    U_test = U_test / U_max
 
-    omega_test = omega_test / omega_max # Prevod na precenta
-    omega_test = savgol_filter(omega_test, 71, 2, axis=0)
+    omega = omega / omega_max # Prevod na precenta
+    omega_val = omega_val / omega_max
+    omega_test = omega_test / omega_max
+
+    # Vypocet a odstranenie offsetu
+    x_offset = np.mean(X)
+    omega_offset = np.mean(omega)
+
+    x_offset_val = x_offset
+    omega_offset_val = omega_offset
+    x_offset_test = x_offset
+    omega_offset_test = omega_offset
+
+    X = X - x_offset # Odstranenie offsetu
+    X_val = X_val - x_offset_val
+    X_test = X_test - x_offset_test
+
+    omega = omega - omega_offset # Odstranenie offsetu
+    omega_val = omega_val - omega_offset_val
+    omega_test = omega_test - omega_offset_test
+
+    X_dot = np.gradient(X, dt, axis=0)
+    X_dot_val = np.gradient(X_val, dt, axis=0)
+    X_dot_test = np.gradient(X_test, dt, axis=0)
+
+    omega_dot = np.gradient(omega, dt, axis=0)            
+    omega_dot_val = np.gradient(omega_val, dt, axis=0)
     omega_dot_test = np.gradient(omega_test, dt, axis=0)
 
     df_train = pd.DataFrame({
@@ -195,7 +192,9 @@ def Floatshield_load_and_deriv():
         "u": U.flatten(),
         "X_max": X_max,
         "u_max": U_max,
-        "omega_max": omega_max
+        "omega_max": omega_max,
+        "x_offset": x_offset,
+        "omega_offset": omega_offset
     })
 
     df_val = pd.DataFrame({
@@ -206,7 +205,9 @@ def Floatshield_load_and_deriv():
         "u": U_val.flatten(),
         "X_max": X_max,
         "u_max": U_max,
-        "omega_max": omega_max
+        "omega_max": omega_max,
+        "x_offset": x_offset_val,
+        "omega_offset": omega_offset_val
     })
 
     df_test = pd.DataFrame({
@@ -217,7 +218,9 @@ def Floatshield_load_and_deriv():
         "u": U_test.flatten(),
         "X_max": X_max,
         "u_max": U_max,
-        "omega_max": omega_max
+        "omega_max": omega_max,
+        "x_offset": x_offset_test,
+        "omega_offset": omega_offset_test
     })
 
     def add_delays(df: pd.DataFrame, delays: int=3, delay_indices: list=None):
@@ -247,7 +250,8 @@ def Floatshield_load_and_deriv():
     #df_val = add_delays(df_val, 150)
     #df_test = add_delays(df_test, 150)
 
-    df_final = pd.concat([df_train, df_val, df_test], ignore_index=True)
+    #df_final = pd.concat([df_train, df_val, df_test], ignore_index=True)
+    df_final = pd.concat([df_train, df_val], ignore_index=True)
 
     file_path = "data/processed/Floatshield_with_deriv.csv"
     df_final.to_csv(file_path, index=False)

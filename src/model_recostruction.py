@@ -18,7 +18,7 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> DynamicSystem:
         epsilon = 1e-9
 
         dx0 = 1.00000 * x1
-        dx1 = -0.68416 * x1 +  0.20241 * x0**2 + -268.49706 * x3**2 + -3.75676 * x1 * np.abs(x1) +  442.69511 * x3 * np.abs(x3) + -0.34158 * x0**3 * np.abs(x0)
+        dx1 = 14.93343 * x1 + -16.49181 * x0**2 * x1 + -0.37829 * x0**2 * u0 + -19.87901 * x1**2 * u0 + -0.25044 * x0 * np.abs(x0) +  20.14823 * x1 * np.abs(x1) +  0.61402 * u0 * np.abs(u0)
         dx2 = 1.00000 * x3
         dx3 = -0.49493 * x3 +  0.32221 * u0**2 + -0.33940 * x2**4
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
             file_name="Floatshield_with_deriv",
-            state_column_indices=[0, 1, 2, 3],
+            state_column_indices=[2, 3],
             time=0.025,
             control_input_column_indices=[4],
             verbose=False,
@@ -60,8 +60,8 @@ if __name__ == "__main__":
             verbose=False
         )
 
-    X_test = X_val
-    U_test = U_val
+    X_test = X_test
+    U_test = U_test
 
     ksteps = X_test.shape[0]
 

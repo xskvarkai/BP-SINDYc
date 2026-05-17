@@ -131,7 +131,13 @@ def find_periodicity(
     return is_periodic
 
 
-def find_optimal_delay(x: np.ndarray, dt: float, u: np.ndarray=None, normalize_columns: bool=False, periodic: bool=False) -> None:
+def find_optimal_delay(x: np.ndarray, dt: float, u: np.ndarray=None, feature_library: ps.feature_library=None,normalize_columns: bool=False, periodic: bool=False) -> None:
+    
+    if feature_library is None:
+        feature_library = ps.PolynomialLibrary(degree=2, include_bias=True) + ps.FourierLibrary(n_frequencies=2) if periodic else ps.PolynomialLibrary(degree=2, include_bias=True)
+    else:
+        feature_library = feature_library
+
     def evaluate_delay(tau_candidate, x, dt, u=None):
         delay_steps = int(tau_candidate / dt)
         x_delayed = np.roll(x, delay_steps)[delay_steps:]
@@ -139,9 +145,9 @@ def find_optimal_delay(x: np.ndarray, dt: float, u: np.ndarray=None, normalize_c
         u_current = u[delay_steps:] if u is not None else None
         
         model = ps.SINDy(
-            optimizer=ps.STLSQ(threshold=0.0, normalize_columns=normalize_columns), 
+            optimizer=ps.STLSQ(threshold=0.05, normalize_columns=normalize_columns),
             differentiation_method=ps.SmoothedFiniteDifference(smoother_kws={"window_length": 31, "polyorder": 3}),
-            feature_library=ps.PolynomialLibrary(degree=2, include_bias=True) + ps.FourierLibrary(n_frequencies=2) if periodic else ps.PolynomialLibrary(degree=2, include_bias=True)
+            feature_library=feature_library
         )
         model.fit(x_delayed, t=dt, u=u_current)
         

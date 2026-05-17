@@ -3,8 +3,6 @@ from pathlib import Path
 from typing import Dict, Any, Tuple, Union
 import warnings
 import json
-warnings.filterwarnings("ignore", module="pykoopman")
-import pykoopman
 from utils.plots import plot_trajectory, plot_koopman_spectrum
 from utils.helpers import compute_time_vector
 from utils.config_manager import ConfigManager
@@ -78,7 +76,7 @@ class KoopmanModel():
 
         return None
 
-    def evaluateModel(self, print_metrics: bool = False, plot: bool = True, u_plot: np.ndarray = None) -> Tuple[np.ndarray, float, float]:
+    def evaluate(self, print_metrics: bool = False, plot: bool = True, u_plot: np.ndarray = None) -> Tuple[np.ndarray, float, float]:
         """
         Evaluates the trained Koopman model on the test set.
 
@@ -116,7 +114,7 @@ class KoopmanModel():
     def plot_koopman_spectrum(self, exportable: bool=False):
         plot_koopman_spectrum(self.model.lamda_array, exportable=exportable)
 
-    def koopman_simulate(self, x_ref: np.ndarray, dt: float, u_ref: np.ndarray = None) -> np.ndarray:
+    def simulate(self, x_ref: np.ndarray, dt: float, u_ref: np.ndarray = None) -> np.ndarray:
 
         """
         Simulates the Koopman model forward in time given initial conditions and control inputs.

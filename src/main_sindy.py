@@ -1,6 +1,8 @@
 import gc
 import pysindy as ps
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from scipy.signal import savgol_filter
 
 from utils.config_manager import ConfigManager
 from data_ingestion.data_loader import DataLoader
@@ -8,12 +10,29 @@ from data_processing.data_splitter import TimeSeriesSplitter
 from data_processing.sindy_preprocessor import find_periodicity, find_noise, generate_trajectories, find_optimal_delay
 from models.sindy_estimator import SindyEstimator
 from utils.helpers import compute_time_vector
-from utils.plots import plot_trajectory
+from utils.custom_libraries import FixedCustomLibrary
+from utils.custom_libraries import (
+    
+    # Polynom
+    x_cubed, x_quartered,
+    name_x_cubed, name_x_quartered,
+    x_squared_y,
+    name_x_squared_y,
 
-ps.PolynomialLibrary()
+    #Racionalne
+    yx_frac, y_squared_x_frac,
+    name_yx_frac, name_y_squared_x_frac,
+ 
+    yx_squared_frac, y_squared_x_squared_frac,
+    name_yx_squared_frac, name_y_squared_x_squared_frac,
+
+    # Absolutna hodnota
+    x_abs_x, x_cubed_abs_x, y_abs_x,
+    name_x_abs_x, name_x_cubed_abs_x, name_y_abs_x,
+)
 
 def sindy_main(config_manager: ConfigManager):
-
+    
     config_manager.load_config("sindy_params")
 
     np.random.seed(config_manager.get_param("sindy_params.global.random_seed", 42))
@@ -31,12 +50,13 @@ def sindy_main(config_manager: ConfigManager):
 
     with SindyEstimator(config_manager) as estimator:
         noise_level = find_noise(X)
-        find_periodicity(X, dt, None, sigma_noise=noise_level)
-        find_optimal_delay(X_train, dt, U_train)
+        find_periodicity(X, dt, 1, sigma_noise=noise_level)
 
         config_manager.get_param(
             "sindy_params.data_preprocessing"
         )["num_samples_per_trajectory"] = int(config_manager.get_param("sindy_params.data_preprocessing.num_samples_per_trajectory") * X_train.shape[0])
+
+        X_original, U_original = X_train.copy(), U_train.copy()
 
         # Used for generating sub-trajectories
         X_train, U_train = generate_trajectories(X_train, U_train, **config_manager.get_param("sindy_params.data_preprocessing"), rng=random_number_generator)
@@ -47,15 +67,47 @@ def sindy_main(config_manager: ConfigManager):
         # The keys of the dictionaries correspond to the names of the methods, and the values are dictionaries of parameters for those methods.
         # Minimum required parameters for method are provided (None takes defaults), but you can add more parameters.
 
-        library = ps.PolynomialLibrary(degree=2, include_bias=True)
+        library = ps.PolynomialLibrary(degree=3, include_bias=True, include_interaction=True) + FixedCustomLibrary(
+            [
+             #x_cubed, #x_quartered,
+
+             x_squared_y,
+
+             #yx_frac, y_squared_x_frac,
+             #yx_squared_frac, y_squared_x_squared_frac,
+
+             x_abs_x, #x_cubed_abs_x,
+             #y_mx_drag_term,
+             #vanDerPol,
+             #some_part,
+
+            ],
+            [
+             #name_x_cubed, #name_x_quartered,
+             
+             name_x_squared_y,
+
+             #name_yx_frac, name_y_squared_x_frac,
+             #name_yx_squared_frac, name_y_squared_x_squared_frac,
+
+             name_x_abs_x, #name_x_cubed_abs_x,
+             #name_y_mx_drag_term, 
+             #name_vanDerPol
+             #name_some_part,
+
+            ]
+        )
+
+        find_optimal_delay(X_original, dt, U_original, library, True, False)
 
         feature_library_kwargs = {
-            "WeakPDELibrary": {
+                "WeakPDELibrary": {
                 "function_library": library,
-                "K": [100],
-                "p": [4, 5],
+                "derivative_order": 0,
+                "K": [5, 10, 20, 30, 40, 50, 70, 100, 150, 200],
+                "p": [4, 5, 6],
                 "spatiotemporal_grid": compute_time_vector(X_train[0].shape[0], dt),
-                "H_xt": [[0.5]]
+                "H_xt": [[0.5], [0.75], [1.], [1.25], [1.5], [1.75], [2.0]]
             }
         }
 
@@ -65,59 +117,96 @@ def sindy_main(config_manager: ConfigManager):
         feature_names = library.get_feature_names()
 
         #print(feature_names)
+
         n_features = len(feature_names)
         n_targets = X.shape[1]
 
-        # Add constraint
+        idx_const = 0
+        idx_x0 = 1
         idx_x1 = 2
+        idx_x2 = 3
+        idx_x3 = 4
+        idx_x4 = 5
 
-        C = np.zeros((n_features, n_features * n_targets))
-        d = np.zeros(n_features)
+        idx_u0_squared = 20 
+        idx_x2_squared_x3 = 28
+        idx_x2_squared_u0 = 29
+# Máme presne 2 požiadavky (2 obmedzenia), preto 2 riadky
+        n_constraints = 2
 
-        for i in range(n_features):
-            C[i, i] = 1 
-            if i == idx_x1:
-                d[i] = 1.0
-            else:
-                d[i] = 0.0
+        C = np.zeros((n_constraints, n_features * n_targets))
+        d = np.zeros(n_constraints)  # Dôležité: d musí byť 1D vektor o dĺžke 2!
+
+# 1. obmedzenie: Pre target 0 chcem, aby koeficient na pozícii idx_x1 bol 1.0
+        C[0, idx_x1] = 1.0
+        d[0] = 1.0
+
+# 2. obmedzenie: Pre target 1 chcem, aby koeficient na pozícii idx_x2 bol 1.0
+# Keďže ide o target 1, musíme index posunúť o n_features!
+        #C[0, n_features + idx_x2] = 1.0
+        #d[0] = 1.0
+
+        C[1, 2 * n_features + idx_x3] = 1.0
+        d[1] = 1.0
+
+        initial_guess = np.zeros((n_targets, n_features))
+        initial_guess[0, idx_x1] =  1.0
+        
+        initial_guess[1, idx_const] = -34.0
+        
+        initial_guess[2, idx_x3] = 1.0
+
+        initial_guess[3, idx_x1] = 15.44
+        initial_guess[3, idx_u0_squared] = 0.53
+        initial_guess[3, idx_x2_squared_x3] = -16.55
+        initial_guess[3, idx_x2_squared_u0] = -0.49
 
         optimizer_kwargs = {
             "MIOSR": {
-                "target_sparsity": [7, 8],
-                "group_sparsity": (1, 50),
-                "alpha": [0.01],
+                "regression_timeout": 90,
+                "target_sparsity": 2 * n_features + 2,
+                "group_sparsity": [
+                                   (1, 3, 1, 4),
+                                   (1, 4, 1, 4), #(1, 8, 1, 3), (1, 9, 1, 3), (1, 10, 1, 3),
+                                   (1, 5, 1, 4), #(1, 8, 1, 4), (1, 9, 1, 4), (1, 10, 1, 4),
+                                  ],
+                "alpha": [5e-6, 5e-7, 5e-8, 5e-9, 5e-10, 5e-11],
                 "normalize_columns": False,
                 "verbose": False,
                 "constraint_lhs": C,
                 "constraint_rhs": d,
+                "initial_guess": initial_guess,
             }
         }
 
         # ===== End of Sindy model configuration =====
 
         estimator.make_grid(feature_library_kwargs, differentiation_method_kwargs, optimizer_kwargs)
-
+        
         X, U = None, None
         gc.collect()
 
         estimator.search_configurations(
-            X_train, X_val, U_train, U_val, dt,
+            X_train, X_val, U_train, U_val, dt, 
+            config_manager.get_param("sindy_params.params_search.is_discrete"),
             config_manager.get_param("sindy_params.params_search.n_processes"),
             config_manager.get_param("sindy_params.params_search.log_file_name"),
             timeout_per_config=config_manager.get_param("sindy_params.params_search.timeout_per_config"),
             **config_manager.get_param("sindy_params.constraints")
         )
         
-        estimator.plot_pareto()
-        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, **config_manager.get_param("sindy_params.constraints"))
+        #estimator.plot_pareto()
+
+        estimator.validate_on_test(X_train, X_test, U_train, U_test, dt, config_manager.get_param("sindy_params.params_search.is_discrete"), **config_manager.get_param("sindy_params.constraints"))
 
         try:
-            raw_libraries = library.libraries
+            libraries = library.libraries
+            #libraries = library.library_functions
         except:
-            raw_libraries = library.library_functions
+            libraries = library
 
         payload = {
-            "global_random_seed": config_manager.get_param("sindy_params.global.random_seed"),
+            "global_random_seed": config_manager.get_param("sindy_params.global.random_seed", 42),
             "dt": dt,
             "dataset_size_ratio": {
                 "train": config_manager.get_param("sindy_params.data_splitting.train_ratio"),
@@ -136,7 +225,7 @@ def sindy_main(config_manager: ConfigManager):
                 "filtered_set_names": config_manager.get_param("sindy_params.data_splitting.filtered_set_names")
             } if config_manager.get_param("sindy_params.data_splitting.apply_savgol_filter") else "non-filtered",
             "constraints": config_manager.get_param("sindy_params.constraints"),
-            "library": raw_libraries
+            "library": libraries
         }
 
         estimator.export_data(

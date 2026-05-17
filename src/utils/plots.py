@@ -188,6 +188,8 @@ def plot_compared_trajectories(
         sindy_r2: Optional[float] = None,
         koopman_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
         koopman_r2: Optional[float] = None,
+        koopmanNeural_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+        koopmanNeural_r2: Optional[float] = None,
         linearized_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
         linearized_r2: Optional[float] = None,
         input_signal: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
@@ -222,7 +224,9 @@ def plot_compared_trajectories(
         if linearized_trajectory is not None:
             plt.plot(time_vector, linearized_trajectory[:, i], "r--", label=f"Linear simulated data ({linearized_r2 * 100:0.3f}$\\%$)")
         if koopman_trajectory is not None:
-            plt.plot(time_vector, koopman_trajectory[:, i], "g--", label=f"Koopman simulated data ({koopman_r2 * 100:0.3f}$\\%$)")
+            plt.plot(time_vector, koopman_trajectory[:, i], "g--", label=f"Koopman EDMD simulated data ({koopman_r2 * 100:0.3f}$\\%$)")
+        if koopmanNeural_trajectory is not None:
+            plt.plot(time_vector, koopmanNeural_trajectory[:, i], "b--", label=f"Koopman NN simulated data ({koopmanNeural_r2 * 100:0.3f}$\\%$)")
         plt.ylabel(f"$x_{i}$")
         plt.legend()
         if i == 0:
