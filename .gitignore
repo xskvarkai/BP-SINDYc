@@ -205,6 +205,8 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-
 # VS code stuff
 .vscode
+
+# iOS stuff
+.DS_Store
