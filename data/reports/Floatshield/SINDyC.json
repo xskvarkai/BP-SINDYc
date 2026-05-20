@@ -1,0 +1,142 @@
+{
+     "best_result": {
+          "configuration": {
+               "differentiation_method": null,
+               "optimizer": "MIOSR(alpha=0.005,\n      constraint_lhs=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0...\n      constraint_rhs=array([1., 1.]), group_sparsity=(1, 8, 1, 10),\n      initial_guess=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.]]),\n      regression_timeout=180, target_sparsity=42)",
+               "feature_library": "FixedWeakPDELibrary(H_xt=array([1.]), K=30,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_constant at 0x7f89d8bd3420>,\n                                                                        <function name_x_fun at 0x7f89d8bd0680>,\n                                                                        <function name_x2_squared at 0x7f89d89de660>,\n                                                                        <function name_u0_squared at 0x7f89d89de7a0>,\n                                                                        <function name_x2_x3 at 0x7f89d89de8e0>,\n                                                                        <function name_Be...\n                                                                           <function lift at 0x7f89d89df240>,\n                                                                           <function lift_lower at 0x7f89d89df380>,\n                                                                           <function drag at 0x7f89d89df4c0>,\n                                                                           <function drag_cross_term at 0x7f89d89df600>,\n                                                                           <function x0_x2_x3 at 0x7f89d89ded40>,\n                                                                           <function coupling_x0_dx3 at 0x7f89d89dec00>]),\n                    multiindices=[], p=2,\n                    spatiotemporal_grid=AxesArray([[0.00000e+00],\n           [2.50000e-02],\n           [5.00000e-02],\n           ...,\n           [1.09925e+02],\n           [1.09950e+02],\n           [1.09975e+02]], shape=(4400, 1)))"
+          },
+          "random_seed": 199657689,
+          "equations": [
+               " 1.00000000 x1",
+               "-0.58229031 1 +  0.02531806 x0 + -0.12584409 x1 + -0.62610113 x2 +  2.49294849 x3 +  0.59845037 u0^2 + -0.17208295 x0^3 + -0.50110827 x1 |x1|",
+               " 1.00000000 x3",
+               "-0.22066505 1 +  0.00531451 x0 + -0.06755087 x1 + -0.67233179 x2 + -0.17082716 x3 +  0.22653077 u0^2 + -0.02516547 x0^3 + -0.00733645 x0^2 x1 + -0.01287495 x2 |x2| +  0.07602249 x1 |x1|"
+          ],
+          "r2_score": 0.23918,
+          "rmse": 0.0375,
+          "complexity": "20",
+          "aic": -14400.327546480416,
+          "index": 7940,
+          "test_metrics": {
+               "rmse": 0.05066,
+               "r2": 0.17852,
+               "simulation_length": 2199
+          }
+     },
+     "pareto_front": [
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "MIOSR(alpha=0.005,\n      constraint_lhs=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0...\n      constraint_rhs=array([1., 1.]), group_sparsity=(1, 8, 1, 10),\n      initial_guess=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.]]),\n      regression_timeout=180, target_sparsity=42)",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([1.]), K=30,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_constant at 0x7f89d8bd3420>,\n                                                                        <function name_x_fun at 0x7f89d8bd0680>,\n                                                                        <function name_x2_squared at 0x7f89d89de660>,\n                                                                        <function name_u0_squared at 0x7f89d89de7a0>,\n                                                                        <function name_x2_x3 at 0x7f89d89de8e0>,\n                                                                        <function name_Be...\n                                                                           <function lift at 0x7f89d89df240>,\n                                                                           <function lift_lower at 0x7f89d89df380>,\n                                                                           <function drag at 0x7f89d89df4c0>,\n                                                                           <function drag_cross_term at 0x7f89d89df600>,\n                                                                           <function x0_x2_x3 at 0x7f89d89ded40>,\n                                                                           <function coupling_x0_dx3 at 0x7f89d89dec00>]),\n                    multiindices=[], p=2,\n                    spatiotemporal_grid=AxesArray([[0.00000e+00],\n           [2.50000e-02],\n           [5.00000e-02],\n           ...,\n           [1.09925e+02],\n           [1.09950e+02],\n           [1.09975e+02]], shape=(4400, 1)))"
+               },
+               "random_seed": 199657689,
+               "equations": [
+                    " 1.00000000 x1",
+                    "-0.58229031 1 +  0.02531806 x0 + -0.12584409 x1 + -0.62610113 x2 +  2.49294849 x3 +  0.59845037 u0^2 + -0.17208295 x0^3 + -0.50110827 x1 |x1|",
+                    " 1.00000000 x3",
+                    "-0.22066505 1 +  0.00531451 x0 + -0.06755087 x1 + -0.67233179 x2 + -0.17082716 x3 +  0.22653077 u0^2 + -0.02516547 x0^3 + -0.00733645 x0^2 x1 + -0.01287495 x2 |x2| +  0.07602249 x1 |x1|"
+               ],
+               "r2_score": 0.23918,
+               "rmse": 0.0375,
+               "complexity": "20",
+               "aic": -14400.327546480416,
+               "index": 7940,
+               "test_metrics": {
+                    "rmse": 0.05066,
+                    "r2": 0.17852,
+                    "simulation_length": 2199
+               }
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "MIOSR(alpha=0.0001,\n      constraint_lhs=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0.,...\n      constraint_rhs=array([1., 1.]), group_sparsity=(1, 8, 1, 9),\n      initial_guess=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.]]),\n      regression_timeout=180, target_sparsity=42)",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([1.5]), K=30,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_constant at 0x7f89d8bd3420>,\n                                                                        <function name_x_fun at 0x7f89d8bd0680>,\n                                                                        <function name_x2_squared at 0x7f89d89de660>,\n                                                                        <function name_u0_squared at 0x7f89d89de7a0>,\n                                                                        <function name_x2_x3 at 0x7f89d89de8e0>,\n                                                                        <function name_B...\n                                                                           <function lift at 0x7f89d89df240>,\n                                                                           <function lift_lower at 0x7f89d89df380>,\n                                                                           <function drag at 0x7f89d89df4c0>,\n                                                                           <function drag_cross_term at 0x7f89d89df600>,\n                                                                           <function x0_x2_x3 at 0x7f89d89ded40>,\n                                                                           <function coupling_x0_dx3 at 0x7f89d89dec00>]),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.00000e+00],\n           [2.50000e-02],\n           [5.00000e-02],\n           ...,\n           [1.09925e+02],\n           [1.09950e+02],\n           [1.09975e+02]], shape=(4400, 1)))"
+               },
+               "random_seed": 4083277101,
+               "equations": [
+                    " 1.00000000 x1",
+                    "-0.35749072 1 +  0.02965007 x0 + -0.32309465 x1 +  2.99291476 x3 +  0.36762141 u0^2 + -0.25640323 x0^3 + -4.91319180 x0 x1^2 +  3.19761450 x1 |x1|",
+                    " 1.00000000 x3",
+                    "-0.43852947 1 +  0.00528650 x0 + -1.15650656 x2 + -0.48873820 x3 +  0.44927149 u0^2 +  0.17552132 x0 x1^2 + -0.44103967 x0^2 x1 +  0.47487938 x1 |x1| + -0.38471038 x2 x1"
+               ],
+               "r2_score": 0.45487,
+               "rmse": 0.03865,
+               "complexity": "19",
+               "aic": -14269.59109835257,
+               "index": 11156
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "MIOSR(alpha=0.001,\n      constraint_lhs=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0...\n      constraint_rhs=array([1., 1.]), group_sparsity=(1, 7, 1, 9),\n      initial_guess=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.]]),\n      regression_timeout=180, target_sparsity=42)",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([1.]), K=50,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_constant at 0x7f89d8bd3420>,\n                                                                        <function name_x_fun at 0x7f89d8bd0680>,\n                                                                        <function name_x2_squared at 0x7f89d89de660>,\n                                                                        <function name_u0_squared at 0x7f89d89de7a0>,\n                                                                        <function name_x2_x3 at 0x7f89d89de8e0>,\n                                                                        <function name_Be...\n                                                                           <function lift at 0x7f89d89df240>,\n                                                                           <function lift_lower at 0x7f89d89df380>,\n                                                                           <function drag at 0x7f89d89df4c0>,\n                                                                           <function drag_cross_term at 0x7f89d89df600>,\n                                                                           <function x0_x2_x3 at 0x7f89d89ded40>,\n                                                                           <function coupling_x0_dx3 at 0x7f89d89dec00>]),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.00000e+00],\n           [2.50000e-02],\n           [5.00000e-02],\n           ...,\n           [1.09925e+02],\n           [1.09950e+02],\n           [1.09975e+02]], shape=(4400, 1)))"
+               },
+               "random_seed": 3560907604,
+               "equations": [
+                    " 1.00000000 x1",
+                    "-0.64808815 1 +  0.04649280 x0 + -0.11286113 x1 + -1.02454234 x2 +  3.07764489 x3 +  0.66457986 u0^2 + -0.33842382 x0^3",
+                    " 1.00000000 x3",
+                    "-0.40427249 1 +  0.00969521 x0 + -1.21876124 x2 + -0.32222222 x3 +  0.41498318 u0^2 + -0.04361344 x0^3 + -0.24037017 x0^2 x1 + -0.00470337 x2 |x2| +  0.06919730 x1 |x1|"
+               ],
+               "r2_score": 0.4028,
+               "rmse": 0.04063,
+               "complexity": "18",
+               "aic": -14051.058564498027,
+               "index": 14759
+          },
+          {
+               "configuration": {
+                    "differentiation_method": null,
+                    "optimizer": "MIOSR(alpha=0.0005,\n      constraint_lhs=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0., 0., 0.,...\n      constraint_rhs=array([1., 1.]), group_sparsity=(1, 6, 1, 6),\n      initial_guess=array([[0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.],\n       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,\n        0., 0., 0., 0.]]),\n      regression_timeout=180, target_sparsity=42)",
+                    "feature_library": "FixedWeakPDELibrary(H_xt=array([4.]), K=10,\n                    differentiation_method=FiniteDifference(),\n                    function_library=FixedCustomLibrary(function_names=[<function name_constant at 0x7f89d8bd3420>,\n                                                                        <function name_x_fun at 0x7f89d8bd0680>,\n                                                                        <function name_x2_squared at 0x7f89d89de660>,\n                                                                        <function name_u0_squared at 0x7f89d89de7a0>,\n                                                                        <function name_x2_x3 at 0x7f89d89de8e0>,\n                                                                        <function name_Be...\n                                                                           <function lift at 0x7f89d89df240>,\n                                                                           <function lift_lower at 0x7f89d89df380>,\n                                                                           <function drag at 0x7f89d89df4c0>,\n                                                                           <function drag_cross_term at 0x7f89d89df600>,\n                                                                           <function x0_x2_x3 at 0x7f89d89ded40>,\n                                                                           <function coupling_x0_dx3 at 0x7f89d89dec00>]),\n                    multiindices=[], p=5,\n                    spatiotemporal_grid=AxesArray([[0.00000e+00],\n           [2.50000e-02],\n           [5.00000e-02],\n           ...,\n           [1.09925e+02],\n           [1.09950e+02],\n           [1.09975e+02]], shape=(4400, 1)))"
+               },
+               "random_seed": 3158545029,
+               "equations": [
+                    " 1.00000000 x1",
+                    "-0.69579337 1 + -0.23683650 x1 +  2.22950755 x3 +  0.71402055 u0^2 + -0.13957896 x0^3 + -2.89875896 x0 x1^2",
+                    " 1.00000000 x3",
+                    "-0.33018735 x2 + -0.14927153 x3 + -0.09497912 u0 +  0.09653505 u0^2 +  0.10707456 x0 x1^2 + -0.16857877 x0^2 x1"
+               ],
+               "r2_score": 0.12468,
+               "rmse": 0.04128,
+               "complexity": "14",
+               "aic": -13990.048602645742,
+               "index": 7704
+          }
+     ],
+     "user_data": {
+          "global_random_seed": 100,
+          "dt": 0.025,
+          "dataset_size_ratio": {
+               "train": 8800,
+               "test": 2200,
+               "val": 2200
+          },
+          "perturb_input_signal_ratio": null,
+          "multiple_trajectories": {
+               "num_samples_per_trajectory": 4400,
+               "num_trajectories": 12
+          },
+          "signal_loading_prefiltering": "non-filtered",
+          "signal_splitting_prefiltering": {
+               "savgol_window_length": 51,
+               "savgol_polyorder": 2,
+               "filtered_set_names": [
+                    "val",
+                    "test"
+               ]
+          },
+          "constraints": {
+               "sim_steps": 2200,
+               "coeff_precision": 8,
+               "max_complexity": 200,
+               "max_coeff": 100000000,
+               "min_r2": 0.0,
+               "max_state": 100000,
+               "ksteps": null
+          },
+          "library": "FixedCustomLibrary(function_names=[<function name_constant at 0x7f89d8bd3420>,\n                                   <function name_x_fun at 0x7f89d8bd0680>,\n                                   <function name_x2_squared at 0x7f89d89de660>,\n                                   <function name_u0_squared at 0x7f89d89de7a0>,\n                                   <function name_x2_x3 at 0x7f89d89de8e0>,\n                                   <function name_Bernoulli at 0x7f89d89deb60>,\n                                   <function name_coanda at 0x7f89d89df1a0>,\n                                   <function name_nonlinear_connection at 0x...\n                                      <function coanda at 0x7f89d89df100>,\n                                      <function nonlinear_connection at 0x7f89d89de980>,\n                                      <function R_DS at 0x7f89d89dee80>,\n                                      <function van_der_pol at 0x7f89d89defc0>,\n                                      <function lift at 0x7f89d89df240>,\n                                      <function lift_lower at 0x7f89d89df380>,\n                                      <function drag at 0x7f89d89df4c0>,\n                                      <function drag_cross_term at 0x7f89d89df600>,\n                                      <function x0_x2_x3 at 0x7f89d89ded40>,\n                                      <function coupling_x0_dx3 at 0x7f89d89dec00>])"
+     }
+}

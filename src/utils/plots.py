@@ -42,7 +42,6 @@ def plot_trajectory(
     Plots the trajectory of the system states and optionally the input signal and comparison trajectory.
     """
 
-
     num_state_vars = trajectory.shape[1]
 
     total_plots = num_state_vars
@@ -53,8 +52,9 @@ def plot_trajectory(
         total_plots += num_input_vars
 
     fig_width_in, fig_height_in = 12, 3 * total_plots
+    total_subplots = total_plots / 2 if total_plots > 3 else 1
     if exportable:
-        fig_width_in, fig_height_in = _prepare_export()
+        fig_width_in, fig_height_in = _prepare_export((total_subplots, 1))
 
     fig = plt.figure(figsize=(fig_width_in, fig_height_in))
 
@@ -188,6 +188,8 @@ def plot_compared_trajectories(
         sindy_r2: Optional[float] = None,
         koopman_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
         koopman_r2: Optional[float] = None,
+        koopmanNeural_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
+        koopmanNeural_r2: Optional[float] = None,
         linearized_trajectory: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
         linearized_r2: Optional[float] = None,
         input_signal: Optional[Union[np.ndarray, List[np.ndarray]]] = None,
@@ -222,7 +224,9 @@ def plot_compared_trajectories(
         if linearized_trajectory is not None:
             plt.plot(time_vector, linearized_trajectory[:, i], "r--", label=f"Linear simulated data ({linearized_r2 * 100:0.3f}$\\%$)")
         if koopman_trajectory is not None:
-            plt.plot(time_vector, koopman_trajectory[:, i], "g--", label=f"Koopman simulated data ({koopman_r2 * 100:0.3f}$\\%$)")
+            plt.plot(time_vector, koopman_trajectory[:, i], "g--", label=f"Koopman EDMD simulated data ({koopman_r2 * 100:0.3f}$\\%$)")
+        if koopmanNeural_trajectory is not None:
+            plt.plot(time_vector, koopmanNeural_trajectory[:, i], "b--", label=f"Koopman NN simulated data ({koopmanNeural_r2 * 100:0.3f}$\\%$)")
         plt.ylabel(f"$x_{i}$")
         plt.legend()
         if i == 0:

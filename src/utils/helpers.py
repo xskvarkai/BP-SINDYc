@@ -9,11 +9,11 @@ def compute_time_vector(x: np.ndarray|List[np.ndarray], dt: float):
     Computes time vector suitable for data shape.
     """
     if isinstance(x, list):
-        time_vec = (np.arange(x[0].shape[0]) * dt)
+        time_vec = np.arange(x[0].shape[0]) * dt
     elif isinstance(x, int):
-        time_vec = (np.arange(x) * dt)
+        time_vec = np.arange(x) * dt
     else:
-        time_vec = (np.arange(x.shape[0]) * dt)
+        time_vec = np.arange(x.shape[0]) * dt
 
     return time_vec
 

@@ -142,11 +142,14 @@ def name_y_cos_xmy(x_str, y_str, z_str): return f"{y_str} * cos({z_str} - {y_str
 # ----- ----- ----- ----- Absolutna hodnota ----- ----- ----- -----
 def abs_x(x): return np.abs(x)
 def x_abs_x(x): return x * np.abs(x) # x1 * |x1|
+def y_abs_x(x, y): return y * np.abs(x) # u0 * |x1|
+def x_abs_y(x, y): return x * np.abs(y) # u0 * |x1|
 def x_y_abs_z(x, y, z): return x * y * np.abs(z) # u0 * x1 * |x1|
 def x_squared_abs_y(x, y): return (x ** 2) * np.abs(y) # x1^2 * |x1| alebo u0^2 * |x1|
 
 def name_abs_x(x_str): return f"|{x_str}|"
 def name_x_abs_x(x_str): return f"{x_str} |{x_str}|"
+def name_y_abs_x(x_str, y_str): return f"{y_str} |{x_str}|"
 def name_x_y_abs_z(x_str, y_str, z_str): return f"{x_str} {y_str} |{z_str}|"
 def name_x_squared_abs_y(x_str, y_str): return f"{x_str}^2 |{y_str}|"
 
@@ -397,18 +400,44 @@ def name_x_y_cubed_abs_y(x_str, y_str): return f"{x_str} {y_str}^3 |{y_str}|"
 def name_x_y_z_abs_z(x_str, y_str, z_str): return f"{x_str} {y_str} {z_str} |{z_str}|"
 
 # Pre FloatShield
-def float_sqrt(x): return np.sqrt(np.abs(x + 1.5625))
-def name_float_sqrt(x_str): return f"sqrt(|{x_str} + 1.5625|)"
+def x2_squared(x0, x1, x2, x3, u0): return x2**2
+def name_x2_squared(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x2_str}^2"
 
-def u_sqrt_z_g(x, y, z, u): return u * float_sqrt(z)
-def y_sqrt_z_g(x, y, z, u): return y * float_sqrt(z)
-def z_sqrt_z_g(x, y, z, u): return z * float_sqrt(z)
-def squared_u_sqrt_z_g(x, y, z, u): return u**2 * float_sqrt(z)
+def u0_squared(x0, x1, x2, x3, u0): return u0**2
+def name_u0_squared(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{u0_str}^2"
 
-def name_u_sqrt_z_g(x_str, y_str, z_str, u_str): return f"{u_str} " + name_float_sqrt(z_str)
-def name_y_sqrt_z_g(x_str, y_str, z_str, u_str): return f"{y_str} " + name_float_sqrt(z_str)
-def name_z_sqrt_z_g(x_str, y_str, z_str, u_str): return f"{z_str} " + name_float_sqrt(z_str)
-def name_squared_u_sqrt_z_g(x_str, y_str, z_str, u_str): return f"{u_str}^2 " + name_float_sqrt(z_str)
+def x2_x3(x0, x1, x2, x3, u0): return x2 * x3
+def name_x2_x3(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x2_str} {x3_str}"
 
-def signum(x): return np.sign(x)
-def name_signum(x_str): return f"sign({x_str})"
+def nonlinear_connection(x0, x1, x2, x3, u0): return x0 * x1**2
+def name_nonlinear_connection(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x0_str} {x1_str}^2"
+
+def Bernoulli(x0, x1, x2, x3, u0): return x0 * x2**2
+def name_Bernoulli(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x0_str} {x2_str}^2"
+
+def coupling_x0_dx3(x0, x1, x2, x3, u0): return x0**2 * x2**2
+def name_coupling_x0_dx3(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x0_str}^2 {x2_str}^2"
+
+def x0_x2_x3(x0, x1, x2, x3, u0): return x0 * x2 * x3
+def name_x0_x2_x3(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x0_str} {x2_str} {x3_str}"
+
+def R_DS(x0, x1, x2, x3, u0): return u0 * x2**2
+def name_R_DS(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{u0_str} {x2_str}^2"
+
+def van_der_pol(x0, x1, x2, x3, u0): return x0**2 * x1
+def name_van_der_pol(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x0_str}^2 {x1_str}"
+
+def coanda(x0, x1, x2, x3, u0): return x0**3
+def name_coanda(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x0_str}^3"
+
+def lift(x0, x1, x2, x3, u0): return x2 * np.abs(x2)
+def name_lift(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x2_str} |{x2_str}|"
+
+def lift_lower(x0, x1, x2, x3, u0): return x0 * x2 * np.abs(x2)
+def name_lift_lower(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x0_str} {x2_str} |{x2_str}|"
+
+def drag(x0, x1, x2, x3, u0): return x1 * np.abs(x1)
+def name_drag(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x1_str} |{x1_str}|"
+
+def drag_cross_term(x0, x1, x2, x3, u0): return x2 * x1
+def name_drag_cross_term(x0_str, x1_str, x2_str, x3_str, u0_str): return f"{x2_str} {x1_str}"

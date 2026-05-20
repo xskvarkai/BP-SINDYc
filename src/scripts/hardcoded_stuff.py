@@ -7,7 +7,7 @@ from sklearn.preprocessing import Normalizer
 
 from data_ingestion.data_loader import DataLoader
 from utils.config_manager import ConfigManager
-from utils.plots import plot_pareto, plot_noisy_filtered_trajectory
+from utils.plots import plot_pareto, plot_noisy_filtered_trajectory, plot_trajectory
 from utils.helpers import compute_time_vector, rk4_integrator
 from data_processing.state_estimator import SindyUKFEstimator
 
@@ -79,6 +79,12 @@ def Aeroshield_plotting_pareto_from_results():
 
     plot_pareto(errs, spars, exportable=True)
 
+def Floatshield_plotting_pareto_from_results():
+    errs = [0.0375, 0.03865, 0.04063, 0.04128, 0.04728, 0.05062, 0.06571]
+    spars = [20, 19, 18, 14, 17, 14, 13]
+
+    plot_pareto(errs, spars, exportable=True)
+
 def Floatshield_load_and_deriv():
     config_manager = ConfigManager("config")
 
@@ -96,11 +102,11 @@ def Floatshield_load_and_deriv():
             verbose=False
         )
 
-        X_val, U_val, dt = loader.load_csv_data(
+        X_val, U_val, _ = loader.load_csv_data(
             "Floatshield_val",
             [0, 1],
             None,
-            0.025,
+            dt,
             [2],
             apply_savgol_filter=True,
             savgol_polyorder=2,
@@ -108,101 +114,149 @@ def Floatshield_load_and_deriv():
             plot_data=False,
             verbose=False
         )
-      
+
+        X_test, U_test, _ = loader.load_csv_data(
+            "Floatshield_test",
+            [0, 1],
+            None,
+            dt,
+            [2],
+            apply_savgol_filter=True,
+            savgol_polyorder=2,
+            savgol_window_length=71,
+            plot_data=False,
+            verbose=False
+        )
+    # Rozdelenie stavu
     omega = X[:, 1]
     omega_val = X_val[:, 1]
+    omega_test = X_test[:, 1]
+
     X = X[:, 0]
     X_val = X_val[:, 0]
+    X_test = X_test[:, 0]
 
-    r = 0.02 * 2 * np.pi
-    omega = omega * r / 60
-    omega_val = omega_val * r / 60
+    # Orezenie extremov a chyb snimaca
+    X = np.clip(X, 0, 321.74) / 1000.0  # Meter
+    U = np.clip(U, 0, 100) * 0.033      # Volt (ak 100% = 3.3V)
+    omega = np.clip(omega, 0, None) * (2 * np.pi / 60) # Rad/s
 
-    X_max = np.max(X)
-    U_max = np.max(U)
-    omega_max = np.max(omega)
+    X_val = np.clip(X_val, 0, 321.74) / 1000.0  # Meter
+    U_val = np.clip(U_val, 0, 100) * 0.033      # Volt (ak 100% = 3.3V)
+    omega_val = np.clip(omega_val, 0, None) * (2 * np.pi / 60) # Rad/s
+
+    X_test = np.clip(X_test, 0, 321.74) / 1000.0  # Meter
+    U_test = np.clip(U_test, 0, 100) * 0.033      # Volt (ak 100% = 3.3V)
+    omega_test = np.clip(omega_test, 0, None) * (2 * np.pi / 60) # Rad/s
+
+    X_max = np.max(np.abs(X))
+    U_max = np.max(np.abs(U))
+    omega_max = np.max(np.abs(omega))
 
     X = X / X_max # Prevod na precenta
-    X_dot = np.gradient(X, dt, axis=0)
-    X_val = X_val / X_max # Prevod na precenta
-    X_dot_val = np.gradient(X_val, dt, axis=0)
-
-    X = savgol_filter(X, 71, 2, axis=0)
-    X_dot = savgol_filter(X_dot, 71, 2, axis=0)
-    X_val = savgol_filter(X_val, 71, 2, axis=0)
-    X_dot_val = savgol_filter(X_dot_val, 71, 2, axis=0)
-
-    X_dot_dot = np.gradient(X_dot, dt, axis=0)
-    X_dot_dot_val = np.gradient(X_dot_val, dt, axis=0)
+    X_val = X_val / X_max
+    X_test = X_test / X_max
 
     U = U / U_max # Prevod na precenta
     U_val = U_val / U_max
-    
-    omega = omega / omega_max
+    U_test = U_test / U_max
+
+    omega = omega / omega_max # Prevod na precenta
     omega_val = omega_val / omega_max
-    
-    omega = savgol_filter(omega, 21, 2, axis=0)
-    omega_val = savgol_filter(omega_val, 21, 2, axis=0)
-    omega_dot = np.gradient(omega, dt, axis=0)
+    omega_test = omega_test / omega_max
+
+    # Vypocet a odstranenie offsetu
+    x_offset = np.mean(X)
+    omega_offset = np.mean(omega)
+
+    x_offset_val = x_offset
+    omega_offset_val = omega_offset
+    x_offset_test = x_offset
+    omega_offset_test = omega_offset
+
+    X = X - x_offset # Odstranenie offsetu
+    X_val = X_val - x_offset_val
+    X_test = X_test - x_offset_test
+
+    omega = omega - omega_offset # Odstranenie offsetu
+    omega_val = omega_val - omega_offset_val
+    omega_test = omega_test - omega_offset_test
+
+    X_dot = np.gradient(X, dt, axis=0)
+    X_dot_val = np.gradient(X_val, dt, axis=0)
+    X_dot_test = np.gradient(X_test, dt, axis=0)
+
+    omega_dot = np.gradient(omega, dt, axis=0)            
     omega_dot_val = np.gradient(omega_val, dt, axis=0)
-
-    tau = 0.14
-
-    def PT1_filter(signal, tau):
-        alpha = np.exp(-dt/tau)
-        signal_real = np.zeros_like(signal)
-        signal_real[0] = signal[0]
-        for k in range(1, len(signal)):
-            signal_real[k] = alpha*signal_real[k-1] + (1-alpha)*signal[k]
-
-        return signal_real
-
-    U = PT1_filter(U, tau)
-    U_val = PT1_filter(U_val, tau)
+    omega_dot_test = np.gradient(omega_test, dt, axis=0)
 
     df_train = pd.DataFrame({
         "x": X.flatten(),
         "x_dot": X_dot.flatten(),
-        "x_dot_dot": X_dot_dot.flatten(),
         "omega": omega.flatten(),
         "omega_dot": omega_dot.flatten(),
         "u": U.flatten(),
         "X_max": X_max,
         "u_max": U_max,
-        "omega_max": omega_max
+        "omega_max": omega_max,
+        "x_offset": x_offset,
+        "omega_offset": omega_offset
     })
 
     df_val = pd.DataFrame({
         "x": X_val.flatten(),
         "x_dot": X_dot_val.flatten(),
-        "x_dot_dot": X_dot_dot_val.flatten(),
         "omega": omega_val.flatten(),
         "omega_dot": omega_dot_val.flatten(),
         "u": U_val.flatten(),
         "X_max": X_max,
         "u_max": U_max,
-        "omega_max": omega_max
+        "omega_max": omega_max,
+        "x_offset": x_offset_val,
+        "omega_offset": omega_offset_val
     })
 
+    df_test = pd.DataFrame({
+        "x": X_test.flatten(),
+        "x_dot": X_dot_test.flatten(),
+        "omega": omega_test.flatten(),
+        "omega_dot": omega_dot_test.flatten(),
+        "u": U_test.flatten(),
+        "X_max": X_max,
+        "u_max": U_max,
+        "omega_max": omega_max,
+        "x_offset": x_offset_test,
+        "omega_offset": omega_offset_test
+    })
 
     def add_delays(df: pd.DataFrame, delays: int=3, delay_indices: list=None):
         # Pridáme posunuté hodnoty pre napätie (u)
         for i in range(1, delays + 1):
+
+            if delay_indices is not None and i in delay_indices:
+                df[f'omega_k-{i}'] = df['omega'].shift(i)
+            elif delay_indices is None:
+                df[f'omega_k-{i}'] = df['omega'].shift(i)
+
+            if delay_indices is not None and i in delay_indices:
+                df[f'omega_dot_k-{i}'] = df['omega_dot'].shift(i)
+            elif delay_indices is None:
+                df[f'omega_dot_k-{i}'] = df['omega_dot'].shift(i)
+
             if delay_indices is not None and i in delay_indices:
                 df[f'u_k-{i}'] = df['u'].shift(i)
             elif delay_indices is None:
                 df[f'u_k-{i}'] = df['u'].shift(i)
             
-            # Ak chceš robiť čistý NARX (bez derivácií), odkomentuj aj toto pre polohu:
-            # df[f'x_k-{i}'] = df['x'].shift(i)
-            
         # Funkcia shift() vytvorí na prvých 'delays' riadkoch hodnoty NaN (chýbajúce dáta).
         # dropna() tieto neúplné riadky bezpečne zahodí pre všetky stĺpce naraz.
         return df.dropna()
 
-    df_train = add_delays(df_train, 8, [int(tau/dt)])
-    df_val = add_delays(df_val, 8, [int(tau/dt)])
+    #df_train = add_delays(df_train, 150)
+    #df_val = add_delays(df_val, 150)
+    #df_test = add_delays(df_test, 150)
 
+    #df_final = pd.concat([df_train, df_val, df_test], ignore_index=True)
     df_final = pd.concat([df_train, df_val], ignore_index=True)
 
     file_path = "data/processed/Floatshield_with_deriv.csv"
