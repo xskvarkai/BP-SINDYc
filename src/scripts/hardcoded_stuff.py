@@ -79,6 +79,12 @@ def Aeroshield_plotting_pareto_from_results():
 
     plot_pareto(errs, spars, exportable=True)
 
+def Floatshield_plotting_pareto_from_results():
+    errs = [0.0375, 0.03865, 0.04063, 0.04128, 0.04728, 0.05062, 0.06571]
+    spars = [20, 19, 18, 14, 17, 14, 13]
+
+    plot_pareto(errs, spars, exportable=True)
+
 def Floatshield_load_and_deriv():
     config_manager = ConfigManager("config")
 

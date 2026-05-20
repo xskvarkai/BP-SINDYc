@@ -200,9 +200,13 @@ class TimeSeriesSplitter:
 
         if plot_data: # Plot data if requested
             time_vector = compute_time_vector(self.X_raw, self.dt)
-            plot_trajectory(time_vector[:train_end_index], X_train, input_signal=U_train, title="Train Data")
-            plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=U_val, title="Validation Data") if X_val is not None else None
-            plot_trajectory(time_vector[val_end_index:], X_test, input_signal=U_test, title="Test Data") if X_test is not None else None
+            #plot_trajectory(time_vector[:train_end_index], X_train, input_signal=U_train, title="Train Data")
+            #plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=U_val, title="Validation Data") if X_val is not None else None
+            #plot_trajectory(time_vector[val_end_index:], X_test, input_signal=U_test, title="Test Data") if X_test is not None else None
+
+            plot_trajectory(time_vector[:train_end_index], X_train, input_signal=U_train, exportable=True)
+            plot_trajectory(time_vector[train_end_index:val_end_index], X_val, input_signal=U_val, exportable=True) if X_val is not None else None
+            plot_trajectory(time_vector[val_end_index:], X_test, input_signal=U_test, exportable=True) if X_test is not None else None
 
         return X_train, X_val, X_test, U_train, U_val, U_test
 

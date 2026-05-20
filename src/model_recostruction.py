@@ -17,21 +17,15 @@ def sindy_model_reconstruction(config_manager: ConfigManager) -> DynamicSystem:
         u0 = input_vector
         epsilon = 1e-9
 
-        dx0 = 1.00000 * x1
-        dx1 = 14.93343 * x1 + -16.49181 * x0**2 * x1 + -0.37829 * x0**2 * u0 + -19.87901 * x1**2 * u0 + -0.25044 * x0 * np.abs(x0) +  20.14823 * x1 * np.abs(x1) +  0.61402 * u0 * np.abs(u0)
-        dx2 = 1.00000 * x3
-        dx3 = -0.49493 * x3 +  0.32221 * u0**2 + -0.33940 * x2**4
+        dx0 = 1.00000000 * x1
+        dx1 = -0.35749072 * 1 + 0.02965007 * x0 + -0.32309465 * x1 + 2.99291476 * x3 + 0.36762141 * u0**2 + -0.25640323 * x0**3 + -4.91319180 * x0 * x1**2 + 3.19761450 * x1 * np.abs(x1)
+        dx2 = 1.00000000 * x3
+        dx3 = -0.43852947 * 1 + 0.00528650 * x0 + -1.15650656 * x2 + -0.48873820 * x3 + 0.44927149 * u0**2 + 0.17552132 * x0 * x1**2 + -0.44103967 * x0**2 * x1 + 0.47487938 * x1 * np.abs(x1) + -0.38471038 * x2 * x1
 
         return np.array([dx0, dx1, dx2, dx3])
 
     # Inicializacia systemu
-    model = DynamicSystem(config_manager, ode)
-
-    return model
-
-if __name__ == "__main__":
-    config_manager = ConfigManager("config")
-    sindy_model = sindy_model_reconstruction(config_manager)
+    sindy_model = DynamicSystem(config_manager, ode)
 
     np.random.seed(42)
     random_number_generator = np.random.RandomState(42)
@@ -39,7 +33,7 @@ if __name__ == "__main__":
     with DataLoader(config_manager) as loader:
         X, U, dt = loader.load_csv_data(
             file_name="Floatshield_with_deriv",
-            state_column_indices=[2, 3],
+            state_column_indices=[0, 1, 2, 3],
             time=0.025,
             control_input_column_indices=[4],
             verbose=False,
@@ -48,8 +42,8 @@ if __name__ == "__main__":
 
     with TimeSeriesSplitter(config_manager, X, dt, U) as splitter:
         X_train, X_val, X_test, U_train, U_val, U_test = splitter.split_data(
-            train_ratio=8750,
-            val_ratio=4350,
+            train_ratio=8800,
+            val_ratio=2200,
             perturb_input_signal_ratio=None,
             rng=random_number_generator,
             apply_savgol_filter=True,
@@ -93,7 +87,7 @@ if __name__ == "__main__":
     else:
         x_sim, _, _, t_sim = sindy_model.simulate(dt=dt, input_signal=U_test, initial_conditions=X_test[0])
 
-    rmse, r2 = evaluate_simulation(X_test[:, 1], x_sim[:, 1], dt)
+    rmse, r2 = evaluate_simulation(X_test, x_sim, dt)
     print(f"Recostructed model state R2 score: {r2:.3%}")
     print(f"Recostructed model state RMSE: {rmse}")
 
@@ -106,4 +100,8 @@ if __name__ == "__main__":
         "u": U[:].reshape(-1, 1).flatten(),
     }
 
-    #sindy_model.export_data(data)
+    return sindy_model
+
+if __name__ == "__main__":
+    config_manager = ConfigManager("config")
+    sindy_model_reconstruction(config_manager)

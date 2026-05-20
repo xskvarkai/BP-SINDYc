@@ -369,11 +369,9 @@ class KoopmanNeural(nn.Module):
         """
         Evaluates the trained Koopman model on the test set.
         """
-        # Obnova testovacich dat do Pôvodnej (neškálovanej) podoby z ulozeneho slovnika `self.data`
         x_ref_orig = self.scaler_X.inverse_transform(self.data.get("x_ref"))
         u_ref_orig = self.scaler_U.inverse_transform(self.data.get("u_ref"))
 
-        # Voláme novú simulate metódu, ktorá už očakáva NEškálované dáta a všetko si vyrieši
         x_sim_orig = self.simulate(x_ref_orig, u_ref_orig)
 
         if np.isnan(x_sim_orig).any():
@@ -411,14 +409,10 @@ class KoopmanNeural(nn.Module):
             np.ndarray: Simulated state trajectory (unscaled / original scale).
         """
 
-        # 1. Interne škálovanie dát 
         x_ref_scaled = self.scaler_X.transform(x_ref)
         u_ref_scaled = self.scaler_U.transform(u_ref)
 
-        # 2. Extrakcia počiatočného stavu (x0) z dodaných referenčných stavov 
         x0 = torch.tensor(x_ref_scaled[0], dtype=torch.float32).to(self.device)
-
-        # 3. Vynecháme posledný krok riadenia, keďže simulujeme do dĺžky poľa N
         U_seq = torch.tensor(u_ref_scaled[:-1], dtype=torch.float32).to(self.device)
 
         self.eval()
@@ -434,7 +428,6 @@ class KoopmanNeural(nn.Module):
                 g      = self.dynamics(g, u_curr)
                 predictions.append(self.decode(g))
 
-        # 4. Spojenie tenzorov a odškálovanie naspäť do pôvodnej (fyzikálnej) miery
         x_sim_scaled = torch.cat(predictions, dim=0).cpu().numpy()
         x_sim = self.scaler_X.inverse_transform(x_sim_scaled)
 

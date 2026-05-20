@@ -19,6 +19,7 @@ Projekt je organizovaný do nasledujúcich hlavných adresárov a súborov:
 │   ├── models/
 │   │   ├── base.py
 │   │   ├── koopman_model.py
+│   │   ├── koopman_neural.py
 │   │   ├── sindy_estimator.py
 │   │   └── linearized_model.py
 │   ├── simulation/
@@ -64,6 +65,7 @@ Adresár `data` je rozdelený na tri podadresáre:
 - **`model_recostruction.py`:** Skript sa zameriava na rekonštrukciu SINDy modelu. Nastavuje importy, konfigurácie, načítava a delí dáta, definuje nelineárne funkcie pre SINDy knižnicu a využíva optimalizáciu na identifikáciu riadiacich rovníc.  
 - **`models/base.py`:** Základná trieda `BaseSindyEstimator`, ktorá poskytuje rámec pre konfiguráciu SINDy modelov. Umožňuje dynamické nastavenie metód diferenciácie, optimalizátorov a knižníc funkcií, a generuje všetky možné kombinácie konfigurácií.  
 - **`models/koopman_model.py`:** Trieda `KoopmanModel` pre modelovanie dynamických systémov pomocou Koopman operátora. Zahŕňa škálovanie dát, trénovanie, vyhodnocovanie výkonu, simuláciu a export modelových parametrov. Obsahuje aj metódy pre interpretáciu vlastných čísel.  
+- **`models/koopman_neural.py`:** Trieda `KoopmanNeural` pre modelovanie dynamických systémov pomocou Koopman operátora a neurónových sietí. Zahŕňa škálovanie dát, trénovanie, vyhodnocovanie výkonu, simuláciu a export modelových parametrov. Obsahuje aj metódy pre interpretáciu vlastných čísel. 
 - **`models/sindy_estimator.py`:** Trieda `SindyEstimator` pre odhad SINDy modelov. Spravuje konfigurácie, vykonáva paralelné hľadanie optimálnych modelov s dôrazom na pamäťovú optimalizáciu a vyhodnocuje výsledky. Obsahuje tiež funkcie pre validáciu na testovacích dátach a export dát.  
 - **`run_simulation.py`:** Skript, ktorý inicializuje simuláciu dynamického systému, načítava a spracováva dáta. Definuje model systému a simuluje ho.  
 - **`scripts/sindy_run_configuration.py`:** Funkcia `run_config` pre beh konfigurácie SINDy modelu. Serializuje konfiguráciu, generuje náhodný „random seed“, predspracuje dáta, zostrojí model a vyhodnotí ho pomocou validačných dát. Vráti metriky výkonu a rovnice modelu.  
@@ -84,19 +86,25 @@ Projekt vyžaduje Python 3.x. Závislosti projektu sú uvedené v tabuľke.
 | :--- | :--- |  
 | cvxopt | 1.3.3 |  
 | cvxpy | 1.8.1 |  
+| derivative | 0.6.3 |
+| filterpy | 1.4.5 |
 | gurobipy | 13.0.1 |  
+| joblib | 1.5.3 |
 | matplotlib | 3.10.8 |  
 | numpy | 2.4.0 |  
-| sympy | 1.14.0 |  
+| optht | 0.2.0 |
 | pandas | 2.3.3 |  
 | Pebble | 5.2.0 |  
 | pykoopman | 1.2.1 |  
 | pysindy | 2.1.0 |  
+| pytorch-lightning | 2.6.0 |
 | PyWavelets | 1.9.0 |  
 | PyYAML | 6.0.3 |  
 | scikit-learn | 1.8.0 |  
 | scikit-optimize | 0.10.2 |  
-| scipy | 1.16.3 |  
+| scipy | 1.16.3 | 
+| sympy | 1.14.0 |   
+| torch | 2.11.0 |
 
 ## Použitie  
 

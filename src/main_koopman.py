@@ -63,10 +63,10 @@ def neural_koopman_main(config_manager: ConfigManager) -> KoopmanNeural:
         )
 
     with KoopmanNeural(config_manager, X_train, U_train, X_test, U_test, dt, lifted_dim=6, hidden_dim=32, num_batches=16, rollout_steps=30, lr=5e-5, device='cpu') as koopman_model:
-        koopman_model.train_model(epochs=1200, alpha_rec=1.0, alpha_lin=1.0, alpha_pred=4.0, alpha_multi=1.5, lr_patience=30)
+        koopman_model.train_model(epochs=800, alpha_rec=1.0, alpha_lin=1.0, alpha_pred=4.0, alpha_multi=1.5, patience=30, lr_patience=30)
         koopman_model.evaluate(print_metrics=False, plot=True, u_plot=U_test)
         koopman_model.plot_koopman_spectrum(True)
-        koopman_model.export_data("Aeroshield/Koopman_operator")
+        koopman_model.export_data("Aeroshield/Koopman_NN")
 
         return koopman_model
 
